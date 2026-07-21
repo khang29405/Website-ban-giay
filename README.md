@@ -93,5 +93,5 @@ Khong can npm/build. Mo truc tiep `frontend/html/index.html` bang trinh duyet, h
 ## Quy uoc lam viec nhom
 
 - Nhanh: `main` la nhanh chinh, moi task tao nhanh rieng `feat/SCRUM-xx-...`, merge xong thi xoa nhanh.
-- Commit: `type(scope): SCRUM-xx mo ta ngan` (vd `feat(auth): SCRUM-17 dang nhap JWT`), commit nho va thuong xuyen, khong don vao ngay cuoi sprint.
+- Commit: `type(scope): SCRUM xx mo ta ngan` (vd `feat(auth): SCRUM-17 dang nhap JWT`), commit nho va thuong xuyen, khong don vao ngay cuoi sprint.
 - Khong commit file `backend/.env` (da bi `.gitignore` chan) — chi commit `backend/.env.example`.
