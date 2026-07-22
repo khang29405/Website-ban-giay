@@ -4,6 +4,77 @@ const authController = require("../controllers/authController");
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: Dang ky, dang nhap va xac thuc JWT
+ */
+
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Dang ky tai khoan khach hang
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [HoTen, Email, MatKhau]
+ *             properties:
+ *               HoTen:
+ *                 type: string
+ *                 example: Nguyen Van A
+ *               Email:
+ *                 type: string
+ *                 format: email
+ *                 example: a@test.com
+ *               MatKhau:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 6
+ *                 example: "123456"
+ *               SDT:
+ *                 type: string
+ *                 example: "0901234567"
+ *               DiaChi:
+ *                 type: string
+ *                 example: 123 Nguyen Trai, Q1, TP.HCM
+ *     responses:
+ *       201:
+ *         description: Dang ky thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     MaND: { type: integer, example: 1 }
+ *                     HoTen: { type: string, example: Nguyen Van A }
+ *                     Email: { type: string, example: a@test.com }
+ *                     VaiTro: { type: string, example: KhachHang }
+ *                     NgayTao: { type: string, format: date-time }
+ *       400:
+ *         description: Du lieu khong hop le
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *         description: Email da duoc su dung
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.post(
     "/register",
     [
@@ -16,6 +87,65 @@ router.post(
     authController.register
 );
 
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Dang nhap, tra ve JWT token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [Email, MatKhau]
+ *             properties:
+ *               Email:
+ *                 type: string
+ *                 format: email
+ *                 example: a@test.com
+ *               MatKhau:
+ *                 type: string
+ *                 format: password
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Dang nhap thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         MaND: { type: integer, example: 1 }
+ *                         HoTen: { type: string, example: Nguyen Van A }
+ *                         Email: { type: string, example: a@test.com }
+ *                         VaiTro: { type: string, example: KhachHang }
+ *       400:
+ *         description: Du lieu khong hop le
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Email hoac mat khau khong dung
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.post(
     "/login",
     [
