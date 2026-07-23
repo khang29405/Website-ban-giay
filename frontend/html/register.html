@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - ShoeStore</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header id="header"></header>
+
+    <main class="auth-page">
+        <h2>Đăng ký</h2>
+        <form id="register-form" class="auth-form">
+            <label>Họ tên</label>
+            <input type="text" name="HoTen" required maxlength="100" />
+
+            <label>Email</label>
+            <input type="email" name="Email" required maxlength="100" />
+
+            <label>Mật khẩu</label>
+            <input type="password" name="MatKhau" required minlength="6" />
+
+            <label>Số điện thoại (tuỳ chọn)</label>
+            <input type="text" name="SDT" />
+
+            <label>Địa chỉ (tuỳ chọn)</label>
+            <input type="text" name="DiaChi" />
+
+            <button type="submit">Đăng ký</button>
+        </form>
+        <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                HoTen: form.HoTen.value.trim(),
+                Email: form.Email.value.trim(),
+                MatKhau: form.MatKhau.value,
+                SDT: form.SDT.value.trim() || undefined,
+                DiaChi: form.DiaChi.value.trim() || undefined,
+            };
+            try {
+                const res = await apiPost('/auth/register', data);
+                if (res) {
+                    alert('Đăng ký thành công. Vui lòng đăng nhập.');
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Đăng ký thất bại');
+                }
+            } catch (err) {
+                alert(err.message || 'Lỗi đăng ký');
+            }
+        });
+    </script>
+</body>
+</html>
