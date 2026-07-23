@@ -1,0 +1,148 @@
+/* Header */
+.site-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.site-header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.brand-mark {
+    font-size: 1.4rem;
+}
+
+.main-menu {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    list-style: none;
+}
+
+.main-menu a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.main-menu a:hover {
+    color: var(--color-primary);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-greeting {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: var(--color-primary-dark);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-outline:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+/* Footer */
+.site-footer {
+    background: var(--color-text);
+    color: #d8dade;
+    margin-top: 48px;
+}
+
+.site-footer .container {
+    padding: 36px 20px 20px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.footer-grid h4 {
+    color: #fff;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.footer-grid ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.footer-grid a {
+    color: #b7b9c0;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.footer-grid a:hover {
+    color: #fff;
+}
+
+.footer-bottom {
+    border-top: 1px solid #3a3d44;
+    padding-top: 16px;
+    font-size: 0.85rem;
+    color: #9a9ca3;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    .main-menu {
+        display: none;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+}

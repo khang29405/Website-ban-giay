@@ -4,60 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng ký - ShoeStore</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
 </head>
 <body>
     <header id="header"></header>
 
-    <main class="auth-page">
-        <h2>Đăng ký</h2>
-        <form id="register-form" class="auth-form">
-            <label>Họ tên</label>
-            <input type="text" name="HoTen" required maxlength="100" />
+    <main>
+        <div class="container">
+            <div class="auth-wrapper">
+                <div class="auth-card">
+                    <h2>Tạo tài khoản</h2>
+                    <p class="auth-subtitle">Đăng ký để mua sắm tại ShoeStore.</p>
 
-            <label>Email</label>
-            <input type="email" name="Email" required maxlength="100" />
+                    <div id="form-error" class="form-error" hidden></div>
 
-            <label>Mật khẩu</label>
-            <input type="password" name="MatKhau" required minlength="6" />
+                    <form id="register-form" novalidate>
+                        <div class="form-group">
+                            <label for="hoten">Họ tên</label>
+                            <input type="text" id="hoten" name="HoTen" required maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="Email" required maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Mật khẩu</label>
+                            <input type="password" id="password" name="MatKhau" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="sdt">Số điện thoại (tuỳ chọn)</label>
+                            <input type="text" id="sdt" name="SDT">
+                        </div>
+                        <div class="form-group">
+                            <label for="diachi">Địa chỉ (tuỳ chọn)</label>
+                            <input type="text" id="diachi" name="DiaChi">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Đăng ký</button>
+                    </form>
 
-            <label>Số điện thoại (tuỳ chọn)</label>
-            <input type="text" name="SDT" />
-
-            <label>Địa chỉ (tuỳ chọn)</label>
-            <input type="text" name="DiaChi" />
-
-            <button type="submit">Đăng ký</button>
-        </form>
-        <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+                    <p class="auth-switch">Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer id="footer"></footer>
 
-    <script src="../js/main.js"></script>
-    <script>
-        document.getElementById('register-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const form = e.target;
-            const data = {
-                HoTen: form.HoTen.value.trim(),
-                Email: form.Email.value.trim(),
-                MatKhau: form.MatKhau.value,
-                SDT: form.SDT.value.trim() || undefined,
-                DiaChi: form.DiaChi.value.trim() || undefined,
-            };
-            try {
-                const res = await apiPost('/auth/register', data);
-                if (res) {
-                    alert('Đăng ký thành công. Vui lòng đăng nhập.');
-                    window.location.href = 'login.html';
-                } else {
-                    alert('Đăng ký thất bại');
-                }
-            } catch (err) {
-                alert(err.message || 'Lỗi đăng ký');
-            }
-        });
-    </script>
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/validate.js"></script>
+    <script src="../js/layout.js"></script>
+    <script src="../js/pages/register.js"></script>
 </body>
 </html>

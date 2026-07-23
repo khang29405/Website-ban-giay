@@ -1,0 +1,48 @@
+:root {
+    --color-primary: #1a73e8;
+    --color-primary-dark: #1558b0;
+    --color-text: #1f2328;
+    --color-text-muted: #5f6368;
+    --color-border: #e3e5e8;
+    --color-bg: #f7f8fa;
+    --color-surface: #ffffff;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    color: var(--color-text);
+    background: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+a {
+    color: var(--color-primary);
+}
+
+h1, h2, h3 {
+    line-height: 1.25;
+}
+
+.container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
