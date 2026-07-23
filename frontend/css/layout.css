@@ -52,6 +52,11 @@
     gap: 10px;
 }
 
+.user-greeting {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
 .btn {
     display: inline-block;
     padding: 8px 18px;

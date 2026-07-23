@@ -2,6 +2,17 @@ function renderHeader() {
     const header = document.getElementById("header");
     if (!header) return;
 
+    const user = getCurrentUser();
+    const actionsHtml = user
+        ? `
+            <span class="user-greeting">Xin chào, ${escapeHtml(user.HoTen || user.Email)}</span>
+            <button type="button" id="logout-btn" class="btn btn-outline">Đăng xuất</button>
+          `
+        : `
+            <a href="login.html" class="btn btn-outline">Đăng nhập</a>
+            <a href="register.html" class="btn btn-primary">Đăng ký</a>
+          `;
+
     header.className = "site-header";
     header.innerHTML = `
         <div class="container">
@@ -15,11 +26,18 @@ function renderHeader() {
             </ul>
 
             <div class="header-actions">
-                <a href="login.html" class="btn btn-outline">Đăng nhập</a>
-                <a href="register.html" class="btn btn-primary">Đăng ký</a>
+                ${actionsHtml}
             </div>
         </div>
     `;
+
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            clearAuth();
+            window.location.href = "index.html";
+        });
+    }
 }
 
 function renderFooter() {
