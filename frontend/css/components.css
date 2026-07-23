@@ -1,0 +1,33 @@
+.hero {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 64px 40px;
+    margin: 32px 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+}
+
+.hero p {
+    font-size: 1.05rem;
+    opacity: 0.9;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.section-title {
+    font-size: 1.4rem;
+    margin: 40px 0 16px;
+}
+
+.info-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+}
