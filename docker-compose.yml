@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    environment:
+      # Ghi de gia tri DB_SERVER trong .env (localhost - dung cho npm run dev)
+      # vi ben trong container "localhost" la chinh container, khong phai may that.
+      - DB_SERVER=host.docker.internal
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

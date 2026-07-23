@@ -95,9 +95,9 @@ UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@shoestore.com';
 
 ## 4. Chạy Frontend
 
-Không cần npm/build. Mở trực tiếp `frontend/html/index.html` bằng trình duyệt, hoặc dùng một static server đơn giản (vd extension "Live Server" của VS Code) để tránh lỗi CORS/file://.
+Không cần npm/build. Mở trực tiếp `frontend/html/index.html` bằng trình duyệt, hoặc dùng một static server đơn giản (vd extension "Live Server" của VS Code) để tránh lỗi CORS/file://. Chi tiết cấu trúc thư mục xem [HUONG_DAN_FRONTEND.md](HUONG_DAN_FRONTEND.md).
 
-`frontend/js/main.js` có biến `API_BASE_URL` trỏ về `http://localhost:5000/api` — sửa lại nếu backend chạy port khác.
+`frontend/js/config.js` có biến `API_BASE_URL` trỏ về `http://localhost:5000/api` — sửa lại nếu backend chạy port khác.
 
 ## 5. Quy ước làm việc nhóm
 
@@ -130,3 +130,39 @@ Cách fix: SSMS → chuột phải server gốc → **Properties → Security** 
 
 **5. Server dừng đột ngột lúc `npm run dev` (`[nodemon] app crashed`) ngay khi chưa gọi API nào**
 Sau khi sửa bất kỳ mục nào ở trên, nhớ **restart lại server** (`rs` trong terminal nodemon, hoặc Ctrl+C rồi `npm run dev` lại) vì kết nối DB được thiết lập 1 lần lúc server khởi động.
+
+## 7. Chạy bằng Docker (Task 8 Sprint 1)
+
+Yêu cầu: đã cài [Docker Desktop](https://www.docker.com/products/docker-desktop/) và đang chạy.
+
+### Chuẩn bị
+
+`backend/.env` phải tồn tại (xem mục 2) — Docker Compose đọc file này để cấu hình container. **Không cần sửa tay `DB_SERVER`** — `docker-compose.yml` đã tự động ghi đè `DB_SERVER=host.docker.internal` khi chạy container (mục `environment:` trong file, ghi đè lên giá trị `localhost` trong `.env`), nên `.env` cứ giữ nguyên `DB_SERVER=localhost` để dùng chung được cho cả `npm run dev` lẫn Docker.
+
+Lý do cần ghi đè: container Backend có "localhost" của riêng nó (là chính container đó), không phải máy Windows của bạn — nên không thể dùng `localhost` như lúc chạy `npm run dev` để trỏ tới SQL Server đang cài trên máy thật. `host.docker.internal` là tên DNS đặc biệt Docker Desktop cung cấp sẵn để container gọi ngược ra máy host — SQL Server của bạn vẫn chạy trên Windows như bình thường, không cần đóng gói vào container ở Sprint này.
+
+### Chạy thử
+
+Ở thư mục gốc dự án (`d:\cnpm\web`, nơi có file `docker-compose.yml`):
+
+```bash
+docker compose up --build
+```
+
+- Backend: `http://localhost:5000/api/health`, `http://localhost:5000/api-docs`
+- Frontend: `http://localhost:8080` (tự chuyển tới `http://localhost:8080/html/index.html`)
+
+Dừng: `Ctrl+C`, hoặc `docker compose down` để dọn container.
+
+### Nếu backend trong Docker không kết nối được SQL Server
+
+Dù đã đổi `DB_SERVER=host.docker.internal` đúng, **Windows Firewall vẫn có thể chặn** kết nối từ container tới SQL Server, vì với Firewall thì mạng ảo của Docker (WSL2) bị coi là một mạng khác, không phải "chính máy này" như lúc chạy `npm run dev` trực tiếp (loopback `localhost` được Firewall bỏ qua mặc định, còn kết nối từ container thì không).
+
+Cách kiểm tra/khắc phục: mở **Windows Defender Firewall with Advanced Security** → **Inbound Rules** → tìm rule cho SQL Server (port 1433) và **SQL Server Browser** (UDP 1434) → đảm bảo áp dụng cho cả profile **Private** (mạng Docker/WSL2 thường được xếp vào Private) → nếu chưa có rule, tạo mới cho phép TCP 1433 và UDP 1434 từ mọi nguồn nội bộ.
+
+### Cấu trúc Docker
+
+- `backend/Dockerfile` — image Node.js chạy `server.js`.
+- `frontend/Dockerfile` + `frontend/nginx.conf` — image Nginx phục vụ file tĩnh trong `frontend/html`, `frontend/css`, `frontend/js`.
+- `docker-compose.yml` (thư mục gốc) — chạy cả 2 container cùng lúc, backend expose cổng 5000, frontend expose cổng 8080.
+- **Chưa đóng gói Database** — đây là bản "nền tảng" theo đúng phạm vi Task 8 Sprint 1; Dockerize toàn bộ hệ thống kèm Database là việc của Sprint 3.
