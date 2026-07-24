@@ -29,6 +29,15 @@ function validateRegisterForm(form) {
         valid = false;
     }
 
+    const confirmPassword = form.XacNhanMatKhau.value;
+    if (!confirmPassword) {
+        showFieldError(form.XacNhanMatKhau, "Vui lòng xác nhận mật khẩu");
+        valid = false;
+    } else if (confirmPassword !== password) {
+        showFieldError(form.XacNhanMatKhau, "Mật khẩu xác nhận không khớp");
+        valid = false;
+    }
+    
     const sdt = form.SDT.value.trim();
     if (sdt && !isValidPhoneVN(sdt)) {
         showFieldError(form.SDT, "Số điện thoại không hợp lệ");

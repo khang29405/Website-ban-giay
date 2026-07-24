@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const successBox = document.getElementById("form-success");
         successBox.textContent = "Đăng ký thành công! Vui lòng đăng nhập.";
         successBox.hidden = false;
+        window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     attachLiveValidation(document.getElementById("login-form"));
@@ -35,7 +36,9 @@ document.getElementById("login-form").addEventListener("submit", async function 
     e.preventDefault();
     const form = e.target;
     const errorBox = document.getElementById("form-error");
+    const successBox = document.getElementById("form-success");
     errorBox.hidden = true;
+    successBox.hidden = true;
 
     if (!validateLoginForm(form)) return;
 

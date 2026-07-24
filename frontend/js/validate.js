@@ -30,10 +30,12 @@ function clearFormErrors(form) {
 
 function attachLiveValidation(form) {
     const generalError = document.getElementById("form-error");
+    const generalSuccess = document.getElementById("form-success");
     form.querySelectorAll("input").forEach((input) => {
         input.addEventListener("input", () => {
             clearFieldError(input);
             if (generalError) generalError.hidden = true;
+            if (generalSuccess) generalSuccess.hidden = true;
         });
     });
 }
