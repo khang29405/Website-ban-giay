@@ -46,7 +46,7 @@ npm start
 
 Kiểm tra: mở `http://localhost:5000/api/health`, phải thấy `{"success":true,"data":{"server":"up","db":"connected"}}`.
 
-## 3. Danh sách API hiện có (Sprint 1)
+## 3. Danh sách API hiện có (Sprint 1 + Sprint 2 task 1)
 
 Tất cả API có prefix `/api`. Xem chi tiết đầy đủ (schema, ví dụ, test trực tiếp) tại Swagger UI — [HUONG_DAN_SWAGGER.md](HUONG_DAN_SWAGGER.md).
 
@@ -86,6 +86,19 @@ Body (JSON):
 - `200`: trả về `{ token, user }`. Token dùng cho các API cần đăng nhập ở sprint sau (header `Authorization: Bearer <token>`).
 - `400`: dữ liệu không hợp lệ.
 - `401`: sai email hoặc mật khẩu.
+
+### Danh mục (`/api/danh-muc`) và Thương hiệu (`/api/thuong-hieu`)
+CRUD đầy đủ, cấu trúc endpoint giống hệt nhau cho cả 2 (chỉ khác tên trường `TenDanhMuc`/`TenThuongHieu`):
+
+| Method | Path | Quyền | Ghi chú |
+|---|---|---|---|
+| GET | `/` | Public | Danh sách tất cả |
+| GET | `/:id` | Public | Chi tiết 1 mục, `404` nếu không có |
+| POST | `/` | **Admin** | Tạo mới, `201`. `400` nếu thiếu tên/quá 100 ký tự. Riêng thương hiệu: `409` nếu trùng tên (có ràng buộc UNIQUE trong DB) |
+| PUT | `/:id` | **Admin** | Cập nhật, `200`. `404` nếu không tồn tại |
+| DELETE | `/:id` | **Admin** | Xoá, `200`. `409` nếu đang có sản phẩm tham chiếu tới (ràng buộc khóa ngoại) |
+
+Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/login`), thiếu token → `401`, có token nhưng không phải Admin → `403`.
 
 ### Tạo tài khoản Admin
 Đăng ký một tài khoản bình thường qua `/api/auth/register`, sau đó tự nâng quyền trong SSMS:

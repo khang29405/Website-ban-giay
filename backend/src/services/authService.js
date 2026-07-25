@@ -1,14 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
+const httpError = require("../utils/httpError");
 
 const SALT_ROUNDS = 10;
-
-function httpError(status, message) {
-    const err = new Error(message);
-    err.status = status;
-    return err;
-}
 
 async function register({ HoTen, Email, MatKhau, SDT, DiaChi }) {
     const existing = await userModel.findByEmail(Email);

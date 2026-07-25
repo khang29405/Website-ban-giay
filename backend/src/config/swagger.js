@@ -6,7 +6,7 @@ const options = {
         info: {
             title: "ShoeStore API",
             version: "1.0.0",
-            description: "API cho website ban giay the thao (Sprint 1: xac thuc JWT)",
+            description: "API cho website ban giay the thao",
         },
         servers: [
             {
@@ -28,6 +28,20 @@ const options = {
                     properties: {
                         success: { type: "boolean", example: false },
                         message: { type: "string", example: "Loi may chu" },
+                    },
+                },
+                DanhMuc: {
+                    type: "object",
+                    properties: {
+                        MaDM: { type: "integer", example: 1 },
+                        TenDanhMuc: { type: "string", example: "Giay the thao" },
+                    },
+                },
+                ThuongHieu: {
+                    type: "object",
+                    properties: {
+                        MaTH: { type: "integer", example: 1 },
+                        TenThuongHieu: { type: "string", example: "Nike" },
                     },
                 },
             },

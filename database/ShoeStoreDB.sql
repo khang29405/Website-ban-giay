@@ -119,6 +119,7 @@ CREATE TABLE CHI_TIET_DON_HANG (
 GO
 
 UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@shoestore.com';
+UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@gmail.com';
 
 -- =========================================================
 -- SEED DATA (DU LIEU MAU)
