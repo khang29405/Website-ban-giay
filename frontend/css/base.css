@@ -65,3 +65,20 @@ h1, h2, h3 {
     margin: 0 auto;
     padding: 0 24px;
 }
+
+/* Hieu ung dung chung - ap dung cho moi trang, hien tai va sau nay */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeInUp 0.4s ease both;
+}
+

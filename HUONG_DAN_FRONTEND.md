@@ -52,10 +52,11 @@ frontend/
    <script src="../js/layout.js"></script>
    <script src="../js/pages/ten-trang.js"></script>  <!-- nếu có -->
    ```
-5. **Màu sắc/khoảng cách dùng biến CSS đã khai báo trong `base.css`** (`var(--color-primary)`, `var(--radius)`...) — không tự đặt màu mới, giữ giao diện đồng nhất giữa các trang do nhiều người làm.
+5. **Màu sắc/khoảng cách dùng biến CSS đã khai báo trong `base.css`** (`var(--color-accent)`, `var(--color-ink)`, `var(--radius)`...) — không tự đặt màu mới, giữ giao diện đồng nhất giữa các trang do nhiều người làm.
 6. **Header/Footer chỉ sửa ở `layout.js`** — không copy HTML header/footer sang từng trang, tránh sửa 1 nơi quên nơi khác.
+7. **Trang/khối nội dung chính nên có hiệu ứng xuất hiện nhẹ** — thêm class `fade-in` (định nghĩa sẵn trong `base.css`) vào khối bọc ngoài cùng của nội dung chính (card, layout chi tiết...) để trang không bị "tĩnh cứng". `.btn` đã tự có hiệu ứng hover nhấc nhẹ, không cần thêm gì khi dùng nút có sẵn.
 
-## Hiện trạng (sau Task 6 + Task 7)
+## Hiện trạng (sau Task 6, 7 Sprint 2)
 
-Đã có: `base.css`, `layout.css`, `components.css`, `config.js`, `api.js`, `auth.js`, `validate.js`, `layout.js`, `html/index.html`, `html/login.html` + `js/pages/login.js`, `html/register.html` + `js/pages/register.js`.
-Chưa có (sẽ tạo khi làm sprint sau): `css/pages/`, và các trang HTML khác (sản phẩm, giỏ hàng, đơn hàng, admin...) — tạo đúng theo quy ước ở trên khi bắt đầu, không cần hỏi lại chỗ đặt file.
+Đã có: `base.css`, `layout.css`, `components.css`, `config.js`, `api.js`, `auth.js`, `validate.js`, `layout.js`, `html/index.html`, `html/login.html` + `js/pages/login.js`, `html/register.html` + `js/pages/register.js`, `html/product-detail.html` + `js/pages/product-detail.js` + `css/pages/product-detail.css`.
+Chưa có (sẽ tạo khi làm sprint sau): các trang HTML khác (giỏ hàng, đơn hàng, admin...) — tạo đúng theo quy ước ở trên khi bắt đầu, không cần hỏi lại chỗ đặt file.

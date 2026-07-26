@@ -1,42 +1,136 @@
-/* Hero - banner khuyen mai gon, kieu ban le */
+/* Hero - anh nen that (co chuyen dong Ken Burns cham) + lop phu de doc chu ro */
 .hero {
-    background: var(--color-accent);
+    position: relative;
     color: #fff;
-    padding: 48px 40px;
-    margin-bottom: 48px;
-    border-radius: var(--radius-lg);
+    padding: 64px 40px;
+    margin-bottom: 0;
+    min-height: 380px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+@keyframes heroKenBurns {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.1);
+    }
+}
+
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url("https://images.unsplash.com/photo-1744060204728-f68e434a3edf?w=1800&auto=format&fit=crop&q=80");
+    background-size: cover;
+    background-position: center 55%;
+    animation: heroKenBurns 16s ease-in-out infinite alternate;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, rgba(13, 13, 15, 0.9) 0%, rgba(13, 13, 15, 0.6) 50%, rgba(224, 30, 38, 0.45) 100%);
 }
 
 .hero-inner {
-    max-width: 620px;
+    position: relative;
+    max-width: 560px;
 }
 
 .hero .eyebrow {
-    color: #ffd6d6;
+    color: #ff8f8f;
 }
 
 .hero h1 {
-    font-size: clamp(1.9rem, 3.6vw, 2.6rem);
-    margin: 6px 0 10px;
+    font-size: clamp(2.1rem, 4.2vw, 3.1rem);
+    margin: 8px 0 12px;
     color: #fff;
 }
 
 .hero p {
     font-family: "Inter", Arial, sans-serif;
     font-weight: 400;
-    font-size: 1rem;
-    color: #ffe4e4;
-    max-width: 480px;
-    margin-bottom: 22px;
+    font-size: 1.05rem;
+    color: #e6e6ea;
+    max-width: 460px;
+    margin-bottom: 24px;
 }
 
 .hero .btn-accent {
-    background: #fff;
-    color: var(--color-accent);
+    background: var(--color-accent);
+    color: #fff;
 }
 
 .hero .btn-accent:hover {
-    background: #ffe4e4;
+    background: var(--color-accent-dark);
+}
+
+/* Trust strip - cam ket dich vu */
+.trust-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    background: var(--color-surface-alt);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.trust-item {
+    flex: 1 1 200px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 24px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text);
+    border-right: 1px solid var(--color-border);
+}
+
+.trust-item:last-child {
+    border-right: none;
+}
+
+.trust-item .trust-icon {
+    font-size: 1.2rem;
+}
+
+/* Brand strip - thuong hieu noi bat */
+.brand-strip-wrap {
+    padding: 36px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.brand-strip-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: 18px;
+}
+
+.brand-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.brand-pill {
+    padding: 10px 20px;
+    border: 1.5px solid var(--color-border);
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--color-text);
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.brand-pill:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: #fff5f5;
 }
 
 /* Section titles */
@@ -221,14 +315,16 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     overflow: hidden;
-    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
     display: flex;
     flex-direction: column;
+    animation: fadeInUp 0.35s ease both;
 }
 
 .product-card:hover {
     border-color: #d6d6d6;
     box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
 }
 
 .product-card-media {
@@ -257,6 +353,24 @@
 
 .product-card:hover .product-card-media img {
     transform: scale(1.06);
+}
+
+.product-card-view {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 10px;
+    text-align: center;
+    background: rgba(13, 13, 15, 0.82);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    transform: translateY(100%);
+    transition: transform 0.2s ease;
+}
+
+.product-card:hover .product-card-view {
+    transform: translateY(0);
 }
 
 .product-badge {
