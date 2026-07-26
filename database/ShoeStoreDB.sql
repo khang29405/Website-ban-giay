@@ -126,6 +126,8 @@ UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@gmail.com';
 -- Moi block co IF NOT EXISTS de chay lai file nhieu lan
 -- khong bi trung du lieu (script khong idempotent se gay loi
 -- "Subquery returned more than 1 value" o buoc SAN_PHAM).
+-- Anh (HinhAnh) da duoc chon dung theo danh muc/thuong hieu
+-- (kiem tra thu cong tung anh qua Unsplash truoc khi dung).
 -- =========================================================
 
 IF NOT EXISTS (SELECT 1 FROM DANH_MUC)
@@ -153,22 +155,64 @@ GO
 IF NOT EXISTS (SELECT 1 FROM SAN_PHAM)
 BEGIN
     INSERT INTO SAN_PHAM (TenSP, MoTa, Gia, HinhAnh, MaDM, MaTH) VALUES
-    (N'Nike Air Max 270', N'Giay the thao Nike dem khi em ai', 3200000, NULL,
+    (N'Nike Air Max 270', N'Giay the thao Nike dem khi em ai', 3200000,
+        N'https://images.unsplash.com/photo-1499852848443-3004d6dc4cfc?w=600&auto=format&fit=crop&q=80',
         (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay the thao'),
         (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Nike')),
-    (N'Adidas Ultraboost 22', N'Giay chay bo Adidas cong nghe Boost', 3800000, NULL,
-        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay chay bo'),
-        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Adidas')),
-    (N'Nike Zoom Freak 4', N'Giay bong ro Nike phien ban Freak', 3500000, NULL,
-        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay bong ro'),
-        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Nike')),
-    (N'Converse Chuck Taylor All Star', N'Giay co dien Converse', 1200000, NULL,
+    (N'Converse Chuck Taylor All Star', N'Giay co dien Converse', 1200000,
+        N'https://images.unsplash.com/photo-1597350593642-08a98ed51a42?w=600&auto=format&fit=crop&q=80',
         (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay the thao'),
         (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Converse')),
-    (N'Vans Old Skool', N'Giay luoi Vans phong cach nang dong', 1500000, NULL,
+    (N'Converse One Star', N'Giay the thao form thap, logo ngoi sao dac trung', 1500000,
+        N'https://images.unsplash.com/photo-1597350593642-08a98ed51a42?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay the thao'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Converse')),
+    (N'Puma Suede Classic', N'Giay the thao phong cach co dien, chat lieu da lon', 1600000,
+        N'https://images.unsplash.com/photo-1545289414-1c3cb1c06238?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay the thao'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Puma')),
+    (N'Puma RS-Fast', N'Giay the thao phong cach chunky nang dong', 2100000,
+        N'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay the thao'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Puma')),
+    (N'Adidas Ultraboost 22', N'Giay chay bo Adidas cong nghe Boost', 3800000,
+        N'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay chay bo'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Adidas')),
+    (N'Adidas Duramo SL', N'Giay chay bo nhe, thoang khi, phu hop tap luyen hang ngay', 1800000,
+        N'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay chay bo'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Adidas')),
+    (N'Nike Pegasus Trail', N'Giay chay bo cong nghe dem khi doc quyen', 2500000,
+        N'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay chay bo'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Nike')),
+    (N'Nike Zoom Freak 4', N'Giay bong ro Nike phien ban Freak', 3500000,
+        N'https://images.unsplash.com/photo-1645928565297-47f4708dc978?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay bong ro'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Nike')),
+    (N'Nike Zoom Flash', N'Giay bong ro de bam san tot, ho tro co chan', 2200000,
+        N'https://images.unsplash.com/photo-1516767254874-281bffac9e9a?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay bong ro'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Nike')),
+    (N'Vans Old Skool', N'Giay luoi Vans phong cach nang dong', 1500000,
+        N'https://images.unsplash.com/photo-1573554943001-ac2d0211bd90?w=600&auto=format&fit=crop&q=80',
         (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay luoi'),
         (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Vans')),
-    (N'Adidas Adilette', N'Dep Adidas thoai mai hang ngay', 450000, NULL,
+    (N'Vans Sk8-Hi', N'Giay co cao phong cach skate van hoa duong pho', 1700000,
+        N'https://images.unsplash.com/photo-1573554943001-ac2d0211bd90?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay luoi'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Vans')),
+    (N'Vans Authentic', N'Mau giay Vans nguyen ban, form basic de phoi do', 1100000,
+        N'https://images.unsplash.com/flagged/photo-1556637640-2c80d3201be8?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Giay luoi'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Vans')),
+    (N'Adidas Adilette', N'Dep Adidas thoai mai hang ngay', 450000,
+        N'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&auto=format&fit=crop&q=80',
+        (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Dep / Sandal'),
+        (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Adidas')),
+    (N'Adidas Slide', N'Dep quai ngang thoai mai, phu hop mang sau tap luyen', 500000,
+        N'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&auto=format&fit=crop&q=80',
         (SELECT MaDM FROM DANH_MUC WHERE TenDanhMuc = N'Dep / Sandal'),
         (SELECT MaTH FROM THUONG_HIEU WHERE TenThuongHieu = N'Adidas'));
 END
@@ -179,10 +223,7 @@ BEGIN
     INSERT INTO BIEN_THE_SAN_PHAM (MaSP, KichCo, MauSac, SoLuongTon)
     SELECT sp.MaSP, v.KichCo, v.MauSac, 20
     FROM SAN_PHAM sp
-    CROSS APPLY (VALUES ('40', N'Den'), ('42', N'Trang')) AS v(KichCo, MauSac)
-    WHERE sp.TenSP IN (
-        N'Nike Air Max 270', N'Adidas Ultraboost 22', N'Nike Zoom Freak 4',
-        N'Converse Chuck Taylor All Star', N'Vans Old Skool', N'Adidas Adilette'
-    );
+    CROSS APPLY (VALUES ('39', N'Den'), ('40', N'Trang'), ('41', N'Xanh')) AS v(KichCo, MauSac)
+    WHERE sp.MaDM IS NOT NULL;
 END
 GO
