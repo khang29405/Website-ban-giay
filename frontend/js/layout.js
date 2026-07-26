@@ -10,19 +10,19 @@ function renderHeader() {
           `
         : `
             <a href="login.html" class="btn btn-outline">Đăng nhập</a>
-            <a href="register.html" class="btn btn-primary">Đăng ký</a>
+            <a href="register.html" class="btn btn-accent">Đăng ký</a>
           `;
 
     header.className = "site-header";
     header.innerHTML = `
         <div class="container">
             <a href="index.html" class="brand">
-                <span class="brand-mark">👟</span>
-                <span>ShoeStore</span>
+                My<span>Shoes</span>
             </a>
 
             <ul class="main-menu">
                 <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="index.html#catalog">Sản phẩm</a></li>
             </ul>
 
             <div class="header-actions">
@@ -49,24 +49,25 @@ function renderFooter() {
         <div class="container">
             <div class="footer-grid">
                 <div>
-                    <h4>ShoeStore</h4>
-                    <p>Website bán giày thể thao chính hãng.</p>
+                    <h4>MyShoes</h4>
+                    <p>Website bán giày thể thao chính hãng — Nike, Adidas, Puma, Converse, Vans và nhiều thương hiệu khác.</p>
                 </div>
                 <div>
                     <h4>Liên kết</h4>
                     <ul>
                         <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="index.html#catalog">Sản phẩm</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4>Liên hệ</h4>
                     <ul>
-                        <li><a href="mailto:support@shoestore.local">support@shoestore.local</a></li>
+                        <li><a href="mailto:support@myshoes.local">support@myshoes.local</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                © ${new Date().getFullYear()} ShoeStore. Đồ án Công nghệ phần mềm.
+                © ${new Date().getFullYear()} MyShoes. Đồ án Công nghệ phần mềm.
             </div>
         </div>
     `;

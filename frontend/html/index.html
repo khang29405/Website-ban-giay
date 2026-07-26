@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShoeStore - Giày thể thao chính hãng</title>
+    <title>MyShoes - Giày thể thao chính hãng</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
@@ -12,15 +15,35 @@
     <header id="header"></header>
 
     <main>
-        <div class="container">
-            <section class="hero">
-                <h1>Chào mừng đến với ShoeStore</h1>
-                <p>Website bán giày thể thao chính hãng — Nike, Adidas, Puma và nhiều thương hiệu khác.</p>
-            </section>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-inner">
+                    <span class="eyebrow">Bộ sưu tập mới</span>
+                    <h1>Bước đi đẳng cấp</h1>
+                    <p>Giày thể thao chính hãng từ Nike, Adidas, Puma, Converse, Vans — chọn đúng đôi, chạy đúng chất.</p>
+                    <a href="#catalog" class="btn btn-accent">Khám phá ngay</a>
+                </div>
+            </div>
+        </section>
 
-            <h2 class="section-title">Đang phát triển</h2>
-            <div class="info-card">
-                <p>Danh sách sản phẩm sẽ sớm xuất hiện ở đây. Hiện tại bạn có thể tạo tài khoản để trải nghiệm trước.</p>
+        <div class="container" id="catalog">
+            <h2 class="section-title">Sản phẩm nổi bật</h2>
+            <p class="section-subtitle">Duyệt toàn bộ bộ sưu tập, tìm kiếm và lọc theo đúng nhu cầu của bạn.</p>
+
+            <div class="catalog-toolbar">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Tìm theo tên sản phẩm...">
+                </div>
+                <select id="category-filter" class="filter-select">
+                    <option value="">Tất cả danh mục</option>
+                </select>
+                <select id="brand-filter" class="filter-select">
+                    <option value="">Tất cả thương hiệu</option>
+                </select>
+            </div>
+
+            <div class="product-grid" id="product-grid">
+                <div class="empty-state"><strong>Đang tải sản phẩm...</strong></div>
             </div>
         </div>
     </main>
@@ -31,5 +54,6 @@
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/layout.js"></script>
+    <script src="../js/pages/index.js"></script>
 </body>
 </html>
