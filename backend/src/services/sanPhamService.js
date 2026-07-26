@@ -3,8 +3,8 @@ const httpError = require("../utils/httpError");
 
 const FK_VIOLATION = 547;
 
-async function getAll() {
-    return sanPhamModel.findAll();
+async function getAll(filters) {
+    return sanPhamModel.findAll(filters);
 }
 
 async function getById(id) {

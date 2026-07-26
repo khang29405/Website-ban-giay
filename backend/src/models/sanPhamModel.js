@@ -11,9 +11,26 @@ const JOIN_CLAUSE = `
     JOIN THUONG_HIEU th ON sp.MaTH = th.MaTH
 `;
 
-async function findAll() {
+async function findAll({ ten, maDM, maTH } = {}) {
     const pool = await poolPromise;
-    const result = await pool.request().query(`SELECT ${SELECT_COLUMNS} ${JOIN_CLAUSE} ORDER BY sp.MaSP`);
+    const request = pool.request();
+    const conditions = [];
+
+    if (ten) {
+        request.input("Ten", sql.NVarChar(200), `%${ten}%`);
+        conditions.push("sp.TenSP LIKE @Ten");
+    }
+    if (maDM) {
+        request.input("MaDM", sql.Int, maDM);
+        conditions.push("sp.MaDM = @MaDM");
+    }
+    if (maTH) {
+        request.input("MaTH", sql.Int, maTH);
+        conditions.push("sp.MaTH = @MaTH");
+    }
+
+    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+    const result = await request.query(`SELECT ${SELECT_COLUMNS} ${JOIN_CLAUSE} ${whereClause} ORDER BY sp.MaSP`);
     return result.recordset;
 }
 

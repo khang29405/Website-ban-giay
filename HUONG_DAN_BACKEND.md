@@ -103,7 +103,7 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 ### Sản phẩm (`/api/san-pham`)
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
-| GET | `/` | Public | Danh sách tất cả (kèm tên danh mục/thương hiệu qua JOIN) |
+| GET | / | Public | Danh sách tất cả (kèm tên danh mục/thương hiệu qua JOIN). Hỗ trợ query ?ten=&danhMuc=&thuongHieu= để tìm/lọc, kết hợp được nhiều điều kiện cùng lúc, ten không phân biệt hoa thường |
 | GET | `/:id` | Public | Chi tiết 1 sản phẩm, `404` nếu không có |
 | POST | `/` | **Admin** | Tạo mới, `201`. `400` nếu thiếu trường/danh mục hoặc thương hiệu không tồn tại |
 | PUT | `/:id` | **Admin** | Cập nhật, `200`. `404` nếu không tồn tại |

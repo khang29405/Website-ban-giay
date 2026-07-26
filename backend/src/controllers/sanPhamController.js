@@ -13,7 +13,9 @@ function handleValidation(req) {
 
 async function getAll(req, res, next) {
     try {
-        const items = await sanPhamService.getAll();
+        handleValidation(req);
+        const { ten, danhMuc, thuongHieu } = req.query;
+        const items = await sanPhamService.getAll({ ten, maDM: danhMuc, maTH: thuongHieu });
         res.json({ success: true, data: items });
     } catch (err) {
         next(err);

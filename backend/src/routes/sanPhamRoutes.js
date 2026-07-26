@@ -1,5 +1,5 @@
 const express = require("express");
-const { body, param } = require("express-validator");
+const { body, param, query } = require("express-validator");
 const sanPhamController = require("../controllers/sanPhamController");
 const bienTheController = require("../controllers/bienTheController");
 const verifyToken = require("../middlewares/authMiddleware");
@@ -26,6 +26,12 @@ const bienTheBodyValidation = [
     body("SoLuongTon").isInt({ min: 0 }).withMessage("Số lượng tồn phải là số nguyên không âm"),
 ];
 
+const searchValidation = [
+    query("ten").optional({ values: "falsy" }).isString().trim().isLength({ max: 200 }).withMessage("Từ khóa tìm kiếm tối đa 200 ký tự"),
+    query("danhMuc").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("danhMuc không hợp lệ"),
+    query("thuongHieu").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("thuongHieu không hợp lệ"),
+];
+
 /**
  * @swagger
  * tags:
@@ -37,8 +43,22 @@ const bienTheBodyValidation = [
  * @swagger
  * /san-pham:
  *   get:
- *     summary: Lay danh sach san pham
+ *     summary: Lay danh sach san pham, co the tim kiem/loc
  *     tags: [SanPham]
+ *     parameters:
+ *       - in: query
+ *         name: ten
+ *         schema: { type: string }
+ *         description: Tim theo ten san pham (khong phan biet hoa thuong, khop mot phan)
+ *         example: nike
+ *       - in: query
+ *         name: danhMuc
+ *         schema: { type: integer }
+ *         description: Loc theo MaDM
+ *       - in: query
+ *         name: thuongHieu
+ *         schema: { type: integer }
+ *         description: Loc theo MaTH
  *     responses:
  *       200:
  *         description: Thanh cong
@@ -52,8 +72,16 @@ const bienTheBodyValidation = [
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/SanPham'
+ *       400:
+ *         description: Tham so tim kiem khong hop le
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ * 
  */
-router.get("/", sanPhamController.getAll);
+router.get("/", searchValidation, sanPhamController.getAll);
+
 
 /**
  * @swagger
