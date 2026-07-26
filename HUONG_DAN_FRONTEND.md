@@ -56,7 +56,7 @@ frontend/
 6. **Header/Footer chỉ sửa ở `layout.js`** — không copy HTML header/footer sang từng trang, tránh sửa 1 nơi quên nơi khác.
 7. **Trang/khối nội dung chính nên có hiệu ứng xuất hiện nhẹ** — thêm class `fade-in` (định nghĩa sẵn trong `base.css`) vào khối bọc ngoài cùng của nội dung chính (card, layout chi tiết...) để trang không bị "tĩnh cứng". `.btn` đã tự có hiệu ứng hover nhấc nhẹ, không cần thêm gì khi dùng nút có sẵn.
 
-## Hiện trạng (sau Task 6, 7 Sprint 2)
+## Hiện trạng (hết Sprint 2 - Frontend)
 
-Đã có: `base.css`, `layout.css`, `components.css`, `config.js`, `api.js`, `auth.js`, `validate.js`, `layout.js`, `html/index.html`, `html/login.html` + `js/pages/login.js`, `html/register.html` + `js/pages/register.js`, `html/product-detail.html` + `js/pages/product-detail.js` + `css/pages/product-detail.css`.
-Chưa có (sẽ tạo khi làm sprint sau): các trang HTML khác (giỏ hàng, đơn hàng, admin...) — tạo đúng theo quy ước ở trên khi bắt đầu, không cần hỏi lại chỗ đặt file.
+Đã có: `base.css`, `layout.css`, `components.css`, `config.js`, `api.js` (đủ `apiGet/apiPost/apiPut/apiPatch/apiDelete`, tự gắn `Authorization` nếu có token), `auth.js`, `validate.js`, `layout.js` (header tự hiện link "Quản trị" nếu `user.VaiTro === "Admin"`), `html/index.html`, `html/login.html` + `js/pages/login.js`, `html/register.html` + `js/pages/register.js`, `html/product-detail.html` + `js/pages/product-detail.js` + `css/pages/product-detail.css`, `html/admin.html` + `js/pages/admin.js` + `css/pages/admin.css`.
+Chưa có (sẽ tạo khi làm Sprint 3): giỏ hàng, đặt hàng, lịch sử đơn hàng, quản lý đơn hàng cho Admin — tạo đúng theo quy ước ở trên khi bắt đầu, không cần hỏi lại chỗ đặt file.

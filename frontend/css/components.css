@@ -93,7 +93,16 @@
 }
 
 .trust-item .trust-icon {
-    font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #fff;
+    border: 1.5px solid var(--color-border);
+    font-size: 1.05rem;
 }
 
 /* Brand strip - thuong hieu noi bat */
