@@ -4,6 +4,7 @@ const authRoutes = require("./authRoutes");
 const danhMucRoutes = require("./danhMucRoutes");
 const thuongHieuRoutes = require("./thuongHieuRoutes");
 const sanPhamRoutes = require("./sanPhamRoutes");
+const bienTheRoutes = require("./bienTheRoutes");
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.use("/auth", authRoutes);
 router.use("/danh-muc", danhMucRoutes);
 router.use("/thuong-hieu", thuongHieuRoutes);
 router.use("/san-pham", sanPhamRoutes);
+router.use("/bien-the", bienTheRoutes);
 
 module.exports = router;

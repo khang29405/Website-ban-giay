@@ -100,6 +100,25 @@ CRUD đầy đủ, cấu trúc endpoint giống hệt nhau cho cả 2 (chỉ kh�
 
 Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/login`), thiếu token → `401`, có token nhưng không phải Admin → `403`.
 
+### Sản phẩm (`/api/san-pham`)
+| Method | Path | Quyền | Ghi chú |
+|---|---|---|---|
+| GET | `/` | Public | Danh sách tất cả (kèm tên danh mục/thương hiệu qua JOIN) |
+| GET | `/:id` | Public | Chi tiết 1 sản phẩm, `404` nếu không có |
+| POST | `/` | **Admin** | Tạo mới, `201`. `400` nếu thiếu trường/danh mục hoặc thương hiệu không tồn tại |
+| PUT | `/:id` | **Admin** | Cập nhật, `200`. `404` nếu không tồn tại |
+| PATCH | `/:id/trang-thai` | **Admin** | Ẩn/hiện sản phẩm, body `{ "TrangThai": true/false }` — không xóa dữ liệu |
+| DELETE | `/:id` | **Admin** | Xoá hẳn, `200`. `409` nếu còn biến thể đang có trong giỏ hàng/đơn hàng |
+
+### Biến thể sản phẩm (size/màu/tồn kho)
+| Method | Path | Quyền | Ghi chú |
+|---|---|---|---|
+| GET | `/api/san-pham/:id/bien-the` | Public | Danh sách biến thể của 1 sản phẩm, `404` nếu sản phẩm không tồn tại |
+| POST | `/api/san-pham/:id/bien-the` | **Admin** | Thêm biến thể mới, `201`. `409` nếu trùng cặp kích cỡ+màu đã có |
+| GET | `/api/bien-the/:id` | Public | Chi tiết 1 biến thể |
+| PUT | `/api/bien-the/:id` | **Admin** | Cập nhật kích cỡ/màu/tồn kho, `200` |
+| DELETE | `/api/bien-the/:id` | **Admin** | Xoá, `200`. `409` nếu đang có trong giỏ hàng/đơn hàng |
+
 ### Tạo tài khoản Admin
 Đăng ký một tài khoản bình thường qua `/api/auth/register`, sau đó tự nâng quyền trong SSMS:
 ```sql

@@ -60,6 +60,16 @@ const options = {
                         NgayTao: { type: "string", format: "date-time" },
                     },
                 },
+                BienThe: {
+                    type: "object",
+                    properties: {
+                        MaBienThe: { type: "integer", example: 1 },
+                        MaSP: { type: "integer", example: 1 },
+                        KichCo: { type: "string", example: "40" },
+                        MauSac: { type: "string", example: "Den" },
+                        SoLuongTon: { type: "integer", example: 20 },
+                    },
+                },
             },
         },
     },
