@@ -1,4 +1,4 @@
-# Website bán giày thể thao
+# Website bán giày
 
 Frontend HTML/CSS/JavaScript thuần + Backend Node.js/Express (kiến trúc phân tầng) + SQL Server. Xác thực bằng JWT.
 

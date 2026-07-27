@@ -13,6 +13,10 @@ function renderHeader() {
     const user = getCurrentUser();
     const actionsHtml = user
         ? `
+            <a href="cart.html" class="cart-link" id="cart-link">
+                🛒
+                <span class="cart-badge" id="cart-badge" hidden>0</span>
+            </a>
             <div class="user-menu" id="user-menu">
                 <button type="button" class="avatar-btn" id="avatar-btn" aria-haspopup="true" aria-expanded="false">
                     <span class="user-greeting">Xin chào, ${escapeHtml(user.HoTen || user.Email)}</span>
@@ -62,6 +66,10 @@ function renderHeader() {
             clearAuth();
             window.location.href = "index.html";
         });
+    }
+
+    if (user) {
+        updateCartBadge();
     }
 
     const avatarBtn = document.getElementById("avatar-btn");
@@ -298,7 +306,7 @@ function renderFooter() {
             <div class="footer-grid">
                 <div>
                     <h4>MyShoes</h4>
-                    <p>Cửa hàng giày thể thao chính hãng — Nike, Adidas, Puma, Converse, Vans. Cam kết hàng thật, giá đúng, giao nhanh toàn quốc.</p>
+                    <p>Cửa hàng giày chính hãng — Nike, Adidas, Puma, Converse, Vans. Cam kết hàng thật, giá đúng, giao nhanh toàn quốc.</p>
                 </div>
                 <div>
                     <h4>Liên kết</h4>
@@ -328,6 +336,24 @@ document.addEventListener("DOMContentLoaded", () => {
     renderHeader();
     renderFooter();
 });
+
+// ============ Cart badge (dung chung moi trang, goi lai sau khi sua gio hang) ============
+async function updateCartBadge() {
+    const badge = document.getElementById("cart-badge");
+    if (!badge) return;
+    try {
+        const items = await apiGet("/gio-hang");
+        const count = items.reduce((sum, item) => sum + item.SoLuong, 0);
+        if (count > 0) {
+            badge.textContent = count > 99 ? "99+" : count;
+            badge.hidden = false;
+        } else {
+            badge.hidden = true;
+        }
+    } catch (err) {
+        badge.hidden = true;
+    }
+}
 
 document.addEventListener("click", (e) => {
     const dropdown = document.getElementById("user-dropdown");

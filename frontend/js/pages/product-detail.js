@@ -5,6 +5,7 @@ const detailContainer = document.getElementById("product-detail");
 let variants = [];
 let selectedSize = null;
 let selectedColor = null;
+let lastChangedAxis = null;
 
 function formatCurrency(amount) {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
@@ -49,16 +50,37 @@ function renderStock() {
         return;
     }
 
+    if (variant.SoLuongTon <= 5) {
+        stockBox.className = "pd-stock low";
+        stockBox.textContent = `Chỉ còn ${variant.SoLuongTon} đôi - sắp hết hàng!`;
+        return;
+    }
+
     stockBox.className = "pd-stock ok";
     stockBox.textContent = `Còn ${variant.SoLuongTon} sản phẩm`;
+}
+
+function updateAddToCartState() {
+    const qtyInput = document.getElementById("pd-qty-input");
+    if (!qtyInput) return;
+
+    const variant = selectedSize && selectedColor ? findVariant(selectedSize, selectedColor) : null;
+    const inStock = !!variant && variant.SoLuongTon > 0;
+
+    qtyInput.max = inStock ? variant.SoLuongTon : 1;
+    if (Number(qtyInput.value) > Number(qtyInput.max)) {
+        qtyInput.value = qtyInput.max;
+    }
 }
 
 function renderChips() {
     const sizes = uniqueValues(variants, "KichCo");
     const colors = uniqueValues(variants, "MauSac");
 
-    const validSizes = selectedColor ? availableSizesForColor(selectedColor) : null;
-    const validColors = selectedSize ? availableColorsForSize(selectedSize) : null;
+    // Chi loc theo truc con lai duoc chon GAN NHAT, tranh 2 truc tu khoa lan nhau
+    // khi 1 san pham co cap size-mau 1-1 (chon xong ca 2 thi khong bam lai duoc truc nao).
+    const validSizes = lastChangedAxis === "color" && selectedColor ? availableSizesForColor(selectedColor) : null;
+    const validColors = lastChangedAxis === "size" && selectedSize ? availableColorsForSize(selectedSize) : null;
 
     const sizeChips = document.getElementById("size-chips");
     const colorChips = document.getElementById("color-chips");
@@ -83,16 +105,20 @@ function renderChips() {
     sizeChips.querySelectorAll(".pd-chip").forEach((btn) => {
         btn.addEventListener("click", () => {
             selectedSize = btn.dataset.size;
+            lastChangedAxis = "size";
             renderChips();
             renderStock();
+            updateAddToCartState();
         });
     });
 
     colorChips.querySelectorAll(".pd-chip").forEach((btn) => {
         btn.addEventListener("click", () => {
             selectedColor = btn.dataset.color;
+            lastChangedAxis = "color";
             renderChips();
             renderStock();
+            updateAddToCartState();
         });
     });
 }
@@ -114,10 +140,14 @@ function renderProduct(product) {
                 <h1>${escapeHtml(product.TenSP)}</h1>
                 <span class="product-category">${escapeHtml(product.TenDanhMuc)}</span>
                 <div class="pd-price">${formatCurrency(product.Gia)}</div>
+                <button type="button" class="pd-share-btn" id="share-btn">🔗 Chia sẻ sản phẩm</button>
                 <p class="pd-desc">${escapeHtml(product.MoTa || "Chưa có mô tả cho sản phẩm này.")}</p>
 
                 <div class="pd-option-group">
-                    <span class="pd-option-label">Kích cỡ</span>
+                    <div class="pd-option-header">
+                        <span class="pd-option-label">Kích cỡ</span>
+                        <button type="button" class="pd-size-guide-btn" id="size-guide-btn">Hướng dẫn chọn size</button>
+                    </div>
                     <div class="pd-chips" id="size-chips"></div>
                 </div>
                 <div class="pd-option-group">
@@ -126,11 +156,181 @@ function renderProduct(product) {
                 </div>
 
                 <div class="pd-stock" id="pd-stock">Chọn kích cỡ và màu sắc để xem tồn kho</div>
+
+                <div class="pd-add-cart">
+                    ${
+                        getCurrentUser()
+                            ? `
+                        <div class="qty-control">
+                            <button type="button" class="qty-btn" id="qty-minus">−</button>
+                            <input type="number" class="qty-input" id="pd-qty-input" value="1" min="1">
+                            <button type="button" class="qty-btn" id="qty-plus">+</button>
+                        </div>
+                        <button type="button" class="btn btn-accent" id="add-to-cart-btn">Thêm vào giỏ hàng</button>
+                    `
+                            : `<a href="login.html" class="btn btn-accent">Đăng nhập để mua hàng</a>`
+                    }
+                </div>
+
+                <ul class="pd-trust-mini">
+                    <li>✅ Hàng chính hãng 100%</li>
+                    <li>🚚 Giao hàng toàn quốc</li>
+                    <li>🔄 Đổi trả trong 7 ngày</li>
+                </ul>
             </div>
         </div>
     `;
 
+    const breadcrumb = document.getElementById("pd-breadcrumb");
+    if (breadcrumb) {
+        breadcrumb.innerHTML = `
+            <a href="index.html">Trang chủ</a>
+            <span>/</span>
+            <a href="san-pham.html?danhMuc=${product.MaDM}">${escapeHtml(product.TenDanhMuc)}</a>
+            <span>/</span>
+            <span>${escapeHtml(product.TenSP)}</span>
+        `;
+    }
+
     renderChips();
+    updateAddToCartState();
+
+    const qtyMinus = document.getElementById("qty-minus");
+    const qtyPlus = document.getElementById("qty-plus");
+    const qtyInput = document.getElementById("pd-qty-input");
+    const addToCartBtn = document.getElementById("add-to-cart-btn");
+
+    if (qtyMinus && qtyPlus && qtyInput) {
+        qtyMinus.addEventListener("click", () => {
+            qtyInput.value = Math.max(1, Number(qtyInput.value) - 1);
+        });
+        qtyPlus.addEventListener("click", () => {
+            const max = Number(qtyInput.max) || 999;
+            qtyInput.value = Math.min(max, Number(qtyInput.value) + 1);
+        });
+    }
+
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener("click", async () => {
+            if (!selectedSize && !selectedColor) {
+                showToast("Vui lòng chọn kích cỡ và màu sắc", "error");
+                return;
+            }
+            if (!selectedSize) {
+                showToast("Vui lòng chọn kích cỡ", "error");
+                return;
+            }
+            if (!selectedColor) {
+                showToast("Vui lòng chọn màu sắc", "error");
+                return;
+            }
+
+            const variant = findVariant(selectedSize, selectedColor);
+            if (!variant || variant.SoLuongTon <= 0) {
+                showToast("Sản phẩm đã hết hàng với lựa chọn này", "error");
+                return;
+            }
+
+            const soLuong = Number(qtyInput.value) || 1;
+            try {
+                await apiPost("/gio-hang", { MaBienThe: variant.MaBienThe, SoLuong: soLuong });
+                showToast("Đã thêm vào giỏ hàng", "success");
+                updateCartBadge();
+            } catch (err) {
+                showToast(err.message, "error");
+            }
+        });
+    }
+
+    const shareBtn = document.getElementById("share-btn");
+    if (shareBtn) {
+        shareBtn.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                showToast("Đã sao chép liên kết sản phẩm", "success");
+            } catch (err) {
+                showToast("Không thể sao chép liên kết", "error");
+            }
+        });
+    }
+
+    const sizeGuideBtn = document.getElementById("size-guide-btn");
+    if (sizeGuideBtn) {
+        sizeGuideBtn.addEventListener("click", openSizeGuideModal);
+    }
+}
+
+function openSizeGuideModal() {
+    openModal(`
+        <h3>Hướng dẫn chọn size</h3>
+        <table class="size-guide-table">
+            <thead>
+                <tr><th>EU</th><th>US</th><th>UK</th><th>Chân dài (cm)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>38.5</td><td>6</td><td>5.5</td><td>24.0</td></tr>
+                <tr><td>39</td><td>6.5</td><td>6</td><td>24.5</td></tr>
+                <tr><td>40</td><td>7</td><td>6</td><td>25.0</td></tr>
+                <tr><td>40.5</td><td>7.5</td><td>6.5</td><td>25.5</td></tr>
+                <tr><td>41</td><td>8</td><td>7</td><td>26.0</td></tr>
+                <tr><td>42</td><td>8.5</td><td>7.5</td><td>26.5</td></tr>
+                <tr><td>42.5</td><td>9</td><td>8</td><td>27.0</td></tr>
+                <tr><td>43</td><td>9.5</td><td>8.5</td><td>27.5</td></tr>
+                <tr><td>44</td><td>10</td><td>9</td><td>28.0</td></tr>
+                <tr><td>45</td><td>11</td><td>10</td><td>29.0</td></tr>
+            </tbody>
+        </table>
+        <p class="size-guide-tip">Số liệu tham khảo theo bảng size Nike. Mỗi thương hiệu có thể chênh lệch nhẹ — nên đo chân vào cuối ngày, cộng thêm 0.5–1cm để chọn size thoải mái.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-accent" onclick="closeModal()">Đã hiểu</button>
+        </div>
+    `);
+}
+
+function renderRelatedProducts(products) {
+    const section = document.getElementById("pd-related");
+    const grid = document.getElementById("related-products");
+    if (!section || !grid) return;
+
+    if (!products.length) {
+        section.hidden = true;
+        return;
+    }
+
+    grid.innerHTML = products
+        .map((p) => {
+            const media = p.HinhAnh
+                ? `<img src="${escapeHtml(p.HinhAnh)}" alt="${escapeHtml(p.TenSP)}" loading="lazy">`
+                : `<div class="product-card-noimg">Chưa có ảnh</div>`;
+
+            return `
+                <a class="product-card" href="product-detail.html?id=${p.MaSP}">
+                    <div class="product-card-media">
+                        ${media}
+                        <span class="product-card-view">Xem chi tiết →</span>
+                    </div>
+                    <div class="product-card-body">
+                        <span class="product-brand">${escapeHtml(p.TenThuongHieu)}</span>
+                        <span class="product-name">${escapeHtml(p.TenSP)}</span>
+                        <span class="product-category">${escapeHtml(p.TenDanhMuc)}</span>
+                        <span class="product-price">${formatCurrency(p.Gia)}</span>
+                    </div>
+                </a>
+            `;
+        })
+        .join("");
+
+    section.hidden = false;
+}
+
+async function loadRelatedProducts(product) {
+    try {
+        const products = await apiGet("/san-pham", { danhMuc: product.MaDM });
+        const related = products.filter((p) => p.MaSP !== product.MaSP).slice(0, 4);
+        renderRelatedProducts(related);
+    } catch (err) {
+        console.error("Không tải được sản phẩm liên quan:", err.message);
+    }
 }
 
 async function loadProductDetail() {
@@ -146,6 +346,7 @@ async function loadProductDetail() {
         ]);
         variants = variantList;
         renderProduct(product);
+        loadRelatedProducts(product);
     } catch (err) {
         detailContainer.innerHTML = `
             <div class="empty-state">

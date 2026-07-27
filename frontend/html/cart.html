@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết sản phẩm - MyShoes</title>
+    <title>Giỏ hàng - MyShoes</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23e01e26'/><text x='50' y='70' font-family='Arial, sans-serif' font-weight='800' font-size='58' fill='white' text-anchor='middle'>M</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,27 +11,35 @@
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/pages/product-detail.css">
+    <link rel="stylesheet" href="../css/pages/cart.css">
 </head>
 <body>
     <header id="header"></header>
 
     <main>
         <div class="container">
-            <nav class="pd-breadcrumb" id="pd-breadcrumb">
-                <a href="index.html">Trang chủ</a>
-                <span>/</span>
-                <a href="san-pham.html">Sản phẩm</a>
-            </nav>
+            <h1 class="section-title">Giỏ hàng của bạn</h1>
 
-            <div id="product-detail">
-                <div class="empty-state"><strong>Đang tải sản phẩm...</strong></div>
+            <div id="cart-guest" class="empty-state" hidden>
+                <strong>Bạn cần đăng nhập để xem giỏ hàng</strong>
+                <p><a href="login.html" class="btn btn-accent">Đăng nhập</a></p>
             </div>
 
-            <section class="pd-related" id="pd-related" hidden>
-                <h2 class="section-title">Sản phẩm cùng danh mục</h2>
-                <div class="product-grid" id="related-products"></div>
-            </section>
+            <div id="cart-content" class="fade-in" hidden>
+                <div class="cart-layout">
+                    <div class="cart-items" id="cart-items">
+                        <div class="empty-state"><strong>Đang tải giỏ hàng...</strong></div>
+                    </div>
+                    <aside class="cart-summary">
+                        <h3>Tổng cộng</h3>
+                        <div class="cart-summary-row">
+                            <span>Tạm tính</span>
+                            <strong id="cart-total">0₫</strong>
+                        </div>
+                        <button type="button" class="btn btn-accent btn-block" id="checkout-btn">Tiến hành đặt hàng</button>
+                    </aside>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -42,6 +50,6 @@
     <script src="../js/auth.js"></script>
     <script src="../js/validate.js"></script>
     <script src="../js/layout.js"></script>
-    <script src="../js/pages/product-detail.js"></script>
+    <script src="../js/pages/cart.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ const options = {
         info: {
             title: "ShoeStore API",
             version: "1.0.0",
-            description: "API cho website ban giay the thao",
+            description: "API cho website ban giay",
         },
         servers: [
             {

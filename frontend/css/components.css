@@ -125,6 +125,54 @@
     padding: 24px;
 }
 
+/* Bo dieu khien so luong - dung chung product-detail.html va cart.html */
+.qty-control {
+    display: inline-flex;
+    align-items: center;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    width: fit-content;
+}
+
+.qty-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--color-surface-alt);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--color-ink);
+    transition: background 0.12s ease;
+}
+
+.qty-btn:hover {
+    background: var(--color-border);
+}
+
+.qty-btn:disabled {
+    color: #c4c4c4;
+    cursor: not-allowed;
+}
+
+.qty-input {
+    width: 46px;
+    height: 36px;
+    border: none;
+    border-left: 1.5px solid var(--color-border);
+    border-right: 1.5px solid var(--color-border);
+    text-align: center;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 /* Modal - dung chung moi trang (openModal/closeModal trong layout.js) */
 .modal-overlay {
     position: fixed;
