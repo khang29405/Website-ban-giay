@@ -44,4 +44,35 @@ async function login({ Email, MatKhau }) {
     };
 }
 
-module.exports = { register, login };
+async function getProfile(maND) {
+    const user = await userModel.findById(maND);
+    if (!user) {
+        throw httpError(404, "Không tìm thấy người dùng");
+    }
+    return user;
+}
+
+async function updateProfile(maND, { HoTen, SDT, DiaChi }) {
+    const user = await userModel.updateUser(maND, { HoTen, SDT, DiaChi });
+    if (!user) {
+        throw httpError(404, "Không tìm thấy người dùng");
+    }
+    return user;
+}
+
+async function changePassword(maND, { MatKhauCu, MatKhauMoi }) {
+    const hash = await userModel.getPasswordHash(maND);
+    if (!hash) {
+        throw httpError(404, "Không tìm thấy người dùng");
+    }
+
+    const isMatch = await bcrypt.compare(MatKhauCu, hash);
+    if (!isMatch) {
+        throw httpError(401, "Mật khẩu hiện tại không đúng");
+    }
+
+    const newHash = await bcrypt.hash(MatKhauMoi, SALT_ROUNDS);
+    await userModel.updatePassword(maND, newHash);
+}
+
+module.exports = { register, login, getProfile, updateProfile, changePassword };

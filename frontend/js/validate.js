@@ -28,14 +28,16 @@ function clearFormErrors(form) {
     form.querySelectorAll(".input-error").forEach((el) => el.classList.remove("input-error"));
 }
 
-function attachLiveValidation(form) {
-    const generalError = document.getElementById("form-error");
-    const generalSuccess = document.getElementById("form-success");
-    form.querySelectorAll("input").forEach((input) => {
-        input.addEventListener("input", () => {
+function attachLiveValidation(form, generalErrorId = "form-error", generalSuccessId = "form-success") {
+    const generalError = document.getElementById(generalErrorId);
+    const generalSuccess = document.getElementById(generalSuccessId);
+    form.querySelectorAll("input, select, textarea").forEach((input) => {
+        const clear = () => {
             clearFieldError(input);
             if (generalError) generalError.hidden = true;
             if (generalSuccess) generalSuccess.hidden = true;
-        });
+        };
+        input.addEventListener("input", clear);
+        input.addEventListener("change", clear);
     });
 }

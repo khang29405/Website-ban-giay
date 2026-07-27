@@ -20,6 +20,22 @@ async function findById(maND) {
     return result.recordset[0] || null;
 }
 
+async function updateUser(maND, { HoTen, SDT, DiaChi }) {
+    const pool = await poolPromise;
+    const result = await pool
+        .request()
+        .input("MaND", sql.Int, maND)
+        .input("HoTen", sql.NVarChar(100), HoTen)
+        .input("SDT", sql.NVarChar(15), SDT || null)
+        .input("DiaChi", sql.NVarChar(255), DiaChi || null)
+        .query(`
+            UPDATE NGUOI_DUNG SET HoTen = @HoTen, SDT = @SDT, DiaChi = @DiaChi
+            OUTPUT INSERTED.MaND, INSERTED.HoTen, INSERTED.Email, INSERTED.SDT, INSERTED.DiaChi, INSERTED.VaiTro, INSERTED.NgayTao
+            WHERE MaND = @MaND
+        `);
+    return result.recordset[0] || null;
+}
+
 async function createUser({ HoTen, Email, MatKhauHash, SDT, DiaChi }) {
     const pool = await poolPromise;
     const result = await pool
@@ -37,4 +53,22 @@ async function createUser({ HoTen, Email, MatKhauHash, SDT, DiaChi }) {
     return result.recordset[0];
 }
 
-module.exports = { findByEmail, findById, createUser };
+async function getPasswordHash(maND) {
+    const pool = await poolPromise;
+    const result = await pool
+        .request()
+        .input("MaND", sql.Int, maND)
+        .query("SELECT MatKhau FROM NGUOI_DUNG WHERE MaND = @MaND");
+    return result.recordset[0] ? result.recordset[0].MatKhau : null;
+}
+
+async function updatePassword(maND, matKhauHash) {
+    const pool = await poolPromise;
+    await pool
+        .request()
+        .input("MaND", sql.Int, maND)
+        .input("MatKhau", sql.NVarChar(255), matKhauHash)
+        .query("UPDATE NGUOI_DUNG SET MatKhau = @MatKhau WHERE MaND = @MaND");
+}
+
+module.exports = { findByEmail, findById, createUser, updateUser, getPasswordHash, updatePassword };

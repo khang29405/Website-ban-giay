@@ -30,6 +30,7 @@ const searchValidation = [
     query("ten").optional({ values: "falsy" }).isString().trim().isLength({ max: 200 }).withMessage("Từ khóa tìm kiếm tối đa 200 ký tự"),
     query("danhMuc").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("danhMuc không hợp lệ"),
     query("thuongHieu").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("thuongHieu không hợp lệ"),
+    query("sapXep").optional({ values: "falsy" }).isIn(["gia_tang", "gia_giam"]).withMessage("sapXep không hợp lệ"),
 ];
 
 /**
@@ -59,6 +60,10 @@ const searchValidation = [
  *         name: thuongHieu
  *         schema: { type: integer }
  *         description: Loc theo MaTH
+ *       - in: query
+ *         name: sapXep
+ *         schema: { type: string, enum: [gia_tang, gia_giam] }
+ *         description: Sap xep theo gia tang dan hoac giam dan
  *     responses:
  *       200:
  *         description: Thanh cong

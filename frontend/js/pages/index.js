@@ -1,19 +1,20 @@
 const productGrid = document.getElementById("product-grid");
-const searchInput = document.getElementById("search-input");
-const categoryFilter = document.getElementById("category-filter");
-const brandFilter = document.getElementById("brand-filter");
-const brandStrip = document.getElementById("brand-strip");
 
 function formatCurrency(amount) {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
+}
+
+function isNewProduct(ngayTao) {
+    if (!ngayTao) return false;
+    const days = (Date.now() - new Date(ngayTao).getTime()) / (1000 * 60 * 60 * 24);
+    return days <= 14;
 }
 
 function renderProducts(products) {
     if (!products.length) {
         productGrid.innerHTML = `
             <div class="empty-state">
-                <strong>Không tìm thấy sản phẩm phù hợp</strong>
-                <p>Thử đổi từ khóa hoặc bộ lọc khác xem sao.</p>
+                <strong>Chưa có sản phẩm nào</strong>
             </div>
         `;
         return;
@@ -24,7 +25,11 @@ function renderProducts(products) {
             const media = p.HinhAnh
                 ? `<img src="${escapeHtml(p.HinhAnh)}" alt="${escapeHtml(p.TenSP)}" loading="lazy">`
                 : `<div class="product-card-noimg">Chưa có ảnh</div>`;
-            const badge = !p.TrangThai ? `<span class="product-badge badge-off">Ngừng bán</span>` : "";
+            const badge = !p.TrangThai
+                ? `<span class="product-badge badge-off">Ngừng bán</span>`
+                : isNewProduct(p.NgayTao)
+                ? `<span class="product-badge badge-new">Mới</span>`
+                : "";
 
             return `
                 <a class="product-card" href="product-detail.html?id=${p.MaSP}">
@@ -45,45 +50,14 @@ function renderProducts(products) {
         .join("");
 }
 
-async function loadFilterOptions() {
+async function loadFeaturedProducts() {
     try {
-        const [categories, brands] = await Promise.all([apiGet("/danh-muc"), apiGet("/thuong-hieu")]);
-
-        categoryFilter.innerHTML =
-            '<option value="">Tất cả danh mục</option>' +
-            categories.map((c) => `<option value="${c.MaDM}">${escapeHtml(c.TenDanhMuc)}</option>`).join("");
-
-        brandFilter.innerHTML =
-            '<option value="">Tất cả thương hiệu</option>' +
-            brands.map((b) => `<option value="${b.MaTH}">${escapeHtml(b.TenThuongHieu)}</option>`).join("");
-
-        if (brandStrip) {
-            brandStrip.innerHTML = brands
-                .map((b) => `<button type="button" class="brand-pill" data-brand-id="${b.MaTH}">${escapeHtml(b.TenThuongHieu)}</button>`)
-                .join("");
-
-            brandStrip.querySelectorAll(".brand-pill").forEach((btn) => {
-                btn.addEventListener("click", () => {
-                    brandFilter.value = btn.dataset.brandId;
-                    loadProducts();
-                    document.getElementById("catalog").scrollIntoView({ behavior: "smooth" });
-                });
-            });
-        }
-    } catch (err) {
-        console.error("Không tải được danh mục/thương hiệu:", err.message);
-    }
-}
-
-async function loadProducts() {
-    productGrid.innerHTML = `<div class="empty-state"><strong>Đang tải sản phẩm...</strong></div>`;
-    try {
-        const products = await apiGet("/san-pham", {
-            ten: searchInput.value.trim(),
-            danhMuc: categoryFilter.value,
-            thuongHieu: brandFilter.value,
-        });
-        renderProducts(products);
+        const products = await apiGet("/san-pham");
+        const featured = products
+            .slice()
+            .sort((a, b) => new Date(b.NgayTao) - new Date(a.NgayTao))
+            .slice(0, 8);
+        renderProducts(featured);
     } catch (err) {
         productGrid.innerHTML = `
             <div class="empty-state">
@@ -94,13 +68,4 @@ async function loadProducts() {
     }
 }
 
-let searchDebounce;
-searchInput.addEventListener("input", () => {
-    clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(loadProducts, 350);
-});
-categoryFilter.addEventListener("change", loadProducts);
-brandFilter.addEventListener("change", loadProducts);
-
-loadFilterOptions();
-loadProducts();
+loadFeaturedProducts();

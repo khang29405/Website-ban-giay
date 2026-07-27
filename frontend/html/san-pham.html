@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản phẩm - MyShoes</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23e01e26'/><text x='50' y='70' font-family='Arial, sans-serif' font-weight='800' font-size='58' fill='white' text-anchor='middle'>M</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+    <header id="header"></header>
+
+    <main>
+        <div class="container" id="catalog">
+            <h1 class="section-title">Tất cả sản phẩm</h1>
+            <p class="section-subtitle">Chọn danh mục hoặc thương hiệu bên trái, hoặc tìm kiếm nhanh theo tên.</p>
+
+            <div class="catalog-layout">
+                <aside class="catalog-sidebar fade-in">
+                    <div class="filter-group">
+                        <h3 class="filter-group-title">Danh mục</h3>
+                        <ul class="filter-list" id="category-filter-list"></ul>
+                    </div>
+                    <div class="filter-group">
+                        <h3 class="filter-group-title">Thương hiệu</h3>
+                        <ul class="filter-list" id="brand-filter-list"></ul>
+                    </div>
+                </aside>
+
+                <div class="catalog-main">
+                    <div class="catalog-toolbar">
+                        <div class="search-box">
+                            <input type="text" id="search-input" placeholder="Tìm theo tên sản phẩm...">
+                        </div>
+                        <button type="button" id="search-btn" class="btn btn-outline">Tìm kiếm</button>
+                        <div class="sort-buttons">
+                            <button type="button" class="btn btn-ghost sort-btn" data-sort="gia_tang">Giá tăng dần</button>
+                            <button type="button" class="btn btn-ghost sort-btn" data-sort="gia_giam">Giá giảm dần</button>
+                        </div>
+                    </div>
+
+                    <div class="product-grid" id="product-grid">
+                        <div class="empty-state"><strong>Đang tải sản phẩm...</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/validate.js"></script>
+    <script src="../js/layout.js"></script>
+    <script src="../js/pages/san-pham.js"></script>
+</body>
+</html>

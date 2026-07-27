@@ -9,20 +9,6 @@ const isAdmin = !!currentUser && currentUser.VaiTro === "Admin";
 document.getElementById("admin-root").hidden = !isAdmin;
 document.getElementById("access-denied").hidden = isAdmin;
 
-// ============ Modal ============
-const modalOverlay = document.getElementById("modal-overlay");
-const modalBox = document.getElementById("modal-box");
-
-function openModal(html) {
-    modalBox.innerHTML = html;
-    modalOverlay.hidden = false;
-}
-
-function closeModal() {
-    modalOverlay.hidden = true;
-    modalBox.innerHTML = "";
-}
-
 // ============ State ============
 let danhMucList = [];
 let thuongHieuList = [];
@@ -56,16 +42,32 @@ function renderDanhMucTable() {
         : `<tr><td colspan="3" class="admin-empty">Chưa có danh mục nào</td></tr>`;
 }
 
+function validateDanhMucForm(form) {
+    clearFormErrors(form);
+    let valid = true;
+
+    const tenDanhMuc = form.TenDanhMuc.value.trim();
+    if (!tenDanhMuc) {
+        showFieldError(form.TenDanhMuc, "Vui lòng nhập tên danh mục");
+        valid = false;
+    } else if (tenDanhMuc.length > 100) {
+        showFieldError(form.TenDanhMuc, "Tên danh mục tối đa 100 ký tự");
+        valid = false;
+    }
+
+    return valid;
+}
+
 function openDanhMucForm(id) {
     const item = id ? danhMucList.find((d) => d.MaDM === id) : null;
 
     openModal(`
         <h3>${item ? "Sửa danh mục" : "Thêm danh mục"}</h3>
         <div id="modal-error" class="form-error" hidden></div>
-        <form id="danh-muc-form">
+        <form id="danh-muc-form" novalidate>
             <div class="form-group">
                 <label>Tên danh mục</label>
-                <input type="text" name="TenDanhMuc" value="${item ? escapeHtml(item.TenDanhMuc) : ""}" required maxlength="100">
+                <input type="text" name="TenDanhMuc" value="${item ? escapeHtml(item.TenDanhMuc) : ""}" maxlength="100">
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-ghost" onclick="closeModal()">Hủy</button>
@@ -74,10 +76,14 @@ function openDanhMucForm(id) {
         </form>
     `);
 
-    document.getElementById("danh-muc-form").addEventListener("submit", async (e) => {
+    const danhMucForm = document.getElementById("danh-muc-form");
+    attachLiveValidation(danhMucForm, "modal-error");
+
+    danhMucForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const errorBox = document.getElementById("modal-error");
         errorBox.hidden = true;
+        if (!validateDanhMucForm(e.target)) return;
         const TenDanhMuc = e.target.TenDanhMuc.value.trim();
         try {
             if (item) {
@@ -129,16 +135,32 @@ function renderThuongHieuTable() {
         : `<tr><td colspan="3" class="admin-empty">Chưa có thương hiệu nào</td></tr>`;
 }
 
+function validateThuongHieuForm(form) {
+    clearFormErrors(form);
+    let valid = true;
+
+    const tenThuongHieu = form.TenThuongHieu.value.trim();
+    if (!tenThuongHieu) {
+        showFieldError(form.TenThuongHieu, "Vui lòng nhập tên thương hiệu");
+        valid = false;
+    } else if (tenThuongHieu.length > 100) {
+        showFieldError(form.TenThuongHieu, "Tên thương hiệu tối đa 100 ký tự");
+        valid = false;
+    }
+
+    return valid;
+}
+
 function openThuongHieuForm(id) {
     const item = id ? thuongHieuList.find((t) => t.MaTH === id) : null;
 
     openModal(`
         <h3>${item ? "Sửa thương hiệu" : "Thêm thương hiệu"}</h3>
         <div id="modal-error" class="form-error" hidden></div>
-        <form id="thuong-hieu-form">
+        <form id="thuong-hieu-form" novalidate>
             <div class="form-group">
                 <label>Tên thương hiệu</label>
-                <input type="text" name="TenThuongHieu" value="${item ? escapeHtml(item.TenThuongHieu) : ""}" required maxlength="100">
+                <input type="text" name="TenThuongHieu" value="${item ? escapeHtml(item.TenThuongHieu) : ""}" maxlength="100">
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-ghost" onclick="closeModal()">Hủy</button>
@@ -147,10 +169,14 @@ function openThuongHieuForm(id) {
         </form>
     `);
 
-    document.getElementById("thuong-hieu-form").addEventListener("submit", async (e) => {
+    const thuongHieuForm = document.getElementById("thuong-hieu-form");
+    attachLiveValidation(thuongHieuForm, "modal-error");
+
+    thuongHieuForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const errorBox = document.getElementById("modal-error");
         errorBox.hidden = true;
+        if (!validateThuongHieuForm(e.target)) return;
         const TenThuongHieu = e.target.TenThuongHieu.value.trim();
         try {
             if (item) {
@@ -229,6 +255,47 @@ function sanPhamOptionsHtml() {
     };
 }
 
+function validateSanPhamForm(form) {
+    clearFormErrors(form);
+    let valid = true;
+
+    const tenSP = form.TenSP.value.trim();
+    if (!tenSP) {
+        showFieldError(form.TenSP, "Vui lòng nhập tên sản phẩm");
+        valid = false;
+    } else if (tenSP.length > 200) {
+        showFieldError(form.TenSP, "Tên sản phẩm tối đa 200 ký tự");
+        valid = false;
+    }
+
+    const gia = form.Gia.value;
+    if (gia === "") {
+        showFieldError(form.Gia, "Vui lòng nhập giá");
+        valid = false;
+    } else if (Number(gia) < 0) {
+        showFieldError(form.Gia, "Giá phải là số không âm");
+        valid = false;
+    }
+
+    const hinhAnh = form.HinhAnh.value.trim();
+    if (hinhAnh.length > 255) {
+        showFieldError(form.HinhAnh, "Đường dẫn ảnh tối đa 255 ký tự");
+        valid = false;
+    }
+
+    if (!form.MaDM.value) {
+        showFieldError(form.MaDM, "Vui lòng chọn danh mục");
+        valid = false;
+    }
+
+    if (!form.MaTH.value) {
+        showFieldError(form.MaTH, "Vui lòng chọn thương hiệu");
+        valid = false;
+    }
+
+    return valid;
+}
+
 function openSanPhamForm(id) {
     const item = id ? sanPhamList.find((s) => s.MaSP === id) : null;
     const opts = sanPhamOptionsHtml();
@@ -236,10 +303,10 @@ function openSanPhamForm(id) {
     openModal(`
         <h3>${item ? "Sửa sản phẩm" : "Thêm sản phẩm"}</h3>
         <div id="modal-error" class="form-error" hidden></div>
-        <form id="san-pham-form">
+        <form id="san-pham-form" novalidate>
             <div class="form-group">
                 <label>Tên sản phẩm</label>
-                <input type="text" name="TenSP" value="${item ? escapeHtml(item.TenSP) : ""}" required maxlength="200">
+                <input type="text" name="TenSP" value="${item ? escapeHtml(item.TenSP) : ""}" maxlength="200">
             </div>
             <div class="form-group">
                 <label>Mô tả</label>
@@ -247,7 +314,7 @@ function openSanPhamForm(id) {
             </div>
             <div class="form-group">
                 <label>Giá (VNĐ)</label>
-                <input type="number" name="Gia" min="0" step="1000" value="${item ? item.Gia : ""}" required>
+                <input type="number" name="Gia" min="0" step="1000" value="${item ? item.Gia : ""}">
             </div>
             <div class="form-group">
                 <label>Đường dẫn ảnh</label>
@@ -255,11 +322,11 @@ function openSanPhamForm(id) {
             </div>
             <div class="form-group">
                 <label>Danh mục</label>
-                <select name="MaDM" required>${opts.danhMuc}</select>
+                <select name="MaDM">${opts.danhMuc}</select>
             </div>
             <div class="form-group">
                 <label>Thương hiệu</label>
-                <select name="MaTH" required>${opts.thuongHieu}</select>
+                <select name="MaTH">${opts.thuongHieu}</select>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-ghost" onclick="closeModal()">Hủy</button>
@@ -273,11 +340,15 @@ function openSanPhamForm(id) {
         document.querySelector('#san-pham-form select[name="MaTH"]').value = item.MaTH;
     }
 
-    document.getElementById("san-pham-form").addEventListener("submit", async (e) => {
+    const sanPhamForm = document.getElementById("san-pham-form");
+    attachLiveValidation(sanPhamForm, "modal-error");
+
+    sanPhamForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const errorBox = document.getElementById("modal-error");
         errorBox.hidden = true;
         const form = e.target;
+        if (!validateSanPhamForm(form)) return;
         const data = {
             TenSP: form.TenSP.value.trim(),
             MoTa: form.MoTa.value.trim() || undefined,
@@ -320,6 +391,40 @@ async function deleteSanPham(id) {
     }
 }
 
+function validateBienTheForm(form) {
+    clearFormErrors(form);
+    let valid = true;
+
+    const kichCo = form.KichCo.value.trim();
+    if (!kichCo) {
+        showFieldError(form.KichCo, "Vui lòng nhập kích cỡ");
+        valid = false;
+    } else if (kichCo.length > 10) {
+        showFieldError(form.KichCo, "Kích cỡ tối đa 10 ký tự");
+        valid = false;
+    }
+
+    const mauSac = form.MauSac.value.trim();
+    if (!mauSac) {
+        showFieldError(form.MauSac, "Vui lòng nhập màu sắc");
+        valid = false;
+    } else if (mauSac.length > 50) {
+        showFieldError(form.MauSac, "Màu sắc tối đa 50 ký tự");
+        valid = false;
+    }
+
+    const soLuongTon = form.SoLuongTon.value;
+    if (soLuongTon === "") {
+        showFieldError(form.SoLuongTon, "Vui lòng nhập số lượng tồn");
+        valid = false;
+    } else if (Number(soLuongTon) < 0) {
+        showFieldError(form.SoLuongTon, "Số lượng tồn phải là số không âm");
+        valid = false;
+    }
+
+    return valid;
+}
+
 // ============ Biến thể (trong modal riêng của 1 sản phẩm) ============
 async function openBienTheModal(productId) {
     currentVariantProductId = productId;
@@ -336,10 +441,10 @@ async function openBienTheModal(productId) {
             <tbody id="bien-the-tbody"></tbody>
         </table>
 
-        <form id="bien-the-form" class="admin-inline-form">
-            <input type="text" name="KichCo" placeholder="Kích cỡ" required maxlength="10">
-            <input type="text" name="MauSac" placeholder="Màu sắc" required maxlength="50">
-            <input type="number" name="SoLuongTon" placeholder="Tồn kho" min="0" required>
+        <form id="bien-the-form" class="admin-inline-form" novalidate>
+            <input type="text" name="KichCo" placeholder="Kích cỡ" maxlength="10">
+            <input type="text" name="MauSac" placeholder="Màu sắc" maxlength="50">
+            <input type="number" name="SoLuongTon" placeholder="Tồn kho" min="0">
             <button type="submit" class="btn btn-accent" id="bien-the-submit-btn">+ Thêm</button>
         </form>
 
@@ -350,11 +455,15 @@ async function openBienTheModal(productId) {
 
     renderBienTheTable();
 
-    document.getElementById("bien-the-form").addEventListener("submit", async (e) => {
+    const bienTheForm = document.getElementById("bien-the-form");
+    attachLiveValidation(bienTheForm, "modal-error");
+
+    bienTheForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const errorBox = document.getElementById("modal-error");
         errorBox.hidden = true;
         const form = e.target;
+        if (!validateBienTheForm(form)) return;
         const data = {
             KichCo: form.KichCo.value.trim(),
             MauSac: form.MauSac.value.trim(),
@@ -441,10 +550,6 @@ function initTabs() {
 // ============ Init ============
 if (isAdmin) {
     initTabs();
-
-    modalOverlay.addEventListener("click", (e) => {
-        if (e.target === modalOverlay) closeModal();
-    });
 
     document.getElementById("btn-add-danh-muc").addEventListener("click", () => openDanhMucForm());
     document.getElementById("btn-add-thuong-hieu").addEventListener("click", () => openThuongHieuForm());

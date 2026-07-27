@@ -11,7 +11,12 @@ const JOIN_CLAUSE = `
     JOIN THUONG_HIEU th ON sp.MaTH = th.MaTH
 `;
 
-async function findAll({ ten, maDM, maTH } = {}) {
+const SORT_CLAUSES = {
+    gia_tang: "ORDER BY sp.Gia ASC",
+    gia_giam: "ORDER BY sp.Gia DESC",
+};
+
+async function findAll({ ten, maDM, maTH, sapXep } = {}) {
     const pool = await poolPromise;
     const request = pool.request();
     const conditions = [];
@@ -30,7 +35,8 @@ async function findAll({ ten, maDM, maTH } = {}) {
     }
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
-    const result = await request.query(`SELECT ${SELECT_COLUMNS} ${JOIN_CLAUSE} ${whereClause} ORDER BY sp.MaSP`);
+    const orderByClause = SORT_CLAUSES[sapXep] || "ORDER BY sp.MaSP";
+    const result = await request.query(`SELECT ${SELECT_COLUMNS} ${JOIN_CLAUSE} ${whereClause} ${orderByClause}`);
     return result.recordset;
 }
 
