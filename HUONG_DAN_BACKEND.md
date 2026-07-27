@@ -46,7 +46,7 @@ npm start
 
 Kiểm tra: mở `http://localhost:5000/api/health`, phải thấy `{"success":true,"data":{"server":"up","db":"connected"}}`.
 
-## 3. Danh sách API hiện có (Sprint 1 + Sprint 2 task 1)
+## 3. Danh sách API hiện có (hết Sprint 3 task 1)
 
 Tất cả API có prefix `/api`. Xem chi tiết đầy đủ (schema, ví dụ, test trực tiếp) tại Swagger UI — [HUONG_DAN_SWAGGER.md](HUONG_DAN_SWAGGER.md).
 
@@ -118,6 +118,16 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 | GET | `/api/bien-the/:id` | Public | Chi tiết 1 biến thể |
 | PUT | `/api/bien-the/:id` | **Admin** | Cập nhật kích cỡ/màu/tồn kho, `200` |
 | DELETE | `/api/bien-the/:id` | **Admin** | Xoá, `200`. `409` nếu đang có trong giỏ hàng/đơn hàng |
+
+### Giỏ hàng (`/api/gio-hang`) — cần đăng nhập, mỗi người chỉ thấy/sửa được giỏ của chính mình
+| Method | Path | Quyền | Ghi chú |
+|---|---|---|---|
+| GET | `/` | Đã đăng nhập | Danh sách các dòng trong giỏ của user hiện tại (kèm tên/ảnh/giá sản phẩm, size, màu, tồn kho qua JOIN) |
+| POST | `/` | Đã đăng nhập | Thêm biến thể vào giỏ, body `{ "MaBienThe": 1, "SoLuong": 1 }`, `201`. Nếu biến thể đã có trong giỏ thì **cộng dồn** số lượng thay vì tạo dòng mới. `400` nếu tổng số lượng vượt tồn kho. `404` nếu biến thể không tồn tại |
+| PUT | `/:id` | Đã đăng nhập | Cập nhật số lượng, body `{ "SoLuong": 2 }`, `200`. `400` nếu vượt tồn kho. `404` nếu dòng giỏ hàng không tồn tại hoặc không thuộc về mình |
+| DELETE | `/:id` | Đã đăng nhập | Xoá 1 dòng khỏi giỏ, `200`. `404` nếu không tồn tại hoặc không thuộc về mình |
+
+`:id` ở đây là `MaGioHang`. Không giới hạn vai trò (Admin hay KhachHang đều dùng được giỏ hàng của chính mình).
 
 ### Tạo tài khoản Admin
 Đăng ký một tài khoản bình thường qua `/api/auth/register`, sau đó tự nâng quyền trong SSMS:
