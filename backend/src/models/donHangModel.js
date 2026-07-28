@@ -25,6 +25,60 @@ async function findById(maDH) {
     return { ...order, ChiTiet: detailResult.recordset };
 }
 
+async function findByUser(maND) {
+    const pool = await poolPromise;
+    const result = await pool
+        .request()
+        .input("MaND", sql.Int, maND)
+        .query("SELECT * FROM DON_HANG WHERE MaND = @MaND ORDER BY NgayDat DESC");
+    return result.recordset;
+}
+
+async function findAll() {
+    const pool = await poolPromise;
+    const result = await pool.request().query(`
+        SELECT dh.*, nd.HoTen, nd.Email
+        FROM DON_HANG dh
+        JOIN NGUOI_DUNG nd ON dh.MaND = nd.MaND
+        ORDER BY dh.NgayDat DESC
+    `);
+    return result.recordset;
+}
+
+async function updateTrangThai(maDH, trangThai) {
+    const pool = await poolPromise;
+    await pool
+        .request()
+        .input("MaDH", sql.Int, maDH)
+        .input("TrangThai", sql.NVarChar(50), trangThai)
+        .query("UPDATE DON_HANG SET TrangThai = @TrangThai WHERE MaDH = @MaDH");
+    return findById(maDH);
+}
+
+async function restoreStock(maDH) {
+    const pool = await poolPromise;
+    const transaction = new sql.Transaction(pool);
+    await transaction.begin();
+
+    try {
+        const detailResult = await new sql.Request(transaction)
+            .input("MaDH", sql.Int, maDH)
+            .query("SELECT MaBienThe, SoLuong FROM CHI_TIET_DON_HANG WHERE MaDH = @MaDH");
+
+        for (const row of detailResult.recordset) {
+            await new sql.Request(transaction)
+                .input("MaBienThe", sql.Int, row.MaBienThe)
+                .input("SoLuong", sql.Int, row.SoLuong)
+                .query("UPDATE BIEN_THE_SAN_PHAM SET SoLuongTon = SoLuongTon + @SoLuong WHERE MaBienThe = @MaBienThe");
+        }
+
+        await transaction.commit();
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+}
+
 async function createOrder(maND, { DiaChiGiaoHang, SDTNhan, items, tongTien }) {
     const pool = await poolPromise;
     const transaction = new sql.Transaction(pool);
@@ -76,4 +130,4 @@ async function createOrder(maND, { DiaChiGiaoHang, SDTNhan, items, tongTien }) {
     }
 }
 
-module.exports = { findById, createOrder };
+module.exports = { findById, findByUser, findAll, updateTrangThai, restoreStock, createOrder };

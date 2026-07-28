@@ -1,9 +1,12 @@
 const express = require("express");
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 const donHangController = require("../controllers/donHangController");
 const verifyToken = require("../middlewares/authMiddleware");
+const requireRole = require("../middlewares/requireRole");
 
 const router = express.Router();
+
+const idParamValidation = [param("id").isInt({ min: 1 }).withMessage("ID không hợp lệ")];
 
 const createValidation = [
     body("DiaChiGiaoHang")
@@ -13,6 +16,12 @@ const createValidation = [
         .isLength({ max: 255 })
         .withMessage("Địa chỉ giao hàng tối đa 255 ký tự"),
     body("SDTNhan").trim().isMobilePhone("vi-VN").withMessage("Số điện thoại nhận hàng không hợp lệ"),
+];
+
+const statusValidation = [
+    body("TrangThai")
+        .isIn(["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"])
+        .withMessage("Trạng thái không hợp lệ (chỉ nhận ChoXuLy, DangGiao, HoanThanh, DaHuy)"),
 ];
 
 /**
@@ -73,5 +82,150 @@ const createValidation = [
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post("/", verifyToken, createValidation, donHangController.createOrder);
+
+/**
+ * @swagger
+ * /don-hang:
+ *   get:
+ *     summary: Xem danh sach don hang
+ *     description: >
+ *       Khach hang (KhachHang) chi thay don hang cua chinh minh. Admin thay TOAN BO don hang cua moi khach hang.
+ *     tags: [DonHang]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/DonHang'
+ *       401:
+ *         description: Chua dang nhap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get("/", verifyToken, donHangController.getAll);
+
+/**
+ * @swagger
+ * /don-hang/{id}:
+ *   get:
+ *     summary: Xem chi tiet 1 don hang
+ *     description: Khach hang chi xem duoc don cua chinh minh (404 neu xem don nguoi khac). Admin xem duoc moi don.
+ *     tags: [DonHang]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *         description: MaDH
+ *     responses:
+ *       200:
+ *         description: Thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 data:
+ *                   $ref: '#/components/schemas/DonHang'
+ *       401:
+ *         description: Chua dang nhap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Khong tim thay don hang (hoac khong phai don cua ban)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get("/:id", verifyToken, idParamValidation, donHangController.getById);
+
+/**
+ * @swagger
+ * /don-hang/{id}/trang-thai:
+ *   patch:
+ *     summary: Cap nhat trang thai don hang (chi Admin)
+ *     description: >
+ *       Neu chuyen trang thai sang DaHuy thi tu dong hoan lai ton kho cho cac bien the trong don hang do.
+ *     tags: [DonHang]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *         description: MaDH
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [TrangThai]
+ *             properties:
+ *               TrangThai:
+ *                 type: string
+ *                 enum: [ChoXuLy, DangGiao, HoanThanh, DaHuy]
+ *                 example: DangGiao
+ *     responses:
+ *       200:
+ *         description: Cap nhat thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 data:
+ *                   $ref: '#/components/schemas/DonHang'
+ *       400:
+ *         description: Du lieu khong hop le
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Chua dang nhap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Khong co quyen (khong phai Admin)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Khong tim thay don hang
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.patch(
+    "/:id/trang-thai",
+    verifyToken,
+    requireRole("Admin"),
+    [...idParamValidation, ...statusValidation],
+    donHangController.updateStatus
+);
 
 module.exports = router;

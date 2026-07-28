@@ -26,4 +26,35 @@ async function createOrder(maND, { DiaChiGiaoHang, SDTNhan }) {
     return donHangModel.createOrder(maND, { DiaChiGiaoHang, SDTNhan, items: cartItems, tongTien });
 }
 
-module.exports = { createOrder };
+async function getMyOrders(maND) {
+    return donHangModel.findByUser(maND);
+}
+
+async function getAllOrders() {
+    return donHangModel.findAll();
+}
+
+async function getOrderById(maDH, maND, isAdmin) {
+    const order = await donHangModel.findById(maDH);
+    if (!order || (!isAdmin && order.MaND !== maND)) {
+        throw httpError(404, "Không tìm thấy đơn hàng");
+    }
+    return order;
+}
+
+const TRANG_THAI_HOP_LE = ["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"];
+
+async function updateStatus(maDH, trangThaiMoi) {
+    const order = await donHangModel.findById(maDH);
+    if (!order) {
+        throw httpError(404, "Không tìm thấy đơn hàng");
+    }
+
+    if (trangThaiMoi === "DaHuy" && order.TrangThai !== "DaHuy") {
+        await donHangModel.restoreStock(maDH);
+    }
+
+    return donHangModel.updateTrangThai(maDH, trangThaiMoi);
+}
+
+module.exports = { createOrder, getMyOrders, getAllOrders, getOrderById, updateStatus, TRANG_THAI_HOP_LE };

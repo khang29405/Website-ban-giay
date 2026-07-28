@@ -46,7 +46,7 @@ npm start
 
 Kiểm tra: mở `http://localhost:5000/api/health`, phải thấy `{"success":true,"data":{"server":"up","db":"connected"}}`.
 
-## 3. Danh sách API hiện có (hết Sprint 3 task 3)
+## 3. Danh sách API hiện có (hết Sprint 3 task 4)
 
 Tất cả API có prefix `/api`. Xem chi tiết đầy đủ (schema, ví dụ, test trực tiếp) tại Swagger UI — [HUONG_DAN_SWAGGER.md](HUONG_DAN_SWAGGER.md).
 
@@ -132,7 +132,10 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 ### Đặt hàng (`/api/don-hang`) — cần đăng nhập
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
-| POST | `/` | Đã đăng nhập | Đặt hàng từ **toàn bộ giỏ hàng hiện tại**, body `{ "DiaChiGiaoHang": "...", "SDTNhan": "0901234567" }`, `201`. Thanh toán mặc định COD, không nhận từ client. `400` nếu giỏ hàng trống, có sản phẩm đã ngừng bán, hoặc số lượng vượt tồn kho hiện tại (kiểm tra lại tại thời điểm đặt, không chỉ lúc thêm vào giỏ) |
+| POST | `/` | Đã đăng nhập | Đặt hàng từ **toàn bộ giỏ hàng hiện tại**, body `{ "DiaChiGiaoHang": "...", "SDTNhan": "0901234567" }`, `201`. Thanh toán mặc định COD, không nhận từ client. `400` nếu giỏ hàng trống, có sản phẩm đã ngừng bán, hoặc số lượng vượt tồn kho hiện tại (kiểm tra lại tại thời điểm đặt, không chỉ lúc thêm vào giỏ) |  
+| GET | `/` | Đã đăng nhập | **KhachHang**: chỉ thấy đơn hàng của chính mình. **Admin**: thấy toàn bộ đơn hàng của mọi khách (kèm `HoTen`/`Email` người đặt) |
+| GET | `/:id` | Đã đăng nhập | Chi tiết 1 đơn (kèm `ChiTiet` — danh sách sản phẩm/size/màu/đơn giá). KhachHang chỉ xem được đơn của mình, `404` nếu xem đơn người khác (không lộ đơn đó có tồn tại hay không) |
+| PATCH | `/:id/trang-thai` | **Admin** | Cập nhật trạng thái, body `{ "TrangThai": "ChoXuLy" \| "DangGiao" \| "HoanThanh" \| "DaHuy" }`, `200`. Nếu chuyển sang `DaHuy` thì **tự động hoàn lại tồn kho** cho các biến thể trong đơn (chỉ hoàn 1 lần, hủy lại đơn đã hủy không hoàn thêm) |
 
 Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET_DON_HANG` (lưu `DonGia` tại thời điểm mua), trừ `SoLuongTon` của từng biến thể, và xoá các dòng tương ứng khỏi `GIO_HANG`. Nếu bất kỳ bước nào lỗi thì rollback toàn bộ — không có chuyện giỏ hàng bị xoá mà đơn không tạo được (hoặc ngược lại). `TrangThai` đơn hàng mặc định `ChoXuLy`.
 
