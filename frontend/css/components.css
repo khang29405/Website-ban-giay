@@ -624,6 +624,14 @@
     color: var(--color-text-muted);
 }
 
+.empty-state-icon {
+    width: 64px;
+    height: 64px;
+    color: var(--color-border);
+    margin: 0 auto 16px;
+    display: block;
+}
+
 .empty-state strong {
     display: block;
     font-size: 1.1rem;

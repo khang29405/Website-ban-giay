@@ -27,6 +27,7 @@ function renderProducts(products) {
     if (!products.length) {
         productGrid.innerHTML = `
             <div class="empty-state">
+                ${emptyStateIcon()}
                 <strong>Không tìm thấy sản phẩm phù hợp</strong>
                 <p>Thử đổi từ khóa hoặc bộ lọc khác xem sao.</p>
             </div>

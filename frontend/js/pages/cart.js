@@ -12,6 +12,7 @@ function renderCartItems(items) {
     if (!items.length) {
         cartItemsEl.innerHTML = `
             <div class="empty-state">
+                ${emptyStateIcon()}
                 <strong>Giỏ hàng của bạn đang trống</strong>
                 <p><a href="san-pham.html" class="btn btn-outline">Tiếp tục mua sắm</a></p>
             </div>

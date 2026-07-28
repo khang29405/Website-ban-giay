@@ -1,3 +1,13 @@
+function emptyStateIcon() {
+    return `
+        <svg class="empty-state-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 24L16 8H48L56 24" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <rect x="8" y="24" width="48" height="28" rx="4" stroke="currentColor" stroke-width="2.5"/>
+            <path d="M24 24V30C24 33.3137 26.6863 36 30 36H34C37.3137 36 40 33.3137 40 30V24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+    `;
+}
+
 function getInitials(name) {
     if (!name) return "?";
     const parts = name.trim().split(/\s+/);

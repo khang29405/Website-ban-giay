@@ -71,6 +71,10 @@ async function changePassword(maND, { MatKhauCu, MatKhauMoi }) {
         throw httpError(401, "Mật khẩu hiện tại không đúng");
     }
 
+    if (MatKhauMoi === MatKhauCu) {
+        throw httpError(400, "Mật khẩu mới phải khác mật khẩu hiện tại");
+    }
+
     const newHash = await bcrypt.hash(MatKhauMoi, SALT_ROUNDS);
     await userModel.updatePassword(maND, newHash);
 }
