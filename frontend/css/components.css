@@ -4,7 +4,7 @@
     color: #fff;
     padding: 64px 40px;
     margin-bottom: 0;
-    min-height: 380px;
+    min-height: 460px;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -31,7 +31,9 @@
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(100deg, rgba(13, 13, 15, 0.9) 0%, rgba(13, 13, 15, 0.6) 50%, rgba(224, 30, 38, 0.45) 100%);
+    background:
+        linear-gradient(100deg, rgba(13, 13, 15, 0.9) 0%, rgba(13, 13, 15, 0.6) 50%, rgba(224, 30, 38, 0.45) 100%),
+        linear-gradient(to top, rgba(13, 13, 15, 0.35) 0%, rgba(13, 13, 15, 0) 22%);
 }
 
 .hero-inner {
@@ -44,18 +46,24 @@
 }
 
 .hero h1 {
-    font-size: clamp(2.1rem, 4.2vw, 3.1rem);
-    margin: 8px 0 12px;
+    font-size: clamp(2.4rem, 4.8vw, 3.6rem);
+    margin: 10px 0 14px;
     color: #fff;
 }
 
 .hero p {
     font-family: "Inter", Arial, sans-serif;
     font-weight: 400;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: #e6e6ea;
     max-width: 460px;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .hero .btn-accent {
@@ -67,42 +75,15 @@
     background: var(--color-accent-dark);
 }
 
-/* Trust strip - cam ket dich vu */
-.trust-strip {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
-    background: var(--color-surface-alt);
-    border-bottom: 1px solid var(--color-border);
+.btn-hero-outline {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.55);
 }
 
-.trust-item {
-    flex: 1 1 200px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 16px 24px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--color-text);
-    border-right: 1px solid var(--color-border);
-}
-
-.trust-item:last-child {
-    border-right: none;
-}
-
-.trust-item .trust-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background: #fff;
-    border: 1.5px solid var(--color-border);
-    font-size: 1.05rem;
+.btn-hero-outline:hover {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Section titles */

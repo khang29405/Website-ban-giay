@@ -287,9 +287,9 @@ function openSizeGuideModal() {
     `);
 }
 
-function renderRelatedProducts(products) {
-    const section = document.getElementById("pd-related");
-    const grid = document.getElementById("related-products");
+function renderRelatedProducts(products, sectionId, gridId) {
+    const section = document.getElementById(sectionId);
+    const grid = document.getElementById(gridId);
     if (!section || !grid) return;
 
     if (!products.length) {
@@ -323,13 +323,23 @@ function renderRelatedProducts(products) {
     section.hidden = false;
 }
 
-async function loadRelatedProducts(product) {
+async function loadRelatedByCategory(product) {
     try {
         const products = await apiGet("/san-pham", { danhMuc: product.MaDM });
         const related = products.filter((p) => p.MaSP !== product.MaSP).slice(0, 4);
-        renderRelatedProducts(related);
+        renderRelatedProducts(related, "pd-related", "related-products");
     } catch (err) {
-        console.error("Không tải được sản phẩm liên quan:", err.message);
+        console.error("Không tải được sản phẩm cùng danh mục:", err.message);
+    }
+}
+
+async function loadRelatedByBrand(product) {
+    try {
+        const products = await apiGet("/san-pham", { thuongHieu: product.MaTH });
+        const related = products.filter((p) => p.MaSP !== product.MaSP).slice(0, 4);
+        renderRelatedProducts(related, "pd-related-brand", "related-products-brand");
+    } catch (err) {
+        console.error("Không tải được sản phẩm cùng thương hiệu:", err.message);
     }
 }
 
@@ -346,7 +356,8 @@ async function loadProductDetail() {
         ]);
         variants = variantList;
         renderProduct(product);
-        loadRelatedProducts(product);
+        loadRelatedByCategory(product);
+        loadRelatedByBrand(product);
     } catch (err) {
         detailContainer.innerHTML = `
             <div class="empty-state">

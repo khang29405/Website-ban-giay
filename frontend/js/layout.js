@@ -324,6 +324,7 @@ function renderFooter() {
                         <li><a href="index.html">Trang chủ</a></li>
                         <li><a href="san-pham.html">Sản phẩm</a></li>
                         <li><a href="about.html">Giới thiệu</a></li>
+                        <li><a href="cart.html">Giỏ hàng</a></li>
                     </ul>
                 </div>
                 <div>
@@ -332,6 +333,7 @@ function renderFooter() {
                         <li>123 Nguyễn Trãi, Q1, TP.HCM</li>
                         <li><a href="tel:1900636999">1900 636 999</a></li>
                         <li><a href="mailto:support@myshoes.local">support@myshoes.local</a></li>
+                        <li>8:00 - 21:00 tất cả các ngày</li>
                     </ul>
                 </div>
             </div>
