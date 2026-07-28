@@ -70,6 +70,36 @@ const options = {
                         SoLuongTon: { type: "integer", example: 20 },
                     },
                 },
+                DonHang: {
+                    type: "object",
+                    properties: {
+                        MaDH: { type: "integer", example: 1 },
+                        MaND: { type: "integer", example: 1 },
+                        DiaChiGiaoHang: { type: "string", example: "123 Nguyen Trai, Q1, TP.HCM" },
+                        SDTNhan: { type: "string", example: "0901234567" },
+                        TongTien: { type: "number", example: 3200000 },
+                        PhuongThucTT: { type: "string", example: "COD" },
+                        TrangThai: { type: "string", example: "ChoXuLy", enum: ["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"] },
+                        NgayDat: { type: "string", format: "date-time" },
+                        ChiTiet: {
+                            type: "array",
+                            items: {
+                                type: "object",
+                                properties: {
+                                    MaCTDH: { type: "integer", example: 1 },
+                                    MaBienThe: { type: "integer", example: 1 },
+                                    SoLuong: { type: "integer", example: 2 },
+                                    DonGia: { type: "number", example: 3200000 },
+                                    KichCo: { type: "string", example: "40" },
+                                    MauSac: { type: "string", example: "Den" },
+                                    MaSP: { type: "integer", example: 1 },
+                                    TenSP: { type: "string", example: "Nike Air Max 270" },
+                                    HinhAnh: { type: "string", nullable: true, example: "https://example.com/anh.jpg" },
+                                },
+                            },
+                        },
+                    },
+                },
                 GioHang: {
                     type: "object",
                     properties: {

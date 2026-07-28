@@ -15,7 +15,8 @@ async function getAll(req, res, next) {
     try {
         handleValidation(req);
         const { ten, danhMuc, thuongHieu, sapXep } = req.query;
-        const items = await sanPhamService.getAll({ ten, maDM: danhMuc, maTH: thuongHieu, sapXep });
+        const isAdmin = req.user && req.user.vaiTro === "Admin";
+        const items = await sanPhamService.getAll({ ten, maDM: danhMuc, maTH: thuongHieu, sapXep, chiHienThi: !isAdmin });
         res.json({ success: true, data: items });
     } catch (err) {
         next(err);
@@ -25,7 +26,8 @@ async function getAll(req, res, next) {
 async function getById(req, res, next) {
     try {
         handleValidation(req);
-        const item = await sanPhamService.getById(req.params.id);
+        const isAdmin = req.user && req.user.vaiTro === "Admin";
+        const item = await sanPhamService.getById(req.params.id, isAdmin);
         res.json({ success: true, data: item });
     } catch (err) {
         next(err);

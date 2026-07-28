@@ -4,6 +4,7 @@ const sanPhamController = require("../controllers/sanPhamController");
 const bienTheController = require("../controllers/bienTheController");
 const verifyToken = require("../middlewares/authMiddleware");
 const requireRole = require("../middlewares/requireRole");
+const optionalAuth = require("../middlewares/optionalAuth");
 
 const router = express.Router();
 
@@ -85,7 +86,7 @@ const searchValidation = [
  *               $ref: '#/components/schemas/ErrorResponse'
  * 
  */
-router.get("/", searchValidation, sanPhamController.getAll);
+router.get("/", optionalAuth, searchValidation, sanPhamController.getAll);
 
 
 /**
@@ -117,7 +118,7 @@ router.get("/", searchValidation, sanPhamController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get("/:id", idParamValidation, sanPhamController.getById);
+router.get("/:id", optionalAuth, idParamValidation, sanPhamController.getById);
 
 /**
  * @swagger

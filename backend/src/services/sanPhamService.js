@@ -7,9 +7,11 @@ async function getAll(filters) {
     return sanPhamModel.findAll(filters);
 }
 
-async function getById(id) {
+async function getById(id, isAdmin) {
     const item = await sanPhamModel.findById(id);
-    if (!item) throw httpError(404, "Không tìm thấy sản phẩm");
+    if (!item || (!item.TrangThai && !isAdmin)) {
+        throw httpError(404, "Không tìm thấy sản phẩm");
+    }
     return item;
 }
 

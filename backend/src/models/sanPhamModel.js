@@ -16,7 +16,7 @@ const SORT_CLAUSES = {
     gia_giam: "ORDER BY sp.Gia DESC",
 };
 
-async function findAll({ ten, maDM, maTH, sapXep } = {}) {
+async function findAll({ ten, maDM, maTH, sapXep, chiHienThi } = {}) {
     const pool = await poolPromise;
     const request = pool.request();
     const conditions = [];
@@ -32,6 +32,9 @@ async function findAll({ ten, maDM, maTH, sapXep } = {}) {
     if (maTH) {
         request.input("MaTH", sql.Int, maTH);
         conditions.push("sp.MaTH = @MaTH");
+    }
+    if (chiHienThi) {
+        conditions.push("sp.TrangThai = 1");
     }
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";

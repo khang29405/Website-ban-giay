@@ -46,7 +46,7 @@ npm start
 
 Kiểm tra: mở `http://localhost:5000/api/health`, phải thấy `{"success":true,"data":{"server":"up","db":"connected"}}`.
 
-## 3. Danh sách API hiện có (hết Sprint 3 task 1)
+## 3. Danh sách API hiện có (hết Sprint 3 task 3)
 
 Tất cả API có prefix `/api`. Xem chi tiết đầy đủ (schema, ví dụ, test trực tiếp) tại Swagger UI — [HUONG_DAN_SWAGGER.md](HUONG_DAN_SWAGGER.md).
 
@@ -103,8 +103,8 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 ### Sản phẩm (`/api/san-pham`)
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
-| GET | / | Public | Danh sách tất cả (kèm tên danh mục/thương hiệu qua JOIN). Hỗ trợ query ?ten=&danhMuc=&thuongHieu= để tìm/lọc, kết hợp được nhiều điều kiện cùng lúc, ten không phân biệt hoa thường |
-| GET | `/:id` | Public | Chi tiết 1 sản phẩm, `404` nếu không có |
+| GET | / | Public (tuỳ chọn token) | Danh sách tất cả (kèm tên danh mục/thương hiệu qua JOIN). Hỗ trợ query ?ten=&danhMuc=&thuongHieu=&sapXep= để tìm/lọc/sắp xếp. **Khách/chưa đăng nhập chỉ thấy sản phẩm `TrangThai = true`** (sản phẩm đã ẩn bị loại khỏi danh sách); nếu gửi kèm token Admin hợp lệ thì thấy tất cả kể cả sản phẩm đã ẩn |
+| GET | `/:id` | Public (tuỳ chọn token) | Chi tiết 1 sản phẩm, `404` nếu không có **hoặc nếu đã ẩn mà người gọi không phải Admin** (coi như không tồn tại) |
 | POST | `/` | **Admin** | Tạo mới, `201`. `400` nếu thiếu trường/danh mục hoặc thương hiệu không tồn tại |
 | PUT | `/:id` | **Admin** | Cập nhật, `200`. `404` nếu không tồn tại |
 | PATCH | `/:id/trang-thai` | **Admin** | Ẩn/hiện sản phẩm, body `{ "TrangThai": true/false }` — không xóa dữ liệu |
@@ -128,6 +128,13 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 | DELETE | `/:id` | Đã đăng nhập | Xoá 1 dòng khỏi giỏ, `200`. `404` nếu không tồn tại hoặc không thuộc về mình |
 
 `:id` ở đây là `MaGioHang`. Không giới hạn vai trò (Admin hay KhachHang đều dùng được giỏ hàng của chính mình).
+
+### Đặt hàng (`/api/don-hang`) — cần đăng nhập
+| Method | Path | Quyền | Ghi chú |
+|---|---|---|---|
+| POST | `/` | Đã đăng nhập | Đặt hàng từ **toàn bộ giỏ hàng hiện tại**, body `{ "DiaChiGiaoHang": "...", "SDTNhan": "0901234567" }`, `201`. Thanh toán mặc định COD, không nhận từ client. `400` nếu giỏ hàng trống, có sản phẩm đã ngừng bán, hoặc số lượng vượt tồn kho hiện tại (kiểm tra lại tại thời điểm đặt, không chỉ lúc thêm vào giỏ) |
+
+Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET_DON_HANG` (lưu `DonGia` tại thời điểm mua), trừ `SoLuongTon` của từng biến thể, và xoá các dòng tương ứng khỏi `GIO_HANG`. Nếu bất kỳ bước nào lỗi thì rollback toàn bộ — không có chuyện giỏ hàng bị xoá mà đơn không tạo được (hoặc ngược lại). `TrangThai` đơn hàng mặc định `ChoXuLy`.
 
 ### Tạo tài khoản Admin
 Đăng ký một tài khoản bình thường qua `/api/auth/register`, sau đó tự nâng quyền trong SSMS:
