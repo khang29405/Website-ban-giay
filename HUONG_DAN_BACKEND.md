@@ -133,8 +133,8 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
 | POST | `/` | Đã đăng nhập | Đặt hàng từ **toàn bộ giỏ hàng hiện tại**, body `{ "DiaChiGiaoHang": "...", "SDTNhan": "0901234567" }`, `201`. Thanh toán mặc định COD, không nhận từ client. `400` nếu giỏ hàng trống, có sản phẩm đã ngừng bán, hoặc số lượng vượt tồn kho hiện tại (kiểm tra lại tại thời điểm đặt, không chỉ lúc thêm vào giỏ) |  
-| GET | `/` | Đã đăng nhập | **KhachHang**: chỉ thấy đơn hàng của chính mình. **Admin**: thấy toàn bộ đơn hàng của mọi khách (kèm `HoTen`/`Email` người đặt) |
-| GET | `/:id` | Đã đăng nhập | Chi tiết 1 đơn (kèm `ChiTiet` — danh sách sản phẩm/size/màu/đơn giá). KhachHang chỉ xem được đơn của mình, `404` nếu xem đơn người khác (không lộ đơn đó có tồn tại hay không) |
+| GET | `/` | Đã đăng nhập | **KhachHang**: chỉ thấy đơn hàng của chính mình. **Admin**: thấy toàn bộ đơn hàng của mọi khách. Mỗi đơn kèm `HoTen`/`Email` người đặt, `TongSoLuong` và `AnhXemTruoc` (tối đa 4 ảnh sản phẩm đầu tiên, tính gộp qua 1 query — không N+1) |
+| GET | `/:id` | Đã đăng nhập | Chi tiết 1 đơn (kèm `HoTen`/`Email` người đặt và `ChiTiet` — danh sách sản phẩm/size/màu/đơn giá/ảnh). KhachHang chỉ xem được đơn của mình, `404` nếu xem đơn người khác (không lộ đơn đó có tồn tại hay không) |
 | PATCH | `/:id/trang-thai` | **Admin** | Cập nhật trạng thái, body `{ "TrangThai": "ChoXuLy" \| "DangGiao" \| "HoanThanh" \| "DaHuy" }`, `200`. Nếu chuyển sang `DaHuy` thì **tự động hoàn lại tồn kho** cho các biến thể trong đơn (chỉ hoàn 1 lần, hủy lại đơn đã hủy không hoàn thêm) |
 
 Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET_DON_HANG` (lưu `DonGia` tại thời điểm mua), trừ `SoLuongTon` của từng biến thể, và xoá các dòng tương ứng khỏi `GIO_HANG`. Nếu bất kỳ bước nào lỗi thì rollback toàn bộ — không có chuyện giỏ hàng bị xoá mà đơn không tạo được (hoặc ngược lại). `TrangThai` đơn hàng mặc định `ChoXuLy`.

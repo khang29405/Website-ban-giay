@@ -75,6 +75,8 @@ const options = {
                     properties: {
                         MaDH: { type: "integer", example: 1 },
                         MaND: { type: "integer", example: 1 },
+                        HoTen: { type: "string", example: "Nguyen Van A", description: "Ten nguoi dat don" },
+                        Email: { type: "string", example: "a@test.com", description: "Email nguoi dat don" },
                         DiaChiGiaoHang: { type: "string", example: "123 Nguyen Trai, Q1, TP.HCM" },
                         SDTNhan: { type: "string", example: "0901234567" },
                         TongTien: { type: "number", example: 3200000 },

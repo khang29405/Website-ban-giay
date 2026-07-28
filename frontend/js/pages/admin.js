@@ -535,6 +535,140 @@ async function deleteBienThe(id) {
     }
 }
 
+// ============ Đơn hàng ============
+const DON_HANG_STATUS_LABEL = {
+    ChoXuLy: { text: "Chờ xử lý", cls: "pending" },
+    DangGiao: { text: "Đang giao", cls: "shipping" },
+    HoanThanh: { text: "Hoàn thành", cls: "done" },
+    DaHuy: { text: "Đã hủy", cls: "cancelled" },
+};
+
+let donHangList = [];
+let selectedDonHangStatus = "";
+
+function donHangStatusBadge(trangThai) {
+    const status = DON_HANG_STATUS_LABEL[trangThai] || { text: trangThai, cls: "" };
+    return `<span class="order-status ${status.cls}">${status.text}</span>`;
+}
+
+function donHangStatusClass(trangThai) {
+    const status = DON_HANG_STATUS_LABEL[trangThai];
+    return status ? `status-${status.cls}` : "";
+}
+
+function formatDate(iso) {
+    return new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+async function loadDonHang() {
+    donHangList = await apiGet("/don-hang").catch(() => []);
+    renderDonHangTable();
+}
+
+function renderDonHangTable() {
+    const tbody = document.getElementById("table-don-hang-body");
+    const filtered = selectedDonHangStatus
+        ? donHangList.filter((o) => o.TrangThai === selectedDonHangStatus)
+        : donHangList;
+
+    tbody.innerHTML = filtered.length
+        ? filtered
+              .map(
+                  (o) => `
+            <tr>
+                <td>#${o.MaDH}</td>
+                <td>${escapeHtml(o.HoTen || "")}<br><span class="admin-subtext">${escapeHtml(o.Email || "")}</span></td>
+                <td>${formatDate(o.NgayDat)}</td>
+                <td>${o.TongSoLuong || 0}</td>
+                <td>${formatCurrency(o.TongTien)}</td>
+                <td>
+                    <select class="admin-order-status-select ${donHangStatusClass(o.TrangThai)}" data-id="${o.MaDH}">
+                        ${Object.entries(DON_HANG_STATUS_LABEL)
+                            .map(
+                                ([value, s]) =>
+                                    `<option value="${value}" ${o.TrangThai === value ? "selected" : ""}>${s.text}</option>`
+                            )
+                            .join("")}
+                    </select>
+                </td>
+                <td class="admin-actions">
+                    <button type="button" class="btn-link" onclick="openAdminOrderDetail(${o.MaDH})">Xem chi tiết</button>
+                </td>
+            </tr>`
+              )
+              .join("")
+        : `<tr><td colspan="7" class="admin-empty">Không có đơn hàng nào</td></tr>`;
+
+    tbody.querySelectorAll(".admin-order-status-select").forEach((select) => {
+        const originalValue = select.value;
+
+        function resetToOriginal() {
+            select.value = originalValue;
+            select.className = `admin-order-status-select ${donHangStatusClass(originalValue)}`;
+        }
+
+        select.addEventListener("change", async () => {
+            const newValue = select.value;
+            const id = select.dataset.id;
+            const label = DON_HANG_STATUS_LABEL[newValue] ? DON_HANG_STATUS_LABEL[newValue].text : newValue;
+            if (!(await showConfirm(`Đổi trạng thái đơn #${id} sang "${label}"?`))) {
+                resetToOriginal();
+                return;
+            }
+
+            select.className = `admin-order-status-select ${donHangStatusClass(newValue)}`;
+            try {
+                await apiPatch(`/don-hang/${id}/trang-thai`, { TrangThai: newValue });
+                showToast("Đã cập nhật trạng thái đơn hàng", "success");
+                loadDonHang();
+            } catch (err) {
+                showToast(err.message, "error");
+                resetToOriginal();
+            }
+        });
+    });
+}
+
+async function openAdminOrderDetail(id) {
+    try {
+        const order = await apiGet(`/don-hang/${id}`);
+        const itemsHtml = order.ChiTiet.map((item) => {
+            const media = item.HinhAnh
+                ? `<img src="${escapeHtml(item.HinhAnh)}" alt="${escapeHtml(item.TenSP)}">`
+                : `<div class="order-detail-item-noimg">Chưa có ảnh</div>`;
+            return `
+                <div class="order-detail-item">
+                    <div class="order-detail-item-media">${media}</div>
+                    <div class="order-detail-item-info">
+                        <span class="order-detail-item-name">${escapeHtml(item.TenSP)}</span>
+                        <span class="order-detail-item-variant">Size ${escapeHtml(item.KichCo)} · ${escapeHtml(item.MauSac)} · × ${item.SoLuong}</span>
+                    </div>
+                    <strong class="order-detail-item-subtotal">${formatCurrency(item.DonGia * item.SoLuong)}</strong>
+                </div>
+            `;
+        }).join("");
+
+        openModal(`
+            <h3>Đơn hàng #${order.MaDH}</h3>
+            <p class="order-detail-meta"><span>Khách hàng</span><strong>${escapeHtml(order.HoTen || "")} (${escapeHtml(order.Email || "")})</strong></p>
+            <p class="order-detail-meta"><span>Trạng thái</span>${donHangStatusBadge(order.TrangThai)}</p>
+            <p class="order-detail-meta"><span>Ngày đặt</span><strong>${formatDate(order.NgayDat)}</strong></p>
+            <p class="order-detail-meta"><span>Giao đến</span><strong>${escapeHtml(order.DiaChiGiaoHang)}</strong></p>
+            <p class="order-detail-meta"><span>SĐT nhận hàng</span><strong>${escapeHtml(order.SDTNhan)}</strong></p>
+            <div class="order-detail-items">${itemsHtml}</div>
+            <div class="order-detail-total">
+                <span>Tổng cộng</span>
+                <strong>${formatCurrency(order.TongTien)}</strong>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="closeModal()">Đóng</button>
+            </div>
+        `);
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
 // ============ Tabs ============
 function initTabs() {
     document.querySelectorAll(".admin-tab").forEach((btn) => {
@@ -555,7 +689,19 @@ if (isAdmin) {
     document.getElementById("btn-add-thuong-hieu").addEventListener("click", () => openThuongHieuForm());
     document.getElementById("btn-add-san-pham").addEventListener("click", () => openSanPhamForm());
 
+    const adminOrderTabs = document.getElementById("admin-order-tabs");
+    if (adminOrderTabs) {
+        adminOrderTabs.querySelectorAll(".order-tab").forEach((tab) => {
+            tab.addEventListener("click", () => {
+                selectedDonHangStatus = tab.dataset.status;
+                adminOrderTabs.querySelectorAll(".order-tab").forEach((t) => t.classList.toggle("active", t === tab));
+                renderDonHangTable();
+            });
+        });
+    }
+
     loadDanhMuc();
     loadThuongHieu();
     loadSanPham();
+    loadDonHang();
 }

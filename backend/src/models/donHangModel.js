@@ -5,7 +5,12 @@ async function findById(maDH) {
     const orderResult = await pool
         .request()
         .input("MaDH", sql.Int, maDH)
-        .query("SELECT * FROM DON_HANG WHERE MaDH = @MaDH");
+        .query(`
+            SELECT dh.*, nd.HoTen, nd.Email
+            FROM DON_HANG dh
+            JOIN NGUOI_DUNG nd ON dh.MaND = nd.MaND
+            WHERE dh.MaDH = @MaDH
+        `);
     const order = orderResult.recordset[0];
     if (!order) return null;
 

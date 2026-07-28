@@ -32,6 +32,7 @@
                     <button type="button" class="admin-tab active" data-tab="danh-muc">Danh mục</button>
                     <button type="button" class="admin-tab" data-tab="thuong-hieu">Thương hiệu</button>
                     <button type="button" class="admin-tab" data-tab="san-pham">Sản phẩm</button>
+                    <button type="button" class="admin-tab" data-tab="don-hang">Đơn hàng</button>
                 </div>
 
                 <section class="admin-panel" id="panel-danh-muc">
@@ -70,6 +71,25 @@
                             <tr><th>ID</th><th>Tên sản phẩm</th><th>Danh mục</th><th>Thương hiệu</th><th>Giá</th><th>Tồn kho</th><th>Trạng thái</th><th></th></tr>
                         </thead>
                         <tbody id="table-san-pham-body"></tbody>
+                    </table>
+                </section>
+
+                <section class="admin-panel" id="panel-don-hang" hidden>
+                    <div class="admin-panel-header">
+                        <h2>Đơn hàng</h2>
+                    </div>
+                    <div class="order-tabs" id="admin-order-tabs">
+                        <button type="button" class="order-tab active" data-status="">Tất cả</button>
+                        <button type="button" class="order-tab" data-status="ChoXuLy">Chờ xử lý</button>
+                        <button type="button" class="order-tab" data-status="DangGiao">Đang giao</button>
+                        <button type="button" class="order-tab" data-status="HoanThanh">Hoàn thành</button>
+                        <button type="button" class="order-tab" data-status="DaHuy">Đã hủy</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>Mã đơn</th><th>Khách hàng</th><th>Ngày đặt</th><th>Số SP</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr>
+                        </thead>
+                        <tbody id="table-don-hang-body"></tbody>
                     </table>
                 </section>
             </div>
