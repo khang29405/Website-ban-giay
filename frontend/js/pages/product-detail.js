@@ -166,16 +166,17 @@ function renderProduct(product) {
                             <input type="number" class="qty-input" id="pd-qty-input" value="1" min="1">
                             <button type="button" class="qty-btn" id="qty-plus">+</button>
                         </div>
-                        <button type="button" class="btn btn-accent" id="add-to-cart-btn">Thêm vào giỏ hàng</button>
+                        <button type="button" class="btn btn-outline" id="add-to-cart-btn">Thêm vào giỏ hàng</button>
+                        <button type="button" class="btn btn-accent" id="buy-now-btn">Mua ngay</button>
                     `
                             : `<a href="login.html" class="btn btn-accent">Đăng nhập để mua hàng</a>`
                     }
                 </div>
 
                 <ul class="pd-trust-mini">
-                    <li>✅ Hàng chính hãng 100%</li>
-                    <li>🚚 Giao hàng toàn quốc</li>
-                    <li>🔄 Đổi trả trong 7 ngày</li>
+                    <li><span class="pd-trust-icon">✅</span><span>Hàng chính hãng 100%</span></li>
+                    <li><span class="pd-trust-icon">🚚</span><span>Giao hàng toàn quốc</span></li>
+                    <li><span class="pd-trust-icon">🔄</span><span>Đổi trả trong 7 ngày</span></li>
                 </ul>
             </div>
         </div>
@@ -199,6 +200,7 @@ function renderProduct(product) {
     const qtyPlus = document.getElementById("qty-plus");
     const qtyInput = document.getElementById("pd-qty-input");
     const addToCartBtn = document.getElementById("add-to-cart-btn");
+    const buyNowBtn = document.getElementById("buy-now-btn");
 
     if (qtyMinus && qtyPlus && qtyInput) {
         qtyMinus.addEventListener("click", () => {
@@ -210,26 +212,33 @@ function renderProduct(product) {
         });
     }
 
+    function getValidSelectedVariant() {
+        if (!selectedSize && !selectedColor) {
+            showToast("Vui lòng chọn kích cỡ và màu sắc", "error");
+            return null;
+        }
+        if (!selectedSize) {
+            showToast("Vui lòng chọn kích cỡ", "error");
+            return null;
+        }
+        if (!selectedColor) {
+            showToast("Vui lòng chọn màu sắc", "error");
+            return null;
+        }
+
+        const variant = findVariant(selectedSize, selectedColor);
+        if (!variant || variant.SoLuongTon <= 0) {
+            showToast("Sản phẩm đã hết hàng với lựa chọn này", "error");
+            return null;
+        }
+
+        return variant;
+    }
+
     if (addToCartBtn) {
         addToCartBtn.addEventListener("click", async () => {
-            if (!selectedSize && !selectedColor) {
-                showToast("Vui lòng chọn kích cỡ và màu sắc", "error");
-                return;
-            }
-            if (!selectedSize) {
-                showToast("Vui lòng chọn kích cỡ", "error");
-                return;
-            }
-            if (!selectedColor) {
-                showToast("Vui lòng chọn màu sắc", "error");
-                return;
-            }
-
-            const variant = findVariant(selectedSize, selectedColor);
-            if (!variant || variant.SoLuongTon <= 0) {
-                showToast("Sản phẩm đã hết hàng với lựa chọn này", "error");
-                return;
-            }
+            const variant = getValidSelectedVariant();
+            if (!variant) return;
 
             const soLuong = Number(qtyInput.value) || 1;
             try {
@@ -239,6 +248,16 @@ function renderProduct(product) {
             } catch (err) {
                 showToast(err.message, "error");
             }
+        });
+    }
+
+    if (buyNowBtn) {
+        buyNowBtn.addEventListener("click", () => {
+            const variant = getValidSelectedVariant();
+            if (!variant) return;
+
+            const soLuong = Number(qtyInput.value) || 1;
+            openCheckoutModal({ MaBienThe: variant.MaBienThe, SoLuong: soLuong });
         });
     }
 

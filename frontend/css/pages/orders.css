@@ -1,0 +1,335 @@
+.order-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 28px 0 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.order-tab {
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.order-tab:hover {
+    color: var(--color-ink);
+}
+
+.order-tab.active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 64px;
+}
+
+.order-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+}
+
+.order-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.order-card-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.order-code {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--color-ink);
+}
+
+.order-date {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+}
+
+.order-item-preview {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.order-item-preview img,
+.order-item-preview-noimg {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius);
+    object-fit: cover;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.order-item-preview-noimg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.order-item-preview-extra {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.order-card-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.order-address {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.order-card-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    white-space: nowrap;
+}
+
+.order-card-total span {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.order-card-total strong {
+    font-size: 1rem;
+    color: var(--color-ink);
+}
+
+.order-status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.order-status.pending {
+    background: #fff4e5;
+    color: #b8590a;
+}
+
+.order-status.shipping {
+    background: #e8f0fe;
+    color: #1a56db;
+}
+
+.order-status.done {
+    background: #e6f4ea;
+    color: #1e7e34;
+}
+
+.order-status.cancelled {
+    background: #fdecea;
+    color: #b3261e;
+}
+
+/* Thanh tien trinh trang thai don hang - hien trong modal chi tiet */
+.order-progress {
+    display: flex;
+    align-items: flex-start;
+    margin: 18px 0 22px;
+}
+
+.order-progress.is-cancelled {
+    background: #fdecea;
+    color: #b3261e;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+}
+
+.order-progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    width: 90px;
+}
+
+.order-progress-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-surface-alt);
+    border: 2px solid var(--color-border);
+}
+
+.order-progress-step.done .order-progress-dot {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+.order-progress-step.active .order-progress-dot {
+    background: #fff;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(224, 30, 38, 0.18);
+}
+
+.order-progress-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.order-progress-step.done .order-progress-label,
+.order-progress-step.active .order-progress-label {
+    color: var(--color-ink);
+}
+
+.order-progress-line {
+    flex: 1 1 auto;
+    height: 2px;
+    background: var(--color-border);
+    margin-top: 6px;
+}
+
+.order-progress-line.done {
+    background: var(--color-accent);
+}
+
+.order-detail-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.85rem;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.order-detail-meta span {
+    color: var(--color-text-muted);
+}
+
+.order-detail-meta strong {
+    color: var(--color-ink);
+    text-align: right;
+}
+
+.order-detail-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.order-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.order-detail-item-media img,
+.order-detail-item-noimg {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius);
+    object-fit: cover;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.order-detail-item-noimg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.order-detail-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.order-detail-item-name {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--color-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.order-detail-item-variant {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+}
+
+.order-detail-item-subtotal {
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    white-space: nowrap;
+}
+
+.order-detail-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.95rem;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border);
+}
+
+.order-detail-total strong {
+    font-size: 1.15rem;
+    color: var(--color-accent);
+}

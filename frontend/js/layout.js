@@ -37,6 +37,7 @@ function renderHeader() {
                         <strong>${escapeHtml(user.HoTen || "")}</strong>
                         <span>${escapeHtml(user.Email || "")}</span>
                     </div>
+                    <a href="orders.html" class="user-dropdown-item">Đơn hàng của tôi</a>
                     <button type="button" class="user-dropdown-item" id="view-profile-btn">Xem thông tin</button>
                     <button type="button" class="user-dropdown-item" id="edit-profile-btn">Chỉnh sửa thông tin</button>
                     <button type="button" class="user-dropdown-item" id="change-password-btn">Đổi mật khẩu</button>
@@ -376,6 +377,130 @@ document.addEventListener("click", (e) => {
         if (btn) btn.setAttribute("aria-expanded", "false");
     }
 });
+
+// ============ Checkout (dung chung: giỏ hàng + nut "Mua ngay" o trang chi tiet san pham) ============
+function validateCheckoutForm(form) {
+    clearFormErrors(form);
+    let valid = true;
+
+    const diaChi = form.DiaChiGiaoHang.value.trim();
+    if (!diaChi) {
+        showFieldError(form.DiaChiGiaoHang, "Vui lòng nhập địa chỉ giao hàng");
+        valid = false;
+    } else if (diaChi.length > 255) {
+        showFieldError(form.DiaChiGiaoHang, "Địa chỉ tối đa 255 ký tự");
+        valid = false;
+    }
+
+    const sdt = form.SDTNhan.value.trim();
+    if (!sdt) {
+        showFieldError(form.SDTNhan, "Vui lòng nhập số điện thoại nhận hàng");
+        valid = false;
+    } else if (!isValidPhoneVN(sdt)) {
+        showFieldError(form.SDTNhan, "Số điện thoại không hợp lệ");
+        valid = false;
+    }
+
+    return valid;
+}
+
+async function openCheckoutModal(directItem) {
+    let profile = {};
+    try {
+        profile = await apiGet("/auth/me");
+    } catch (err) {
+        // Khong lay duoc thong tin ca nhan, de trong cho nguoi dung tu nhap
+    }
+
+    openModal(`
+        <h3>${directItem ? "Mua ngay" : "Xác nhận đặt hàng"}</h3>
+        <div id="checkout-error" class="form-error" hidden></div>
+        <form id="checkout-form" novalidate>
+            <div class="form-group">
+                <label>Địa chỉ giao hàng</label>
+                <input type="text" name="DiaChiGiaoHang" value="${escapeHtml(profile.DiaChi || "")}" placeholder="VD: 123 Nguyễn Trãi, Q1, TP.HCM" maxlength="255">
+            </div>
+            <div class="form-group">
+                <label>Số điện thoại nhận hàng</label>
+                <input type="text" name="SDTNhan" value="${escapeHtml(profile.SDT || "")}" placeholder="VD: 0901234567">
+            </div>
+
+            <div class="form-group">
+                <label>Phương thức thanh toán</label>
+                <div class="payment-methods">
+                    <label class="payment-method">
+                        <input type="radio" name="PhuongThucTT" value="COD" checked>
+                        <span class="payment-method-icon">💵</span>
+                        <span class="payment-method-info">
+                            <strong>Thanh toán khi nhận hàng (COD)</strong>
+                            <span>Trả tiền mặt cho người giao hàng</span>
+                        </span>
+                    </label>
+                    <label class="payment-method is-disabled">
+                        <input type="radio" name="PhuongThucTT" value="ChuyenKhoan" disabled>
+                        <span class="payment-method-icon">🏦</span>
+                        <span class="payment-method-info">
+                            <strong>Chuyển khoản ngân hàng</strong>
+                            <span>Sắp ra mắt</span>
+                        </span>
+                    </label>
+                    <label class="payment-method is-disabled">
+                        <input type="radio" name="PhuongThucTT" value="ViDienTu" disabled>
+                        <span class="payment-method-icon">📱</span>
+                        <span class="payment-method-info">
+                            <strong>Ví điện tử (Momo, ZaloPay...)</strong>
+                            <span>Sắp ra mắt</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <p class="checkout-note">Đơn hàng chỉ được tạo sau khi bạn bấm "Đặt hàng" — bấm Hủy sẽ không có gì thay đổi.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="closeModal()">Hủy</button>
+                <button type="submit" class="btn btn-accent">Đặt hàng</button>
+            </div>
+        </form>
+    `);
+
+    const form = document.getElementById("checkout-form");
+    attachLiveValidation(form, "checkout-error");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const errorBox = document.getElementById("checkout-error");
+        errorBox.hidden = true;
+        if (!validateCheckoutForm(form)) return;
+
+        const data = {
+            DiaChiGiaoHang: form.DiaChiGiaoHang.value.trim(),
+            SDTNhan: form.SDTNhan.value.trim(),
+        };
+
+        const endpoint = directItem ? "/don-hang/mua-ngay" : "/don-hang";
+        if (directItem) {
+            data.MaBienThe = directItem.MaBienThe;
+            data.SoLuong = directItem.SoLuong;
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+
+        try {
+            await apiPost(endpoint, data);
+            closeModal();
+            showToast("Đặt hàng thành công!", "success");
+            updateCartBadge();
+            setTimeout(() => {
+                window.location.href = "orders.html";
+            }, 800);
+        } catch (err) {
+            errorBox.textContent = err.message;
+            errorBox.hidden = false;
+            submitBtn.disabled = false;
+        }
+    });
+}
 
 // ============ Toast (thong bao khong chan thao tac) ============
 function showToast(message, type = "info") {

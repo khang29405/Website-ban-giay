@@ -193,6 +193,65 @@
     margin-top: 20px;
 }
 
+.checkout-note {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: -4px 0 4px;
+}
+
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.payment-method:has(input:checked) {
+    border-color: var(--color-accent);
+    background: #fff5f5;
+}
+
+.payment-method input {
+    width: auto;
+    accent-color: var(--color-accent);
+}
+
+.payment-method-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.payment-method-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.payment-method-info strong {
+    font-size: 0.88rem;
+    color: var(--color-ink);
+}
+
+.payment-method-info span {
+    font-size: 0.76rem;
+    color: var(--color-text-muted);
+}
+
+.payment-method.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
 /* Auth form (login.html, register.html) */
 .auth-wrapper {
     max-width: 420px;

@@ -25,13 +25,40 @@ async function findById(maDH) {
     return { ...order, ChiTiet: detailResult.recordset };
 }
 
+async function attachItemsPreview(pool, orders) {
+    if (!orders.length) return orders;
+
+    const ids = orders.map((o) => o.MaDH);
+    const result = await pool.request().query(`
+        SELECT ctdh.MaDH, ctdh.SoLuong, sp.TenSP, sp.HinhAnh
+        FROM CHI_TIET_DON_HANG ctdh
+        JOIN BIEN_THE_SAN_PHAM bt ON ctdh.MaBienThe = bt.MaBienThe
+        JOIN SAN_PHAM sp ON bt.MaSP = sp.MaSP
+        WHERE ctdh.MaDH IN (${ids.join(",")})
+    `);
+
+    const itemsByOrder = {};
+    result.recordset.forEach((row) => {
+        (itemsByOrder[row.MaDH] = itemsByOrder[row.MaDH] || []).push(row);
+    });
+
+    return orders.map((o) => {
+        const items = itemsByOrder[o.MaDH] || [];
+        return {
+            ...o,
+            TongSoLuong: items.reduce((sum, it) => sum + it.SoLuong, 0),
+            AnhXemTruoc: items.slice(0, 4).map((it) => it.HinhAnh),
+        };
+    });
+}
+
 async function findByUser(maND) {
     const pool = await poolPromise;
     const result = await pool
         .request()
         .input("MaND", sql.Int, maND)
         .query("SELECT * FROM DON_HANG WHERE MaND = @MaND ORDER BY NgayDat DESC");
-    return result.recordset;
+    return attachItemsPreview(pool, result.recordset);
 }
 
 async function findAll() {
@@ -42,7 +69,7 @@ async function findAll() {
         JOIN NGUOI_DUNG nd ON dh.MaND = nd.MaND
         ORDER BY dh.NgayDat DESC
     `);
-    return result.recordset;
+    return attachItemsPreview(pool, result.recordset);
 }
 
 async function updateTrangThai(maDH, trangThai) {
@@ -77,6 +104,21 @@ async function restoreStock(maDH) {
         await transaction.rollback();
         throw err;
     }
+}
+
+async function findVariantWithProduct(maBienThe) {
+    const pool = await poolPromise;
+    const result = await pool
+        .request()
+        .input("MaBienThe", sql.Int, maBienThe)
+        .query(`
+            SELECT bt.MaBienThe, bt.KichCo, bt.MauSac, bt.SoLuongTon,
+                   sp.MaSP, sp.TenSP, sp.Gia, sp.TrangThai
+            FROM BIEN_THE_SAN_PHAM bt
+            JOIN SAN_PHAM sp ON bt.MaSP = sp.MaSP
+            WHERE bt.MaBienThe = @MaBienThe
+        `);
+    return result.recordset[0] || null;
 }
 
 async function createOrder(maND, { DiaChiGiaoHang, SDTNhan, items, tongTien }) {
@@ -117,9 +159,11 @@ async function createOrder(maND, { DiaChiGiaoHang, SDTNhan, items, tongTien }) {
                     WHERE MaBienThe = @MaBienThe
                 `);
 
-            await new sql.Request(transaction)
-                .input("MaGioHang", sql.Int, item.MaGioHang)
-                .query("DELETE FROM GIO_HANG WHERE MaGioHang = @MaGioHang");
+            if (item.MaGioHang) {
+                await new sql.Request(transaction)
+                    .input("MaGioHang", sql.Int, item.MaGioHang)
+                    .query("DELETE FROM GIO_HANG WHERE MaGioHang = @MaGioHang");
+            }
         }
 
         await transaction.commit();
@@ -130,4 +174,4 @@ async function createOrder(maND, { DiaChiGiaoHang, SDTNhan, items, tongTien }) {
     }
 }
 
-module.exports = { findById, findByUser, findAll, updateTrangThai, restoreStock, createOrder };
+module.exports = { findById, findByUser, findAll, updateTrangThai, restoreStock, createOrder, findVariantWithProduct };

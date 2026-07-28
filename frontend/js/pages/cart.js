@@ -18,6 +18,7 @@ function renderCartItems(items) {
             </div>
         `;
         cartTotalEl.textContent = formatCurrency(0);
+        updateCheckoutState(false);
         return;
     }
 
@@ -51,7 +52,12 @@ function renderCartItems(items) {
     const total = items.reduce((sum, item) => sum + item.Gia * item.SoLuong, 0);
     cartTotalEl.textContent = formatCurrency(total);
 
+    updateCheckoutState(true);
     wireCartItemEvents();
+}
+
+function updateCheckoutState(hasItems) {
+    if (checkoutBtn) checkoutBtn.disabled = !hasItems;
 }
 
 async function loadCart() {
@@ -125,7 +131,7 @@ function wireCartItemEvents() {
 
 if (checkoutBtn) {
     checkoutBtn.addEventListener("click", () => {
-        showToast("Chức năng đặt hàng sẽ có ở bước tiếp theo", "info");
+        openCheckoutModal();
     });
 }
 

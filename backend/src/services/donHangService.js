@@ -26,6 +26,27 @@ async function createOrder(maND, { DiaChiGiaoHang, SDTNhan }) {
     return donHangModel.createOrder(maND, { DiaChiGiaoHang, SDTNhan, items: cartItems, tongTien });
 }
 
+async function createDirectOrder(maND, { MaBienThe, SoLuong, DiaChiGiaoHang, SDTNhan }) {
+    const variant = await donHangModel.findVariantWithProduct(MaBienThe);
+    if (!variant) {
+        throw httpError(404, "Không tìm thấy biến thể sản phẩm");
+    }
+    if (!variant.TrangThai) {
+        throw httpError(400, `Sản phẩm "${variant.TenSP}" hiện không còn bán`);
+    }
+    if (SoLuong > variant.SoLuongTon) {
+        throw httpError(
+            400,
+            `Sản phẩm "${variant.TenSP}" (size ${variant.KichCo}, ${variant.MauSac}) chỉ còn ${variant.SoLuongTon} sản phẩm trong kho`
+        );
+    }
+
+    const tongTien = variant.Gia * SoLuong;
+    const item = { MaBienThe, SoLuong, Gia: variant.Gia, MaGioHang: null };
+
+    return donHangModel.createOrder(maND, { DiaChiGiaoHang, SDTNhan, items: [item], tongTien });
+}
+
 async function getMyOrders(maND) {
     return donHangModel.findByUser(maND);
 }
@@ -57,4 +78,4 @@ async function updateStatus(maDH, trangThaiMoi) {
     return donHangModel.updateTrangThai(maDH, trangThaiMoi);
 }
 
-module.exports = { createOrder, getMyOrders, getAllOrders, getOrderById, updateStatus, TRANG_THAI_HOP_LE };
+module.exports = { createOrder, createDirectOrder, getMyOrders, getAllOrders, getOrderById, updateStatus, TRANG_THAI_HOP_LE };

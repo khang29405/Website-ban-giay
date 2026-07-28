@@ -21,6 +21,16 @@ async function createOrder(req, res, next) {
     }
 }
 
+async function createDirectOrder(req, res, next) {
+    try {
+        handleValidation(req);
+        const order = await donHangService.createDirectOrder(req.user.maND, req.body);
+        res.status(201).json({ success: true, data: order });
+    } catch (err) {
+        next(err);
+    }
+}
+
 async function getAll(req, res, next) {
     try {
         const isAdmin = req.user.vaiTro === "Admin";
@@ -54,4 +64,4 @@ async function updateStatus(req, res, next) {
     }
 }
 
-module.exports = { createOrder, getAll, getById, updateStatus };
+module.exports = { createOrder, createDirectOrder, getAll, getById, updateStatus };

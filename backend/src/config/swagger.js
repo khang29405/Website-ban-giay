@@ -81,6 +81,13 @@ const options = {
                         PhuongThucTT: { type: "string", example: "COD" },
                         TrangThai: { type: "string", example: "ChoXuLy", enum: ["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"] },
                         NgayDat: { type: "string", format: "date-time" },
+                        TongSoLuong: { type: "integer", nullable: true, example: 3, description: "Chi co trong GET /don-hang (danh sach), tong so luong san pham cua don" },
+                        AnhXemTruoc: {
+                            type: "array",
+                            nullable: true,
+                            description: "Chi co trong GET /don-hang (danh sach), toi da 4 anh san pham dau tien de xem truoc",
+                            items: { type: "string", nullable: true, example: "https://example.com/anh.jpg" },
+                        },
                         ChiTiet: {
                             type: "array",
                             items: {
