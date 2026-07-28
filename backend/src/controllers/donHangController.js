@@ -57,7 +57,7 @@ async function getById(req, res, next) {
 async function updateStatus(req, res, next) {
     try {
         handleValidation(req);
-        const order = await donHangService.updateStatus(req.params.id, req.body.TrangThai);
+        const order = await donHangService.updateStatus(req.params.id, req.body.TrangThai, req.body.LyDoHuy);
         res.json({ success: true, data: order });
     } catch (err) {
         next(err);

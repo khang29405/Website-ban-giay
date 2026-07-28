@@ -82,6 +82,7 @@ const options = {
                         TongTien: { type: "number", example: 3200000 },
                         PhuongThucTT: { type: "string", example: "COD" },
                         TrangThai: { type: "string", example: "ChoXuLy", enum: ["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"] },
+                        LyDoHuy: { type: "string", nullable: true, example: "Khach hang doi y, khong muon mua nua", description: "Chi co gia tri khi TrangThai la DaHuy" },
                         NgayDat: { type: "string", format: "date-time" },
                         TongSoLuong: { type: "integer", nullable: true, example: 3, description: "Chi co trong GET /don-hang (danh sach), tong so luong san pham cua don" },
                         AnhXemTruoc: {

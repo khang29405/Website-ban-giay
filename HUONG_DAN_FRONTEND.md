@@ -56,20 +56,19 @@ frontend/
 6. **Header/Footer chỉ sửa ở `layout.js`** — không copy HTML header/footer sang từng trang, tránh sửa 1 nơi quên nơi khác.
 7. **Trang/khối nội dung chính nên có hiệu ứng xuất hiện nhẹ** — thêm class `fade-in` (định nghĩa sẵn trong `base.css`) vào khối bọc ngoài cùng của nội dung chính (card, layout chi tiết...) để trang không bị "tĩnh cứng". `.btn` đã tự có hiệu ứng hover nhấc nhẹ, không cần thêm gì khi dùng nút có sẵn.
 
-## Hiện trạng (Sprint 3 task 7 - quản lý đơn hàng cho Admin)
+## Hiện trạng (Sprint 3 - đã hoàn thiện quản lý đơn hàng + các yêu cầu bổ sung)
 
-Đã có: `base.css`, `layout.css`, `components.css` (gồm cả các thành phần dùng chung cho đơn hàng: `.order-tabs`, `.order-status`, `.order-progress`, `.order-detail-*` — dùng chung giữa trang khách và tab Admin), `config.js`, `api.js` (đủ `apiGet/apiPost/apiPut/apiPatch/apiDelete`, tự gắn `Authorization` nếu có token), `auth.js`, `validate.js`, `layout.js` (header tự hiện link "Quản trị" nếu `user.VaiTro === "Admin"`, có icon giỏ hàng + badge số lượng, avatar dropdown gồm Đơn hàng của tôi/Xem thông tin/Chỉnh sửa/Đổi mật khẩu/Đăng xuất, hàm `openCheckoutModal` dùng chung cho cả trang giỏ hàng và nút "Mua ngay", và các hàm dùng chung `showToast`/`showConfirm`/`openModal`/`closeModal`/`emptyStateIcon`).
+Đã có: `base.css`, `layout.css`, `components.css` (gồm cả các thành phần dùng chung cho đơn hàng: `.order-tabs`, `.order-status`, `.order-progress`, `.order-detail-*`, `.order-cancel-reason` — dùng chung giữa trang khách và tab Admin), `config.js`, `api.js` (đủ `apiGet/apiPost/apiPut/apiPatch/apiDelete`, tự gắn `Authorization` nếu có token), `auth.js`, `validate.js`, `layout.js` (header tự hiện link "Quản trị" nếu `user.VaiTro === "Admin"`, có icon giỏ hàng + badge số lượng, avatar dropdown gồm Đơn hàng của tôi/Xem thông tin/Chỉnh sửa/Đổi mật khẩu/Đăng xuất, hàm `openCheckoutModal` dùng chung cho cả trang giỏ hàng và nút "Mua ngay", và các hàm dùng chung `showToast` (giới hạn tối đa 3 toast hiển thị cùng lúc, tự dọn toast cũ nhất khi bấm liên tục)/`showConfirm`/`showPrompt` (hộp thoại nhập 1 dòng text bắt buộc, dùng cho lý do hủy đơn)/`openModal`/`closeModal`/`emptyStateIcon`).
 
 Các trang đã có:
 - `html/index.html` — trang chủ
 - `html/login.html` + `js/pages/login.js`, `html/register.html` + `js/pages/register.js`
 - `html/san-pham.html` + `js/pages/san-pham.js` — danh sách sản phẩm, lọc theo danh mục/thương hiệu, tìm kiếm, sắp xếp giá
 - `html/product-detail.html` + `js/pages/product-detail.js` + `css/pages/product-detail.css` — chi tiết sản phẩm, chọn size/màu, thêm vào giỏ/mua ngay, sản phẩm cùng danh mục/thương hiệu
-- `html/about.html` + `js/pages/about.js` + `css/pages/about.css` — giới thiệu
+- `html/about.html` + `js/pages/about.js` + `css/pages/about.css` — giới thiệu (câu chuyện, cách mua hàng, giá trị cốt lõi, thương hiệu phân phối, CTA cuối trang dẫn sang trang sản phẩm/liên hệ)
+- `html/contact.html` + `js/pages/contact.js` + `css/pages/contact.css` — liên hệ (thông tin cửa hàng + form gửi lời nhắn, tự điền họ tên/email nếu đã đăng nhập; form chỉ validate/hiển thị xác nhận phía client, chưa có backend lưu trữ)
 - `html/cart.html` + `js/pages/cart.js` + `css/pages/cart.css` — giỏ hàng, sửa số lượng/xóa, mở modal đặt hàng dùng chung
-- `html/orders.html` + `js/pages/orders.js` + `css/pages/orders.css` — lịch sử đơn hàng của khách (tabs lọc trạng thái, danh sách kèm ảnh xem trước, modal chi tiết có thanh tiến trình trạng thái)
-- `html/admin.html` + `js/pages/admin.js` + `css/pages/admin.css` — quản trị danh mục/thương hiệu/sản phẩm/biến thể, và tab "Đơn hàng" (xem tất cả đơn của mọi khách, lọc theo trạng thái, đổi trạng thái ngay trong bảng, xem chi tiết)
+- `html/orders.html` + `js/pages/orders.js` + `css/pages/orders.css` — lịch sử đơn hàng của khách (tabs lọc trạng thái, danh sách kèm ảnh xem trước, modal chi tiết có thanh tiến trình trạng thái, hiển thị lý do hủy nếu đơn đã bị Admin hủy)
+- `html/admin.html` + `js/pages/admin.js` + `css/pages/admin.css` — quản trị danh mục/thương hiệu/sản phẩm/biến thể; tab "Đơn hàng" (xem tất cả đơn của mọi khách, lọc theo trạng thái, đổi trạng thái ngay trong bảng — chuyển sang "Đã hủy" bắt buộc nhập lý do qua `showPrompt`, xem chi tiết kèm lý do hủy); tab "Thống kê" (tổng doanh thu từ đơn Hoàn thành, số đơn theo từng trạng thái, doanh thu theo tháng gần đây — tính toán hoàn toàn ở client từ dữ liệu `/api/don-hang` đã tải, không có API riêng)
 
 Chưa có (Sprint 3 task 8): Dockerize toàn bộ hệ thống (Frontend Nginx + Backend Node.js + Database) — tạo `Dockerfile`/`docker-compose.yml` khi bắt đầu.
-
-Chưa có (sẽ tạo khi làm Sprint 3 task 7-8): trang quản lý đơn hàng cho Admin (xem tất cả đơn, đổi trạng thái), Dockerize toàn bộ hệ thống — tạo đúng theo quy ước ở trên khi bắt đầu, không cần hỏi lại chỗ đặt file.

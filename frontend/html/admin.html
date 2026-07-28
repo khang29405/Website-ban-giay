@@ -33,6 +33,7 @@
                     <button type="button" class="admin-tab" data-tab="thuong-hieu">Thương hiệu</button>
                     <button type="button" class="admin-tab" data-tab="san-pham">Sản phẩm</button>
                     <button type="button" class="admin-tab" data-tab="don-hang">Đơn hàng</button>
+                    <button type="button" class="admin-tab" data-tab="thong-ke">Thống kê</button>
                 </div>
 
                 <section class="admin-panel" id="panel-danh-muc">
@@ -91,6 +92,25 @@
                         </thead>
                         <tbody id="table-don-hang-body"></tbody>
                     </table>
+                </section>
+
+                <section class="admin-panel" id="panel-thong-ke" hidden>
+                    <div class="admin-panel-header">
+                        <h2>Thống kê doanh thu</h2>
+                    </div>
+
+                    <div class="stat-cards" id="stat-cards"></div>
+
+                    <div class="stat-section">
+                        <h3>Doanh thu theo tháng gần đây</h3>
+                        <p class="admin-subtext">Chỉ tính các đơn hàng ở trạng thái "Hoàn thành"</p>
+                        <table class="admin-table">
+                            <thead>
+                                <tr><th>Tháng</th><th>Số đơn hoàn thành</th><th>Doanh thu</th></tr>
+                            </thead>
+                            <tbody id="table-thong-ke-thang-body"></tbody>
+                        </table>
+                    </div>
                 </section>
             </div>
         </div>

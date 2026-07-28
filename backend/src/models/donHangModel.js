@@ -77,13 +77,14 @@ async function findAll() {
     return attachItemsPreview(pool, result.recordset);
 }
 
-async function updateTrangThai(maDH, trangThai) {
+async function updateTrangThai(maDH, trangThai, lyDoHuy) {
     const pool = await poolPromise;
     await pool
         .request()
         .input("MaDH", sql.Int, maDH)
         .input("TrangThai", sql.NVarChar(50), trangThai)
-        .query("UPDATE DON_HANG SET TrangThai = @TrangThai WHERE MaDH = @MaDH");
+        .input("LyDoHuy", sql.NVarChar(255), lyDoHuy || null)
+        .query("UPDATE DON_HANG SET TrangThai = @TrangThai, LyDoHuy = @LyDoHuy WHERE MaDH = @MaDH");
     return findById(maDH);
 }
 

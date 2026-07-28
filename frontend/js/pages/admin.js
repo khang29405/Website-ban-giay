@@ -563,6 +563,61 @@ function formatDate(iso) {
 async function loadDonHang() {
     donHangList = await apiGet("/don-hang").catch(() => []);
     renderDonHangTable();
+    renderThongKe();
+}
+
+function renderThongKe() {
+    const cardsEl = document.getElementById("stat-cards");
+    const monthTbody = document.getElementById("table-thong-ke-thang-body");
+    if (!cardsEl || !monthTbody) return;
+
+    const completedOrders = donHangList.filter((o) => o.TrangThai === "HoanThanh");
+    const totalRevenue = completedOrders.reduce((sum, o) => sum + o.TongTien, 0);
+
+    const countByStatus = { ChoXuLy: 0, DangGiao: 0, HoanThanh: 0, DaHuy: 0 };
+    donHangList.forEach((o) => {
+        if (countByStatus[o.TrangThai] !== undefined) countByStatus[o.TrangThai]++;
+    });
+
+    cardsEl.innerHTML = `
+        <div class="stat-card stat-card-highlight">
+            <span class="stat-card-label">Tổng doanh thu</span>
+            <strong class="stat-card-value">${formatCurrency(totalRevenue)}</strong>
+        </div>
+        <div class="stat-card">
+            <span class="stat-card-label">Tổng số đơn</span>
+            <strong class="stat-card-value">${donHangList.length}</strong>
+        </div>
+        ${Object.entries(DON_HANG_STATUS_LABEL)
+            .map(
+                ([value, s]) => `
+            <div class="stat-card">
+                <span class="stat-card-label">${s.text}</span>
+                <strong class="stat-card-value status-${s.cls}">${countByStatus[value]}</strong>
+            </div>`
+            )
+            .join("")}
+    `;
+
+    const revenueByMonth = {};
+    completedOrders.forEach((o) => {
+        const d = new Date(o.NgayDat);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        if (!revenueByMonth[key]) revenueByMonth[key] = { count: 0, revenue: 0 };
+        revenueByMonth[key].count++;
+        revenueByMonth[key].revenue += o.TongTien;
+    });
+
+    const months = Object.keys(revenueByMonth).sort().reverse();
+    monthTbody.innerHTML = months.length
+        ? months
+              .map((key) => {
+                  const [year, month] = key.split("-");
+                  const row = revenueByMonth[key];
+                  return `<tr><td>Tháng ${month}/${year}</td><td>${row.count}</td><td>${formatCurrency(row.revenue)}</td></tr>`;
+              })
+              .join("")
+        : `<tr><td colspan="3" class="admin-empty">Chưa có đơn hàng hoàn thành</td></tr>`;
 }
 
 function renderDonHangTable() {
@@ -611,14 +666,25 @@ function renderDonHangTable() {
             const newValue = select.value;
             const id = select.dataset.id;
             const label = DON_HANG_STATUS_LABEL[newValue] ? DON_HANG_STATUS_LABEL[newValue].text : newValue;
-            if (!(await showConfirm(`Đổi trạng thái đơn #${id} sang "${label}"?`))) {
+
+            let lyDoHuy = null;
+            if (newValue === "DaHuy") {
+                lyDoHuy = await showPrompt(`Nhập lý do hủy đơn #${id}:`, {
+                    placeholder: "VD: Khách hàng đổi ý, hết hàng thực tế...",
+                    okText: "Hủy đơn",
+                });
+                if (!lyDoHuy) {
+                    resetToOriginal();
+                    return;
+                }
+            } else if (!(await showConfirm(`Đổi trạng thái đơn #${id} sang "${label}"?`))) {
                 resetToOriginal();
                 return;
             }
 
             select.className = `admin-order-status-select ${donHangStatusClass(newValue)}`;
             try {
-                await apiPatch(`/don-hang/${id}/trang-thai`, { TrangThai: newValue });
+                await apiPatch(`/don-hang/${id}/trang-thai`, { TrangThai: newValue, LyDoHuy: lyDoHuy });
                 showToast("Đã cập nhật trạng thái đơn hàng", "success");
                 loadDonHang();
             } catch (err) {
@@ -652,6 +718,11 @@ async function openAdminOrderDetail(id) {
             <h3>Đơn hàng #${order.MaDH}</h3>
             <p class="order-detail-meta"><span>Khách hàng</span><strong>${escapeHtml(order.HoTen || "")} (${escapeHtml(order.Email || "")})</strong></p>
             <p class="order-detail-meta"><span>Trạng thái</span>${donHangStatusBadge(order.TrangThai)}</p>
+            ${
+                order.TrangThai === "DaHuy" && order.LyDoHuy
+                    ? `<p class="order-detail-meta"><span>Lý do hủy</span><strong>${escapeHtml(order.LyDoHuy)}</strong></p>`
+                    : ""
+            }
             <p class="order-detail-meta"><span>Ngày đặt</span><strong>${formatDate(order.NgayDat)}</strong></p>
             <p class="order-detail-meta"><span>Giao đến</span><strong>${escapeHtml(order.DiaChiGiaoHang)}</strong></p>
             <p class="order-detail-meta"><span>SĐT nhận hàng</span><strong>${escapeHtml(order.SDTNhan)}</strong></p>

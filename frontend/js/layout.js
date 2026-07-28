@@ -62,6 +62,7 @@ function renderHeader() {
                 <li><a href="index.html">Trang chủ</a></li>
                 <li><a href="san-pham.html">Sản phẩm</a></li>
                 <li><a href="about.html">Giới thiệu</a></li>
+                <li><a href="contact.html">Liên hệ</a></li>
                 ${user && user.VaiTro === "Admin" ? '<li><a href="admin.html">Quản trị</a></li>' : ""}
             </ul>
 
@@ -325,6 +326,7 @@ function renderFooter() {
                         <li><a href="index.html">Trang chủ</a></li>
                         <li><a href="san-pham.html">Sản phẩm</a></li>
                         <li><a href="about.html">Giới thiệu</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
                         <li><a href="cart.html">Giỏ hàng</a></li>
                     </ul>
                 </div>
@@ -503,6 +505,8 @@ async function openCheckoutModal(directItem) {
 }
 
 // ============ Toast (thong bao khong chan thao tac) ============
+const MAX_TOASTS = 3;
+
 function showToast(message, type = "info") {
     let container = document.getElementById("toast-container");
     if (!container) {
@@ -510,6 +514,12 @@ function showToast(message, type = "info") {
         container.id = "toast-container";
         container.className = "toast-container";
         document.body.appendChild(container);
+    }
+
+    const existing = container.querySelectorAll(".toast:not(.toast-out)");
+    if (existing.length >= MAX_TOASTS) {
+        existing[0].classList.add("toast-out");
+        setTimeout(() => existing[0].remove(), 200);
     }
 
     const toast = document.createElement("div");
@@ -580,6 +590,50 @@ function showConfirm(message) {
         overlay.querySelector('[data-action="ok"]').addEventListener("click", () => finish(true));
         overlay.addEventListener("click", (e) => {
             if (e.target === overlay) finish(false);
+        });
+    });
+}
+
+// ============ Prompt (nhap 1 dong text bat buoc, vd: ly do huy don) ============
+function showPrompt(message, { placeholder = "", okText = "Xác nhận" } = {}) {
+    return new Promise((resolve) => {
+        const overlay = document.createElement("div");
+        overlay.className = "confirm-overlay";
+        overlay.innerHTML = `
+            <div class="confirm-box">
+                <p class="confirm-message"></p>
+                <textarea class="confirm-prompt-input" rows="3" maxlength="255" placeholder="${escapeHtml(placeholder)}"></textarea>
+                <p class="confirm-prompt-error" hidden>Vui lòng nhập nội dung</p>
+                <div class="confirm-actions">
+                    <button type="button" class="btn btn-ghost" data-action="cancel">Hủy</button>
+                    <button type="button" class="btn btn-accent" data-action="ok">${escapeHtml(okText)}</button>
+                </div>
+            </div>
+        `;
+        overlay.querySelector(".confirm-message").textContent = message;
+        document.body.appendChild(overlay);
+
+        const input = overlay.querySelector(".confirm-prompt-input");
+        const errorEl = overlay.querySelector(".confirm-prompt-error");
+        input.focus();
+
+        function finish(result) {
+            overlay.remove();
+            resolve(result);
+        }
+
+        overlay.querySelector('[data-action="cancel"]').addEventListener("click", () => finish(null));
+        overlay.querySelector('[data-action="ok"]').addEventListener("click", () => {
+            const value = input.value.trim();
+            if (!value) {
+                errorEl.hidden = false;
+                input.focus();
+                return;
+            }
+            finish(value);
+        });
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) finish(null);
         });
     });
 }

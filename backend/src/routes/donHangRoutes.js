@@ -22,6 +22,11 @@ const statusValidation = [
     body("TrangThai")
         .isIn(["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"])
         .withMessage("Trạng thái không hợp lệ (chỉ nhận ChoXuLy, DangGiao, HoanThanh, DaHuy)"),
+    body("LyDoHuy")
+        .optional({ values: "falsy" })
+        .isString()
+        .isLength({ max: 255 })
+        .withMessage("Lý do hủy tối đa 255 ký tự"),
 ];
 
 const directOrderValidation = [
@@ -228,7 +233,8 @@ router.get("/:id", verifyToken, idParamValidation, donHangController.getById);
  *   patch:
  *     summary: Cap nhat trang thai don hang (chi Admin)
  *     description: >
- *       Neu chuyen trang thai sang DaHuy thi tu dong hoan lai ton kho cho cac bien the trong don hang do.
+ *       Neu chuyen trang thai sang DaHuy thi bat buoc phai co LyDoHuy, va tu dong hoan lai ton kho
+ *       cho cac bien the trong don hang do.
  *     tags: [DonHang]
  *     security:
  *       - bearerAuth: []
@@ -250,6 +256,10 @@ router.get("/:id", verifyToken, idParamValidation, donHangController.getById);
  *                 type: string
  *                 enum: [ChoXuLy, DangGiao, HoanThanh, DaHuy]
  *                 example: DangGiao
+ *               LyDoHuy:
+ *                 type: string
+ *                 description: Bat buoc khi TrangThai la DaHuy
+ *                 example: Khach hang doi y, khong muon mua nua
  *     responses:
  *       200:
  *         description: Cap nhat thanh cong

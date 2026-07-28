@@ -216,3 +216,62 @@
     padding: 8px 10px;
     font-size: 0.82rem;
 }
+
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 36px;
+}
+
+.stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.stat-card-highlight {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+}
+
+.stat-card-highlight .stat-card-label,
+.stat-card-highlight .stat-card-value {
+    color: #fff;
+}
+
+.stat-card-label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.stat-card-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+}
+
+.stat-card-value.status-pending {
+    color: #b8590a;
+}
+
+.stat-card-value.status-shipping {
+    color: #1a56db;
+}
+
+.stat-card-value.status-done {
+    color: #1e7e34;
+}
+
+.stat-card-value.status-cancelled {
+    color: #b3261e;
+}
+
+.stat-section h3 {
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+}

@@ -28,9 +28,12 @@ function statusBadge(trangThai) {
     return `<span class="order-status ${status.cls}">${status.text}</span>`;
 }
 
-function renderOrderProgress(trangThai) {
+function renderOrderProgress(trangThai, lyDoHuy) {
     if (trangThai === "DaHuy") {
-        return `<div class="order-progress is-cancelled">✕ Đơn hàng đã bị hủy, tồn kho đã được hoàn lại</div>`;
+        return `
+            <div class="order-progress is-cancelled">✕ Đơn hàng đã bị hủy, tồn kho đã được hoàn lại</div>
+            ${lyDoHuy ? `<p class="order-cancel-reason"><span>Lý do hủy:</span> ${escapeHtml(lyDoHuy)}</p>` : ""}
+        `;
     }
 
     const currentIndex = STATUS_STEPS.indexOf(trangThai);
@@ -149,7 +152,7 @@ async function openOrderDetailModal(id) {
         openModal(`
             <h3>Đơn hàng #${order.MaDH}</h3>
 
-            ${renderOrderProgress(order.TrangThai)}
+            ${renderOrderProgress(order.TrangThai, order.LyDoHuy)}
 
             <p class="order-detail-meta"><span>Ngày đặt</span><strong>${formatDate(order.NgayDat)}</strong></p>
             <p class="order-detail-meta"><span>Giao đến</span><strong>${escapeHtml(order.DiaChiGiaoHang)}</strong></p>

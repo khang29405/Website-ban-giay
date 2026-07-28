@@ -99,6 +99,7 @@ CREATE TABLE DON_HANG (
     TongTien        DECIMAL(18,2)   NOT NULL,
     PhuongThucTT    NVARCHAR(50)    NOT NULL DEFAULT 'COD', -- COD, ChuyenKhoan...
     TrangThai       NVARCHAR(50)    NOT NULL DEFAULT 'ChoXuLy', -- ChoXuLy, DangGiao, HoanThanh, DaHuy
+    LyDoHuy         NVARCHAR(255)   NULL, -- chi co gia tri khi TrangThai = DaHuy, Admin nhap khi huy don
     NgayDat         DATETIME2       NOT NULL DEFAULT SYSDATETIME(),
     CONSTRAINT FK_DonHang_NguoiDung FOREIGN KEY (MaND) REFERENCES NGUOI_DUNG(MaND)
 );
@@ -120,6 +121,19 @@ GO
 
 UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@shoestore.com';
 UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@gmail.com';
+
+-- =========================================================
+-- MIGRATION: them cot LyDoHuy neu DB da tao truoc do chua co
+-- (chay lai file nay tren DB cu se tu bo sung, khong loi neu da co san)
+-- =========================================================
+IF NOT EXISTS (
+    SELECT 1 FROM sys.columns
+    WHERE object_id = OBJECT_ID('DON_HANG') AND name = 'LyDoHuy'
+)
+BEGIN
+    ALTER TABLE DON_HANG ADD LyDoHuy NVARCHAR(255) NULL;
+END
+GO
 
 -- =========================================================
 -- SEED DATA (DU LIEU MAU)

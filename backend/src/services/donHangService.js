@@ -65,17 +65,23 @@ async function getOrderById(maDH, maND, isAdmin) {
 
 const TRANG_THAI_HOP_LE = ["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"];
 
-async function updateStatus(maDH, trangThaiMoi) {
+async function updateStatus(maDH, trangThaiMoi, lyDoHuy) {
     const order = await donHangModel.findById(maDH);
     if (!order) {
         throw httpError(404, "Không tìm thấy đơn hàng");
     }
 
-    if (trangThaiMoi === "DaHuy" && order.TrangThai !== "DaHuy") {
-        await donHangModel.restoreStock(maDH);
+    if (trangThaiMoi === "DaHuy") {
+        if (!lyDoHuy || !lyDoHuy.trim()) {
+            throw httpError(400, "Vui lòng nhập lý do hủy đơn");
+        }
+        if (order.TrangThai !== "DaHuy") {
+            await donHangModel.restoreStock(maDH);
+        }
+        return donHangModel.updateTrangThai(maDH, trangThaiMoi, lyDoHuy.trim());
     }
 
-    return donHangModel.updateTrangThai(maDH, trangThaiMoi);
+    return donHangModel.updateTrangThai(maDH, trangThaiMoi, null);
 }
 
 module.exports = { createOrder, createDirectOrder, getMyOrders, getAllOrders, getOrderById, updateStatus, TRANG_THAI_HOP_LE };

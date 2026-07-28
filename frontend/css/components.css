@@ -330,6 +330,17 @@
     border-radius: var(--radius);
 }
 
+.order-cancel-reason {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: -14px 0 22px;
+}
+
+.order-cancel-reason span {
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
 .order-progress-step {
     display: flex;
     flex-direction: column;
