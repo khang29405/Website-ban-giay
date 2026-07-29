@@ -16,13 +16,6 @@ const updateValidation = [body("SoLuong").isInt({ min: 1 }).withMessage("S·ªë l∆
 
 /**
  * @swagger
- * tags:
- *   name: GioHang
- *   description: Gio hang cua khach hang dang dang nhap
- */
-
-/**
- * @swagger
  * /gio-hang:
  *   get:
  *     summary: Xem gio hang cua tai khoan dang dang nhap

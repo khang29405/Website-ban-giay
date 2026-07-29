@@ -7,6 +7,7 @@ const sanPhamRoutes = require("./sanPhamRoutes");
 const bienTheRoutes = require("./bienTheRoutes");
 const gioHangRoutes = require("./gioHangRoutes");
 const donHangRoutes = require("./donHangRoutes");
+const lienHeRoutes = require("./lienHeRoutes");
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/san-pham", sanPhamRoutes);
 router.use("/bien-the", bienTheRoutes);
 router.use("/gio-hang", gioHangRoutes);
 router.use("/don-hang", donHangRoutes);
+router.use("/lien-he", lienHeRoutes);
 
 module.exports = router;

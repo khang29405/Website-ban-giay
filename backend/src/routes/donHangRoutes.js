@@ -58,13 +58,6 @@ const directOrderValidation = [
 
 /**
  * @swagger
- * tags:
- *   name: DonHang
- *   description: Dat hang tu gio hang (thanh toan COD)
- */
-
-/**
- * @swagger
  * /don-hang:
  *   post:
  *     summary: Tao don hang moi tu toan bo gio hang hien tai

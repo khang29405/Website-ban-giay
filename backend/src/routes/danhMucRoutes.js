@@ -19,13 +19,6 @@ const bodyValidation = [
 
 /**
  * @swagger
- * tags:
- *   name: DanhMuc
- *   description: Quan ly danh muc san pham
- */
-
-/**
- * @swagger
  * /danh-muc:
  *   get:
  *     summary: Lay danh sach danh muc

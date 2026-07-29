@@ -16,13 +16,6 @@ const bodyValidation = [
 
 /**
  * @swagger
- * tags:
- *   name: BienThe
- *   description: Quan ly bien the san pham (size, mau, ton kho)
- */
-
-/**
- * @swagger
  * /bien-the/{id}:
  *   get:
  *     summary: Lay chi tiet 1 bien the

@@ -139,6 +139,13 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 
 Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET_DON_HANG` (lưu `DonGia` tại thời điểm mua), trừ `SoLuongTon` của từng biến thể, và xoá các dòng tương ứng khỏi `GIO_HANG`. Nếu bất kỳ bước nào lỗi thì rollback toàn bộ — không có chuyện giỏ hàng bị xoá mà đơn không tạo được (hoặc ngược lại). `TrangThai` đơn hàng mặc định `ChoXuLy`. Cột `LyDoHuy` (nullable) chỉ có giá trị khi đơn ở trạng thái `DaHuy`.
 
+### Liên hệ (`/api/lien-he`)
+| Method | Path | Quyền | Ghi chú |
+|---|---|---|---|
+| POST | `/` | Public | Gửi lời nhắn từ trang Liên hệ, body `{ "HoTen", "Email", "NoiDung" }`, `201`. Không cần đăng nhập — khách chưa có tài khoản vẫn gửi được, bảng `LIEN_HE` không liên kết `NGUOI_DUNG` |
+| GET | `/` | **Admin** | Danh sách lời nhắn, mới nhất trước. Lọc `?daXuLy=true/false`. Phân trang tuỳ chọn giống `/api/don-hang` (không truyền `page` thì trả toàn bộ mảng; truyền `?page=&limit=` mặc định `limit=10` thì có `pagination`) |
+| PATCH | `/:id/trang-thai` | **Admin** | Đánh dấu đã/chưa xử lý, body `{ "DaXuLy": true/false }`, `200`. `404` nếu không tồn tại |
+
 ### Tạo tài khoản Admin
 Đăng ký một tài khoản bình thường qua `/api/auth/register`, sau đó tự nâng quyền trong SSMS:
 ```sql

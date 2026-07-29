@@ -38,13 +38,6 @@ const searchValidation = [
 
 /**
  * @swagger
- * tags:
- *   name: SanPham
- *   description: Quan ly san pham
- */
-
-/**
- * @swagger
  * /san-pham:
  *   get:
  *     summary: Lay danh sach san pham, co the tim kiem/loc

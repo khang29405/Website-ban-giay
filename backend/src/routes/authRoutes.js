@@ -7,13 +7,6 @@ const router = express.Router();
 
 /**
  * @swagger
- * tags:
- *   name: Auth
- *   description: Dang ky, dang nhap va xac thuc JWT
- */
-
-/**
- * @swagger
  * /auth/register:
  *   post:
  *     summary: Dang ky tai khoan khach hang

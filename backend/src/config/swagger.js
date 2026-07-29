@@ -14,6 +14,20 @@ const options = {
                 description: "Local dev server",
             },
         ],
+        // Thu tu tag o day quyet dinh thu tu hien thi tren trang Swagger UI, sap xep
+        // theo luong test tu nhien: kiem tra server -> dang nhap lay token -> du lieu
+        // nen (danh muc/thuong hieu) -> san pham/bien the -> gio hang -> dat hang -> lien he.
+        tags: [
+            { name: "Health", description: "Kiem tra server va ket noi database" },
+            { name: "Auth", description: "Dang ky, dang nhap va xac thuc JWT" },
+            { name: "DanhMuc", description: "Quan ly danh muc san pham" },
+            { name: "ThuongHieu", description: "Quan ly thuong hieu san pham" },
+            { name: "SanPham", description: "Quan ly san pham" },
+            { name: "BienThe", description: "Quan ly bien the san pham (size, mau, ton kho)" },
+            { name: "GioHang", description: "Gio hang cua khach hang dang dang nhap" },
+            { name: "DonHang", description: "Dat hang tu gio hang (thanh toan COD)" },
+            { name: "LienHe", description: "Tin nhan tu trang Lien he" },
+        ],
         components: {
             securitySchemes: {
                 bearerAuth: {
@@ -135,6 +149,17 @@ const options = {
                         HinhAnh: { type: "string", nullable: true, example: "https://example.com/anh.jpg" },
                         Gia: { type: "number", example: 3200000 },
                         TrangThai: { type: "boolean", example: true },
+                    },
+                },
+                LienHe: {
+                    type: "object",
+                    properties: {
+                        MaLienHe: { type: "integer", example: 1 },
+                        HoTen: { type: "string", example: "Nguyen Van A" },
+                        Email: { type: "string", example: "a@test.com" },
+                        NoiDung: { type: "string", example: "Toi muon hoi ve size giay..." },
+                        DaXuLy: { type: "boolean", example: false },
+                        NgayGui: { type: "string", format: "date-time" },
                     },
                 },
             },
