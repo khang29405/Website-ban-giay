@@ -1008,12 +1008,36 @@ function formatDateTime(iso) {
     });
 }
 
+const LIEN_HE_TAB_BASE_LABEL = { "": "Tất cả", false: "Chưa xử lý", true: "Đã xử lý" };
+
+async function updateLienHeTabCounts() {
+    const lienHeTabs = document.getElementById("lien-he-tabs");
+    if (!lienHeTabs) return;
+
+    const allMessages = await apiGet("/lien-he").catch(() => []);
+    const countByStatus = { "": allMessages.length, false: 0, true: 0 };
+    allMessages.forEach((lh) => {
+        countByStatus[String(lh.DaXuLy)]++;
+    });
+
+    lienHeTabs.querySelectorAll(".order-tab").forEach((tab) => {
+        const status = tab.dataset.status;
+        const label = LIEN_HE_TAB_BASE_LABEL[status];
+        if (label !== undefined) {
+            tab.textContent = `${label} (${countByStatus[status] ?? 0})`;
+        }
+    });
+}
+
 async function loadLienHe() {
-    const { items, pagination } = await apiGetPaged("/lien-he", {
-        daXuLy: selectedLienHeStatus,
-        page: lienHePage,
-        limit: LIEN_HE_PAGE_SIZE,
-    }).catch(() => ({ items: [], pagination: null }));
+    const [{ items, pagination }] = await Promise.all([
+        apiGetPaged("/lien-he", {
+            daXuLy: selectedLienHeStatus,
+            page: lienHePage,
+            limit: LIEN_HE_PAGE_SIZE,
+        }).catch(() => ({ items: [], pagination: null })),
+        updateLienHeTabCounts(),
+    ]);
     if (!items.length && lienHePage > 1) {
         lienHePage -= 1;
         return loadLienHe();

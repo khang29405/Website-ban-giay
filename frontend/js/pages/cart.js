@@ -35,7 +35,7 @@ function renderCartItems(items) {
             <div class="empty-state">
                 ${emptyStateIcon()}
                 <strong>Giỏ hàng của bạn đang trống</strong>
-                <p><a href="san-pham.html" class="btn btn-outline">Tiếp tục mua sắm</a></p>
+                <p><a href="san-pham.html" class="btn btn-outline"><i class="fa-solid fa-store"></i> Tiếp tục mua sắm</a></p>
             </div>
         `;
         cartSummaryItemsEl.innerHTML = "";

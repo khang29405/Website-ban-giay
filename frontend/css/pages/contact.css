@@ -51,3 +51,74 @@
         grid-template-columns: 1fr;
     }
 }
+
+.contact-map-section {
+    margin: 0 0 48px;
+}
+
+.contact-map {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow);
+    margin-top: 16px;
+}
+
+.contact-map iframe {
+    display: block;
+    width: 100%;
+    height: 320px;
+    border: none;
+}
+
+.contact-faq {
+    margin: 0 0 64px;
+}
+
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.faq-item {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+}
+
+.faq-item summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--color-ink);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary i {
+    flex: 0 0 auto;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    transition: transform 0.2s ease;
+}
+
+.faq-item[open] summary i {
+    transform: rotate(180deg);
+}
+
+.faq-item p {
+    margin-top: 10px;
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}

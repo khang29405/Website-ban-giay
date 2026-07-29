@@ -20,6 +20,8 @@
 
     <main>
         <section class="about-hero">
+            <div class="about-hero-bg"></div>
+            <div class="about-hero-overlay"></div>
             <div class="container">
                 <span class="eyebrow">Liên hệ</span>
                 <h1>Chúng tôi luôn sẵn sàng hỗ trợ bạn</h1>
@@ -83,8 +85,45 @@
                             <label for="contact-noidung">Nội dung</label>
                             <textarea id="contact-noidung" name="NoiDung" rows="5" required maxlength="1000"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-accent btn-block">Gửi lời nhắn</button>
+                        <button type="submit" class="btn btn-accent btn-block"><i class="fa-solid fa-paper-plane"></i> Gửi lời nhắn</button>
                     </form>
+                </div>
+            </section>
+
+            <section class="contact-map-section fade-in">
+                <h2 class="section-title" style="text-align:left">Tìm chúng tôi trên bản đồ</h2>
+                <div class="contact-map">
+                    <iframe
+                        src="https://www.google.com/maps?q=123+Nguyen+Trai%2C+Quan+1%2C+TP.HCM&output=embed"
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="Bản đồ vị trí cửa hàng MyShoes"></iframe>
+                </div>
+            </section>
+
+            <section class="contact-faq fade-in">
+                <h2 class="section-title" style="text-align:left">Câu hỏi thường gặp</h2>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary>Thời gian giao hàng mất bao lâu? <i class="fa-solid fa-chevron-down"></i></summary>
+                        <p>Đơn hàng nội thành thường giao trong 1-2 ngày, các tỉnh thành khác từ 2-5 ngày làm việc tuỳ khu vực.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Tôi có thể đổi trả sản phẩm không? <i class="fa-solid fa-chevron-down"></i></summary>
+                        <p>Có, MyShoes hỗ trợ đổi trả trong vòng 7 ngày nếu sản phẩm còn nguyên tem mác, chưa qua sử dụng hoặc lỗi từ nhà sản xuất.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Tôi có thể thanh toán bằng cách nào? <i class="fa-solid fa-chevron-down"></i></summary>
+                        <p>Hiện tại MyShoes hỗ trợ thanh toán khi nhận hàng (COD). Các phương thức chuyển khoản và ví điện tử sẽ sớm ra mắt.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Làm sao để theo dõi đơn hàng của tôi? <i class="fa-solid fa-chevron-down"></i></summary>
+                        <p>Đăng nhập tài khoản rồi vào mục "Đơn hàng của tôi" ở góc trên bên phải để xem trạng thái đơn hàng theo thời gian thực.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Sản phẩm có đúng size không nếu tôi mua online? <i class="fa-solid fa-chevron-down"></i></summary>
+                        <p>Mỗi sản phẩm đều có bảng hướng dẫn chọn size chi tiết ngay tại trang chi tiết sản phẩm để bạn chọn đúng kích cỡ trước khi đặt hàng.</p>
+                    </details>
                 </div>
             </section>
         </div>

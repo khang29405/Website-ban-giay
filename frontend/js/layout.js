@@ -47,17 +47,17 @@ function renderHeader() {
                         <strong>${escapeHtml(user.HoTen || "")}</strong>
                         <span>${escapeHtml(user.Email || "")}</span>
                     </div>
-                    <a href="orders.html" class="user-dropdown-item">Đơn hàng của tôi</a>
-                    <button type="button" class="user-dropdown-item" id="view-profile-btn">Xem thông tin</button>
-                    <button type="button" class="user-dropdown-item" id="edit-profile-btn">Chỉnh sửa thông tin</button>
-                    <button type="button" class="user-dropdown-item" id="change-password-btn">Đổi mật khẩu</button>
-                    <button type="button" class="user-dropdown-item danger" id="logout-btn">Đăng xuất</button>
+                    <a href="orders.html" class="user-dropdown-item"><i class="fa-solid fa-box"></i> Đơn hàng của tôi</a>
+                    <button type="button" class="user-dropdown-item" id="view-profile-btn"><i class="fa-solid fa-user"></i> Xem thông tin</button>
+                    <button type="button" class="user-dropdown-item" id="edit-profile-btn"><i class="fa-solid fa-user-pen"></i> Chỉnh sửa thông tin</button>
+                    <button type="button" class="user-dropdown-item" id="change-password-btn"><i class="fa-solid fa-key"></i> Đổi mật khẩu</button>
+                    <button type="button" class="user-dropdown-item danger" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
                 </div>
             </div>
           `
         : `
-            <a href="login.html" class="btn btn-outline">Đăng nhập</a>
-            <a href="register.html" class="btn btn-accent">Đăng ký</a>
+            <a href="login.html" class="btn btn-outline"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</a>
+            <a href="register.html" class="btn btn-accent"><i class="fa-solid fa-user-plus"></i> Đăng ký</a>
           `;
 
     header.className = "site-header";
@@ -188,8 +188,8 @@ function openChangePasswordModal() {
                 <input type="password" name="XacNhanMatKhauMoi">
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closeModal()">Hủy</button>
-                <button type="submit" class="btn btn-accent">Đổi mật khẩu</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Hủy</button>
+                <button type="submit" class="btn btn-accent"><i class="fa-solid fa-key"></i> Đổi mật khẩu</button>
             </div>
         </form>
     `);
@@ -257,8 +257,8 @@ function openViewProfileModal(user) {
             <div class="profile-view-row"><span>Ngày tạo tài khoản</span><strong>${ngayTao}</strong></div>
         </div>
         <div class="modal-actions">
-            <button type="button" class="btn btn-ghost" onclick="closeModal()">Đóng</button>
-            <button type="button" class="btn btn-accent" id="go-edit-profile-btn">Chỉnh sửa</button>
+            <button type="button" class="btn btn-ghost" onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Đóng</button>
+            <button type="button" class="btn btn-accent" id="go-edit-profile-btn"><i class="fa-solid fa-user-pen"></i> Chỉnh sửa</button>
         </div>
     `);
 
@@ -285,8 +285,8 @@ function openEditProfileModal(user) {
                 <input type="text" name="DiaChi" value="${escapeHtml(user.DiaChi || "")}">
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closeModal()">Hủy</button>
-                <button type="submit" class="btn btn-accent">Lưu thay đổi</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Hủy</button>
+                <button type="submit" class="btn btn-accent"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>
             </div>
         </form>
     `);
@@ -469,8 +469,8 @@ async function openCheckoutModal(directItem) {
 
             <p class="checkout-note">Đơn hàng chỉ được tạo sau khi bạn bấm "Đặt hàng" — bấm Hủy sẽ không có gì thay đổi.</p>
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closeModal()">Hủy</button>
-                <button type="submit" class="btn btn-accent">Đặt hàng</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Hủy</button>
+                <button type="submit" class="btn btn-accent"><i class="fa-solid fa-check"></i> Đặt hàng</button>
             </div>
         </form>
     `);
@@ -524,9 +524,9 @@ function renderPagination(container, pagination, onPageChange) {
 
     const { page, totalPages } = pagination;
     container.innerHTML = `
-        <button type="button" class="pagination-btn" data-action="prev" ${page <= 1 ? "disabled" : ""}>‹ Trước</button>
+        <button type="button" class="pagination-btn" data-action="prev" ${page <= 1 ? "disabled" : ""}><i class="fa-solid fa-chevron-left"></i> Trước</button>
         <span class="pagination-info">Trang ${page} / ${totalPages}</span>
-        <button type="button" class="pagination-btn" data-action="next" ${page >= totalPages ? "disabled" : ""}>Sau ›</button>
+        <button type="button" class="pagination-btn" data-action="next" ${page >= totalPages ? "disabled" : ""}>Sau <i class="fa-solid fa-chevron-right"></i></button>
     `;
 
     container.querySelector('[data-action="prev"]').addEventListener("click", () => onPageChange(page - 1));
@@ -602,8 +602,8 @@ function showConfirm(message) {
             <div class="confirm-box">
                 <p class="confirm-message"></p>
                 <div class="confirm-actions">
-                    <button type="button" class="btn btn-ghost" data-action="cancel">Hủy</button>
-                    <button type="button" class="btn btn-accent" data-action="ok">Xác nhận</button>
+                    <button type="button" class="btn btn-ghost" data-action="cancel"><i class="fa-solid fa-xmark"></i> Hủy</button>
+                    <button type="button" class="btn btn-accent" data-action="ok"><i class="fa-solid fa-check"></i> Xác nhận</button>
                 </div>
             </div>
         `;
@@ -634,8 +634,8 @@ function showPrompt(message, { placeholder = "", okText = "Xác nhận" } = {}) 
                 <textarea class="confirm-prompt-input" rows="3" maxlength="255" placeholder="${escapeHtml(placeholder)}"></textarea>
                 <p class="confirm-prompt-error" hidden>Vui lòng nhập nội dung</p>
                 <div class="confirm-actions">
-                    <button type="button" class="btn btn-ghost" data-action="cancel">Hủy</button>
-                    <button type="button" class="btn btn-accent" data-action="ok">${escapeHtml(okText)}</button>
+                    <button type="button" class="btn btn-ghost" data-action="cancel"><i class="fa-solid fa-xmark"></i> Hủy</button>
+                    <button type="button" class="btn btn-accent" data-action="ok"><i class="fa-solid fa-check"></i> ${escapeHtml(okText)}</button>
                 </div>
             </div>
         `;

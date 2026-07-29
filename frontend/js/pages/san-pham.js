@@ -219,6 +219,10 @@ async function loadProducts() {
             limit: PAGE_SIZE,
         });
         renderProducts(items);
+        renderPagination(document.getElementById("product-pagination-top"), pagination, (page) => {
+            currentPage = page;
+            loadProducts();
+        });
         renderPagination(document.getElementById("product-pagination"), pagination, (page) => {
             currentPage = page;
             loadProducts();

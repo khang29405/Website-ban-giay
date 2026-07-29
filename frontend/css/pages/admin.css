@@ -5,9 +5,14 @@
 
 .admin-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
     border-bottom: 1px solid var(--color-border);
     margin-bottom: 24px;
+}
+
+.admin-tab-right {
+    margin-left: auto;
 }
 
 .admin-tab {

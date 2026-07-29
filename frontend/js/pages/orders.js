@@ -84,7 +84,7 @@ function renderOrders(orders) {
             <div class="empty-state">
                 ${emptyStateIcon()}
                 <strong>${selectedStatus ? "Không có đơn hàng nào ở trạng thái này" : "Bạn chưa có đơn hàng nào"}</strong>
-                <p><a href="san-pham.html" class="btn btn-accent">Mua sắm ngay</a></p>
+                <p><a href="san-pham.html" class="btn btn-accent"><i class="fa-solid fa-store"></i> Mua sắm ngay</a></p>
             </div>
         `;
         return;
@@ -114,7 +114,7 @@ function renderOrders(orders) {
                             <strong>${formatCurrency(o.TongTien)}</strong>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-outline btn-block" data-id="${o.MaDH}">Xem chi tiết</button>
+                    <button type="button" class="btn btn-outline btn-block" data-id="${o.MaDH}"><i class="fa-solid fa-eye"></i> Xem chi tiết</button>
                 </div>
             `;
         })
@@ -162,7 +162,7 @@ async function openOrderDetailModal(id) {
                 <strong>${formatCurrency(order.TongTien)}</strong>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closeModal()">Đóng</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Đóng</button>
             </div>
         `);
     } catch (err) {

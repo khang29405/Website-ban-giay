@@ -403,7 +403,14 @@
     margin: 28px 0;
 }
 
+.pagination-top {
+    margin: 0 0 20px;
+}
+
 .pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 8px 16px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
@@ -640,6 +647,11 @@
     padding-top: 44px;
 }
 
+#catalog > .eyebrow {
+    display: block;
+    margin-bottom: 8px;
+}
+
 .featured-more {
     text-align: center;
     margin-top: 28px;
@@ -717,28 +729,50 @@
 }
 
 .filter-list-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     width: 100%;
     text-align: left;
     background: none;
     border: none;
-    padding: 8px 10px;
+    padding: 9px 10px;
     border-radius: var(--radius);
     font-family: inherit;
     font-size: 0.9rem;
     color: var(--color-text);
     cursor: pointer;
-    transition: background 0.12s ease, color 0.12s ease;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.filter-list-item::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-border);
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .filter-list-item:hover {
     background: var(--color-surface-alt);
 }
 
+.filter-list-item:hover::before {
+    border-color: var(--color-accent);
+}
+
 .filter-list-item.active {
-    background: var(--color-accent);
-    color: #fff;
+    background: #fdeaea;
+    color: var(--color-accent);
     font-weight: 700;
+}
+
+.filter-list-item.active::before {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    box-shadow: inset 0 0 0 2px #fdeaea;
 }
 
 .catalog-main {
@@ -771,8 +805,10 @@
     align-items: center;
     margin-bottom: 32px;
     padding: 16px;
-    background: var(--color-surface-alt);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
 }
 
 .sort-buttons {
@@ -896,8 +932,8 @@
 /* Product grid */
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 22px;
 }
 
 /* San pham noi bat o trang chu: co dinh so cot (khong auto-fill) de luon vua khop
@@ -918,21 +954,46 @@
     }
 }
 
+/* Trang danh sach san pham: co dinh 4 cot tren desktop (thay vi auto-fill de
+   khong bi lech con 3 cot do sidebar chiem cho), thu gon dan tren man nho hon. */
+#catalog .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 860px) {
+    #catalog .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    #catalog .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 420px) {
+    #catalog .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .product-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
     display: flex;
     flex-direction: column;
     animation: fadeInUp 0.35s ease both;
 }
 
 .product-card:hover {
-    border-color: #d6d6d6;
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+    border-color: transparent;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
 }
 
 /* Skeleton - hien khi dang tai danh sach san pham, thay cho chu "Dang tai..." */
@@ -1045,50 +1106,55 @@
 }
 
 .product-card-body {
-    padding: 10px 12px 12px;
+    padding: 14px 14px 16px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 5px;
     flex: 1;
 }
 
 .product-brand {
     font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    font-weight: 800;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--color-accent);
 }
 
 .product-name {
     font-family: "Inter", Arial, sans-serif;
-    font-size: 0.85rem;
+    font-size: 0.92rem;
     font-weight: 700;
     text-transform: none;
-    color: var(--color-text);
+    color: var(--color-ink);
     letter-spacing: normal;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    min-height: 2.5em;
 }
 
 .product-category {
     display: inline-block;
     align-self: flex-start;
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     font-weight: 600;
     color: var(--color-text-muted);
     background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
     border-radius: 999px;
-    padding: 2px 8px;
-    margin-top: 2px;
+    padding: 2px 9px;
 }
 
 .product-price {
-    margin-top: 4px;
-    font-size: 0.92rem;
+    margin-top: auto;
+    padding-top: 6px;
+    font-size: 1.1rem;
     font-weight: 800;
-    color: var(--color-ink);
+    color: var(--color-accent);
 }
 
 .empty-state {

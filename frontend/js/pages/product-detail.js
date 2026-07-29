@@ -166,10 +166,10 @@ function renderProduct(product) {
                             <input type="number" class="qty-input" id="pd-qty-input" value="1" min="1">
                             <button type="button" class="qty-btn" id="qty-plus">+</button>
                         </div>
-                        <button type="button" class="btn btn-outline" id="add-to-cart-btn">Thêm vào giỏ hàng</button>
-                        <button type="button" class="btn btn-accent" id="buy-now-btn">Mua ngay</button>
+                        <button type="button" class="btn btn-outline" id="add-to-cart-btn"><i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng</button>
+                        <button type="button" class="btn btn-accent" id="buy-now-btn"><i class="fa-solid fa-bolt"></i> Mua ngay</button>
                     `
-                            : `<a href="login.html" class="btn btn-accent">Đăng nhập để mua hàng</a>`
+                            : `<a href="login.html" class="btn btn-accent"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập để mua hàng</a>`
                     }
                 </div>
 
@@ -301,7 +301,7 @@ function openSizeGuideModal() {
         </table>
         <p class="size-guide-tip">Số liệu tham khảo theo bảng size Nike. Mỗi thương hiệu có thể chênh lệch nhẹ — nên đo chân vào cuối ngày, cộng thêm 0.5–1cm để chọn size thoải mái.</p>
         <div class="modal-actions">
-            <button type="button" class="btn btn-accent" onclick="closeModal()">Đã hiểu</button>
+            <button type="button" class="btn btn-accent" onclick="closeModal()"><i class="fa-solid fa-check"></i> Đã hiểu</button>
         </div>
     `);
 }
