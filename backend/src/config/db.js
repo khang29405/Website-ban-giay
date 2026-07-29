@@ -8,6 +8,10 @@ const config = {
     options: {
         encrypt: process.env.DB_ENCRYPT === "true",
         trustServerCertificate: true,
+        // SQL Server luu SYSDATETIME()/GETDATE() theo gio local cua may chay DB (VN, UTC+7),
+        // khong phai UTC. Mac dinh driver (useUTC: true) se hieu nham gia tri do la UTC,
+        // lam moi thoi gian hien thi bi lech +7h. Tat useUTC de doc/ghi dung theo gio local.
+        useUTC: false,
     },
 };
 

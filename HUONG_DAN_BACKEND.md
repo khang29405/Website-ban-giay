@@ -146,6 +146,9 @@ Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET
 | GET | `/` | **Admin** | Danh sách lời nhắn, mới nhất trước. Lọc `?daXuLy=true/false`. Phân trang tuỳ chọn giống `/api/don-hang` (không truyền `page` thì trả toàn bộ mảng; truyền `?page=&limit=` mặc định `limit=10` thì có `pagination`) |
 | PATCH | `/:id/trang-thai` | **Admin** | Đánh dấu đã/chưa xử lý, body `{ "DaXuLy": true/false }`, `200`. `404` nếu không tồn tại |
 
+### Múi giờ (NgayDat, NgayGui, NgayTao...)
+Các cột `DATETIME2` trong DB dùng `DEFAULT SYSDATETIME()` — trả về giờ **local của máy chạy SQL Server** (VN, UTC+7), không phải UTC. Package `mssql` mặc định (`useUTC: true`) hiểu nhầm giá trị local đó là UTC khi đọc ra, làm mọi thời gian hiển thị bị lệch +7 giờ (VD: đặt đơn lúc 23:xx tối lại hiện thành 06:xx sáng hôm sau). Đã tắt bằng `useUTC: false` trong `src/config/db.js` — chỉ ảnh hưởng cách driver *đọc/ghi* giá trị (không đổi dữ liệu đã lưu trong DB), nên áp dụng đúng ngay cho cả bản ghi cũ lẫn mới, không cần migrate gì thêm.
+
 ### Tạo tài khoản Admin
 Đăng ký một tài khoản bình thường qua `/api/auth/register`, sau đó tự nâng quyền trong SSMS:
 ```sql
