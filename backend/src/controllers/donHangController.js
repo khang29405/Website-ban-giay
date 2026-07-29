@@ -34,10 +34,10 @@ async function createDirectOrder(req, res, next) {
 async function getAll(req, res, next) {
     try {
         handleValidation(req);
-        const { trangThai, page, limit } = req.query;
+        const { trangThai, maDon, q, page, limit } = req.query;
         const isAdmin = req.user.vaiTro === "Admin";
         const result = isAdmin
-            ? await donHangService.getAllOrders({ trangThai, page, limit })
+            ? await donHangService.getAllOrders({ trangThai, maDon, q, page, limit })
             : await donHangService.getMyOrders(req.user.maND, { trangThai, page, limit });
 
         if (page) {

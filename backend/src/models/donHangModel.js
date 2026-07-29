@@ -90,13 +90,21 @@ async function findByUser(maND, { trangThai, page, limit } = {}) {
     return { items, total, page: pageNum, limit: pageSize };
 }
 
-async function findAll({ trangThai, page, limit } = {}) {
+async function findAll({ trangThai, maDon, q, page, limit } = {}) {
     const pool = await poolPromise;
     const request = pool.request();
     const conditions = [];
     if (trangThai) {
         request.input("TrangThai", sql.NVarChar(50), trangThai);
         conditions.push("dh.TrangThai = @TrangThai");
+    }
+    if (maDon) {
+        request.input("MaDon", sql.NVarChar(20), `%${maDon}%`);
+        conditions.push("CAST(dh.MaDH AS NVARCHAR(20)) LIKE @MaDon");
+    }
+    if (q) {
+        request.input("Q", sql.NVarChar(100), `%${q}%`);
+        conditions.push("(nd.HoTen LIKE @Q OR nd.Email LIKE @Q)");
     }
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 

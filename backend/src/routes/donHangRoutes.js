@@ -34,6 +34,18 @@ const listValidation = [
         .optional({ values: "falsy" })
         .isIn(["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"])
         .withMessage("trangThai không hợp lệ"),
+    query("maDon")
+        .optional({ values: "falsy" })
+        .isString()
+        .trim()
+        .isLength({ max: 20 })
+        .withMessage("Mã đơn tìm kiếm tối đa 20 ký tự"),
+    query("q")
+        .optional({ values: "falsy" })
+        .isString()
+        .trim()
+        .isLength({ max: 100 })
+        .withMessage("Từ khóa tìm kiếm tối đa 100 ký tự"),
     query("page").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("page phải là số nguyên dương"),
     query("limit").optional({ values: "falsy" }).isInt({ min: 1, max: 100 }).withMessage("limit phải từ 1 đến 100"),
 ];
@@ -180,6 +192,21 @@ router.post("/mua-ngay", verifyToken, directOrderValidation, donHangController.c
  *         name: trangThai
  *         schema: { type: string, enum: [ChoXuLy, DangGiao, HoanThanh, DaHuy] }
  *         description: Loc theo trang thai don hang
+ *       - in: query
+ *         name: maDon
+ *         schema: { type: string }
+ *         description: >
+ *           Tim theo MaDH (khop mot phan, vd "10" khop don #10 va #110 nhung KHONG khop ten/email khach hang).
+ *           CHI co tac dung khi nguoi goi la Admin.
+ *         example: "10"
+ *       - in: query
+ *         name: q
+ *         schema: { type: string }
+ *         description: >
+ *           Tim theo ten khach hang hoac email (khong phan biet hoa thuong, khop mot phan). Co the dung cung
+ *           luc voi maDon (AND). CHI co tac dung khi nguoi goi la Admin (khach hang tu xem don cua minh khong
+ *           can tim theo ten/email).
+ *         example: "nguyen"
  *       - in: query
  *         name: page
  *         schema: { type: integer, minimum: 1 }
