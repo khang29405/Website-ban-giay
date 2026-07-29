@@ -31,12 +31,17 @@ function renderHeader() {
     if (!header) return;
 
     const user = getCurrentUser();
+    const isAdmin = !!user && user.VaiTro === "Admin";
     const actionsHtml = user
         ? `
-            <a href="cart.html" class="cart-link" id="cart-link">
+            ${
+                isAdmin
+                    ? `<a href="admin.html" class="btn btn-outline admin-link"><i class="fa-solid fa-user-shield"></i> Quản trị</a>`
+                    : `<a href="cart.html" class="cart-link" id="cart-link">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span class="cart-badge" id="cart-badge" hidden>0</span>
-            </a>
+            </a>`
+            }
             <div class="user-menu" id="user-menu">
                 <button type="button" class="avatar-btn" id="avatar-btn" aria-haspopup="true" aria-expanded="false">
                     <span class="user-greeting">Xin chào, ${escapeHtml(user.HoTen || user.Email)}</span>
@@ -47,7 +52,11 @@ function renderHeader() {
                         <strong>${escapeHtml(user.HoTen || "")}</strong>
                         <span>${escapeHtml(user.Email || "")}</span>
                     </div>
-                    <a href="orders.html" class="user-dropdown-item"><i class="fa-solid fa-box"></i> Đơn hàng của tôi</a>
+                    ${
+                        isAdmin
+                            ? ""
+                            : `<a href="orders.html" class="user-dropdown-item"><i class="fa-solid fa-box"></i> Đơn hàng của tôi</a>`
+                    }
                     <button type="button" class="user-dropdown-item" id="view-profile-btn"><i class="fa-solid fa-user"></i> Xem thông tin</button>
                     <button type="button" class="user-dropdown-item" id="edit-profile-btn"><i class="fa-solid fa-user-pen"></i> Chỉnh sửa thông tin</button>
                     <button type="button" class="user-dropdown-item" id="change-password-btn"><i class="fa-solid fa-key"></i> Đổi mật khẩu</button>
@@ -73,7 +82,6 @@ function renderHeader() {
                 <li><a href="san-pham.html">Sản phẩm</a></li>
                 <li><a href="about.html">Giới thiệu</a></li>
                 <li><a href="contact.html">Liên hệ</a></li>
-                ${user && user.VaiTro === "Admin" ? '<li><a href="admin.html">Quản trị</a></li>' : ""}
             </ul>
 
             <div class="header-actions">

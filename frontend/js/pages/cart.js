@@ -161,7 +161,10 @@ if (checkoutBtn) {
     });
 }
 
-if (getCurrentUser()) {
+const currentUser = getCurrentUser();
+if (currentUser && currentUser.VaiTro === "Admin") {
+    window.location.href = "index.html";
+} else if (currentUser) {
     cartGuest.hidden = true;
     cartContent.hidden = false;
     loadCart();

@@ -38,6 +38,29 @@
     border-bottom-color: var(--color-accent);
 }
 
+/* Tab Thong ke: noi bat rieng, tach han khoi kieu gach chan cua cac tab quan ly du lieu.
+   Dung kieu pill vien mau accent, dong bo voi .filter-chip/.about-brand-pill da co san
+   trong site thay vi mau den lac tong. */
+.admin-tab.admin-tab-right {
+    margin-bottom: 0;
+    padding: 7px 16px;
+    border: 1.5px solid var(--color-accent);
+    border-radius: 999px;
+    background: #fff5f5;
+    color: var(--color-accent);
+}
+
+.admin-tab.admin-tab-right:hover {
+    background: var(--color-accent);
+    color: #fff;
+}
+
+.admin-tab.admin-tab-right.active {
+    background: var(--color-accent);
+    color: #fff;
+    border-bottom-color: transparent;
+}
+
 .admin-panel {
     margin-bottom: 48px;
 }

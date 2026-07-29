@@ -204,7 +204,10 @@ if (orderTabs) {
     });
 }
 
-if (getCurrentUser()) {
+const currentUser = getCurrentUser();
+if (currentUser && currentUser.VaiTro === "Admin") {
+    window.location.href = "index.html";
+} else if (currentUser) {
     ordersGuest.hidden = true;
     ordersContent.hidden = false;
     loadOrders();
