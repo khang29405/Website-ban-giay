@@ -241,7 +241,8 @@
     border-radius: 50%;
     background: var(--color-surface-alt);
     border: 1.5px solid var(--color-border);
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+    color: var(--color-accent);
 }
 
 .pd-related {

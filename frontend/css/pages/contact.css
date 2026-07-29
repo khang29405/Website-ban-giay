@@ -20,9 +20,12 @@
 }
 
 .contact-info-icon {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     line-height: 1;
     flex: 0 0 auto;
+    color: var(--color-accent);
+    width: 22px;
+    text-align: center;
 }
 
 .contact-info-item strong {

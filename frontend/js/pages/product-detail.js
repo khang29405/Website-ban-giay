@@ -140,7 +140,7 @@ function renderProduct(product) {
                 <h1>${escapeHtml(product.TenSP)}</h1>
                 <span class="product-category">${escapeHtml(product.TenDanhMuc)}</span>
                 <div class="pd-price">${formatCurrency(product.Gia)}</div>
-                <button type="button" class="pd-share-btn" id="share-btn">🔗 Chia sẻ sản phẩm</button>
+                <button type="button" class="pd-share-btn" id="share-btn"><i class="fa-solid fa-share-nodes"></i> Chia sẻ sản phẩm</button>
                 <p class="pd-desc">${escapeHtml(product.MoTa || "Chưa có mô tả cho sản phẩm này.")}</p>
 
                 <div class="pd-option-group">
@@ -174,9 +174,9 @@ function renderProduct(product) {
                 </div>
 
                 <ul class="pd-trust-mini">
-                    <li><span class="pd-trust-icon">✅</span><span>Hàng chính hãng 100%</span></li>
-                    <li><span class="pd-trust-icon">🚚</span><span>Giao hàng toàn quốc</span></li>
-                    <li><span class="pd-trust-icon">🔄</span><span>Đổi trả trong 7 ngày</span></li>
+                    <li><span class="pd-trust-icon"><i class="fa-solid fa-circle-check"></i></span><span>Hàng chính hãng 100%</span></li>
+                    <li><span class="pd-trust-icon"><i class="fa-solid fa-truck"></i></span><span>Giao hàng toàn quốc</span></li>
+                    <li><span class="pd-trust-icon"><i class="fa-solid fa-rotate"></i></span><span>Đổi trả trong 7 ngày</span></li>
                 </ul>
             </div>
         </div>

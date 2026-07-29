@@ -205,11 +205,24 @@ async function deleteThuongHieu(id) {
 
 // ============ Sản phẩm ============
 let stockByProduct = {};
+let sanPhamPage = 1;
+const SAN_PHAM_PAGE_SIZE = 10;
 
 async function loadSanPham() {
-    sanPhamList = await apiGet("/san-pham").catch(() => []);
+    const { items, pagination } = await apiGetPaged("/san-pham", { page: sanPhamPage, limit: SAN_PHAM_PAGE_SIZE }).catch(
+        () => ({ items: [], pagination: null })
+    );
+    if (!items.length && sanPhamPage > 1) {
+        sanPhamPage -= 1;
+        return loadSanPham();
+    }
+    sanPhamList = items;
     await loadStockSummary();
     renderSanPhamTable();
+    renderPagination(document.getElementById("san-pham-pagination"), pagination, (page) => {
+        sanPhamPage = page;
+        loadSanPham();
+    });
 }
 
 async function loadStockSummary() {
@@ -545,6 +558,8 @@ const DON_HANG_STATUS_LABEL = {
 
 let donHangList = [];
 let selectedDonHangStatus = "";
+let donHangPage = 1;
+const DON_HANG_PAGE_SIZE = 8;
 
 function donHangStatusBadge(trangThai) {
     const status = DON_HANG_STATUS_LABEL[trangThai] || { text: trangThai, cls: "" };
@@ -561,21 +576,38 @@ function formatDate(iso) {
 }
 
 async function loadDonHang() {
-    donHangList = await apiGet("/don-hang").catch(() => []);
+    const { items, pagination } = await apiGetPaged("/don-hang", {
+        trangThai: selectedDonHangStatus,
+        page: donHangPage,
+        limit: DON_HANG_PAGE_SIZE,
+    }).catch(() => ({ items: [], pagination: null }));
+    if (!items.length && donHangPage > 1) {
+        donHangPage -= 1;
+        return loadDonHang();
+    }
+    donHangList = items;
     renderDonHangTable();
-    renderThongKe();
+    renderPagination(document.getElementById("don-hang-pagination"), pagination, (page) => {
+        donHangPage = page;
+        loadDonHang();
+    });
 }
 
-function renderThongKe() {
+async function loadThongKe() {
+    const allOrders = await apiGet("/don-hang").catch(() => []);
+    renderThongKe(allOrders);
+}
+
+function renderThongKe(allOrders) {
     const cardsEl = document.getElementById("stat-cards");
     const monthTbody = document.getElementById("table-thong-ke-thang-body");
     if (!cardsEl || !monthTbody) return;
 
-    const completedOrders = donHangList.filter((o) => o.TrangThai === "HoanThanh");
+    const completedOrders = allOrders.filter((o) => o.TrangThai === "HoanThanh");
     const totalRevenue = completedOrders.reduce((sum, o) => sum + o.TongTien, 0);
 
     const countByStatus = { ChoXuLy: 0, DangGiao: 0, HoanThanh: 0, DaHuy: 0 };
-    donHangList.forEach((o) => {
+    allOrders.forEach((o) => {
         if (countByStatus[o.TrangThai] !== undefined) countByStatus[o.TrangThai]++;
     });
 
@@ -586,7 +618,7 @@ function renderThongKe() {
         </div>
         <div class="stat-card">
             <span class="stat-card-label">Tổng số đơn</span>
-            <strong class="stat-card-value">${donHangList.length}</strong>
+            <strong class="stat-card-value">${allOrders.length}</strong>
         </div>
         ${Object.entries(DON_HANG_STATUS_LABEL)
             .map(
@@ -622,12 +654,9 @@ function renderThongKe() {
 
 function renderDonHangTable() {
     const tbody = document.getElementById("table-don-hang-body");
-    const filtered = selectedDonHangStatus
-        ? donHangList.filter((o) => o.TrangThai === selectedDonHangStatus)
-        : donHangList;
 
-    tbody.innerHTML = filtered.length
-        ? filtered
+    tbody.innerHTML = donHangList.length
+        ? donHangList
               .map(
                   (o) => `
             <tr>
@@ -687,6 +716,7 @@ function renderDonHangTable() {
                 await apiPatch(`/don-hang/${id}/trang-thai`, { TrangThai: newValue, LyDoHuy: lyDoHuy });
                 showToast("Đã cập nhật trạng thái đơn hàng", "success");
                 loadDonHang();
+                loadThongKe();
             } catch (err) {
                 showToast(err.message, "error");
                 resetToOriginal();
@@ -765,8 +795,9 @@ if (isAdmin) {
         adminOrderTabs.querySelectorAll(".order-tab").forEach((tab) => {
             tab.addEventListener("click", () => {
                 selectedDonHangStatus = tab.dataset.status;
+                donHangPage = 1;
                 adminOrderTabs.querySelectorAll(".order-tab").forEach((t) => t.classList.toggle("active", t === tab));
-                renderDonHangTable();
+                loadDonHang();
             });
         });
     }
@@ -775,4 +806,5 @@ if (isAdmin) {
     loadThuongHieu();
     loadSanPham();
     loadDonHang();
+    loadThongKe();
 }

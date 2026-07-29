@@ -15,7 +15,7 @@ function authHeaders() {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-function apiGet(path, params) {
+function buildUrl(path, params) {
     let url = API_BASE_URL + path;
     if (params) {
         const cleaned = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== "");
@@ -23,7 +23,29 @@ function apiGet(path, params) {
             url += "?" + new URLSearchParams(cleaned).toString();
         }
     }
-    return fetch(url, { headers: authHeaders() }).then(handleApiResponse);
+    return url;
+}
+
+function apiGet(path, params) {
+    return fetch(buildUrl(path, params), { headers: authHeaders() }).then(handleApiResponse);
+}
+
+// Dung cho cac endpoint co ho tro phan trang (?page=&limit=): tra ve ca `pagination`,
+// vi handleApiResponse mac dinh chi tra ve `data` nen se lam mat truong nay.
+function apiGetPaged(path, params) {
+    return fetch(buildUrl(path, params), { headers: authHeaders() })
+        .then(async (res) => {
+            const json = await res.json().catch(() => null);
+            if (!res.ok) {
+                const msg = (json && (json.message || (json.errors && json.errors[0] && json.errors[0].msg))) || res.statusText;
+                const err = new Error(msg || "Yêu cầu thất bại");
+                err.response = json;
+                err.status = res.status;
+                throw err;
+            }
+            return json;
+        })
+        .then((json) => ({ items: (json && json.data) || [], pagination: (json && json.pagination) || null }));
 }
 
 function apiSend(method, path, body) {

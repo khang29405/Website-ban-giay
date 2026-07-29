@@ -1,11 +1,32 @@
 const cartGuest = document.getElementById("cart-guest");
 const cartContent = document.getElementById("cart-content");
 const cartItemsEl = document.getElementById("cart-items");
+const cartSummaryItemsEl = document.getElementById("cart-summary-items");
+const cartTotalQtyEl = document.getElementById("cart-total-qty");
 const cartTotalEl = document.getElementById("cart-total");
 const checkoutBtn = document.getElementById("checkout-btn");
 
 function formatCurrency(amount) {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
+}
+
+function renderCartSummary(items) {
+    cartSummaryItemsEl.innerHTML = items
+        .map(
+            (item) => `
+        <div class="cart-summary-item">
+            <span class="cart-summary-item-name">
+                ${escapeHtml(item.TenSP)} <span class="cart-summary-item-variant">(${escapeHtml(item.KichCo)}, ${escapeHtml(item.MauSac)})</span>
+                <span class="cart-summary-item-unitprice">${formatCurrency(item.Gia)} × ${item.SoLuong}</span>
+            </span>
+            <span class="cart-summary-item-subtotal">${formatCurrency(item.Gia * item.SoLuong)}</span>
+        </div>
+    `
+        )
+        .join("");
+
+    const totalQty = items.reduce((sum, item) => sum + item.SoLuong, 0);
+    cartTotalQtyEl.textContent = totalQty;
 }
 
 function renderCartItems(items) {
@@ -17,6 +38,8 @@ function renderCartItems(items) {
                 <p><a href="san-pham.html" class="btn btn-outline">Tiếp tục mua sắm</a></p>
             </div>
         `;
+        cartSummaryItemsEl.innerHTML = "";
+        cartTotalQtyEl.textContent = "0";
         cartTotalEl.textContent = formatCurrency(0);
         updateCheckoutState(false);
         return;
@@ -43,7 +66,7 @@ function renderCartItems(items) {
                         <button type="button" class="qty-btn" data-action="plus">+</button>
                     </div>
                     <div class="cart-item-subtotal">${formatCurrency(subtotal)}</div>
-                    <button type="button" class="cart-item-remove" title="Xóa">✕</button>
+                    <button type="button" class="cart-item-remove" title="Xóa"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             `;
         })
@@ -51,6 +74,7 @@ function renderCartItems(items) {
 
     const total = items.reduce((sum, item) => sum + item.Gia * item.SoLuong, 0);
     cartTotalEl.textContent = formatCurrency(total);
+    renderCartSummary(items);
 
     updateCheckoutState(true);
     wireCartItemEvents();

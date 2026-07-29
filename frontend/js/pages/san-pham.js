@@ -12,6 +12,8 @@ let brandsData = [];
 let selectedCategory = urlParams.get("danhMuc") || "";
 let selectedBrand = urlParams.get("thuongHieu") || "";
 let selectedSort = "";
+let currentPage = 1;
+const PAGE_SIZE = 12;
 
 function formatCurrency(amount) {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
@@ -79,6 +81,7 @@ function renderCategoryList() {
     categoryList.querySelectorAll(".filter-list-item").forEach((btn) => {
         btn.addEventListener("click", () => {
             selectedCategory = btn.dataset.value;
+            currentPage = 1;
             renderCategoryList();
             loadProducts();
         });
@@ -99,6 +102,7 @@ function renderBrandList() {
     brandList.querySelectorAll(".filter-list-item").forEach((btn) => {
         btn.addEventListener("click", () => {
             selectedBrand = btn.dataset.value;
+            currentPage = 1;
             renderBrandList();
             loadProducts();
         });
@@ -120,13 +124,20 @@ async function loadFilterOptions() {
 async function loadProducts() {
     productGrid.innerHTML = `<div class="empty-state"><strong>Đang tải sản phẩm...</strong></div>`;
     try {
-        const products = await apiGet("/san-pham", {
+        const { items, pagination } = await apiGetPaged("/san-pham", {
             ten: searchInput.value.trim(),
             danhMuc: selectedCategory,
             thuongHieu: selectedBrand,
             sapXep: selectedSort,
+            page: currentPage,
+            limit: PAGE_SIZE,
         });
-        renderProducts(products);
+        renderProducts(items);
+        renderPagination(document.getElementById("product-pagination"), pagination, (page) => {
+            currentPage = page;
+            loadProducts();
+            document.getElementById("catalog").scrollIntoView({ behavior: "smooth", block: "start" });
+        });
     } catch (err) {
         productGrid.innerHTML = `
             <div class="empty-state">
@@ -137,10 +148,14 @@ async function loadProducts() {
     }
 }
 
-searchBtn.addEventListener("click", loadProducts);
+searchBtn.addEventListener("click", () => {
+    currentPage = 1;
+    loadProducts();
+});
 searchInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         e.preventDefault();
+        currentPage = 1;
         loadProducts();
     }
 });
@@ -150,6 +165,7 @@ sortButtons.forEach((btn) => {
         const value = btn.dataset.sort;
         selectedSort = selectedSort === value ? "" : value;
         sortButtons.forEach((b) => b.classList.toggle("active", b.dataset.sort === selectedSort));
+        currentPage = 1;
         loadProducts();
     });
 });

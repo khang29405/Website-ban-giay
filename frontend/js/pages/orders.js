@@ -12,8 +12,9 @@ const STATUS_LABEL = {
 
 const STATUS_STEPS = ["ChoXuLy", "DangGiao", "HoanThanh"];
 
-let allOrders = [];
 let selectedStatus = "";
+let currentPage = 1;
+const PAGE_SIZE = 6;
 
 function formatCurrency(amount) {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
@@ -31,7 +32,7 @@ function statusBadge(trangThai) {
 function renderOrderProgress(trangThai, lyDoHuy) {
     if (trangThai === "DaHuy") {
         return `
-            <div class="order-progress is-cancelled">✕ Đơn hàng đã bị hủy, tồn kho đã được hoàn lại</div>
+            <div class="order-progress is-cancelled"><i class="fa-solid fa-circle-xmark"></i> Đơn hàng đã bị hủy, tồn kho đã được hoàn lại</div>
             ${lyDoHuy ? `<p class="order-cancel-reason"><span>Lý do hủy:</span> ${escapeHtml(lyDoHuy)}</p>` : ""}
         `;
     }
@@ -124,11 +125,6 @@ function renderOrders(orders) {
     });
 }
 
-function applyFilter() {
-    const filtered = selectedStatus ? allOrders.filter((o) => o.TrangThai === selectedStatus) : allOrders;
-    renderOrders(filtered);
-}
-
 async function openOrderDetailModal(id) {
     try {
         const order = await apiGet(`/don-hang/${id}`);
@@ -175,9 +171,18 @@ async function openOrderDetailModal(id) {
 }
 
 async function loadOrders() {
+    ordersList.innerHTML = `<div class="empty-state"><strong>Đang tải đơn hàng...</strong></div>`;
     try {
-        allOrders = await apiGet("/don-hang");
-        applyFilter();
+        const { items, pagination } = await apiGetPaged("/don-hang", {
+            trangThai: selectedStatus,
+            page: currentPage,
+            limit: PAGE_SIZE,
+        });
+        renderOrders(items);
+        renderPagination(document.getElementById("orders-pagination"), pagination, (page) => {
+            currentPage = page;
+            loadOrders();
+        });
     } catch (err) {
         ordersList.innerHTML = `
             <div class="empty-state">
@@ -192,8 +197,9 @@ if (orderTabs) {
     orderTabs.querySelectorAll(".order-tab").forEach((tab) => {
         tab.addEventListener("click", () => {
             selectedStatus = tab.dataset.status;
+            currentPage = 1;
             orderTabs.querySelectorAll(".order-tab").forEach((t) => t.classList.toggle("active", t === tab));
-            applyFilter();
+            loadOrders();
         });
     });
 }

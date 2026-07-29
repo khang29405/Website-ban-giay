@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
@@ -32,7 +33,12 @@
                     </div>
                     <aside class="cart-summary">
                         <h3>Tổng cộng</h3>
+                        <div class="cart-summary-items" id="cart-summary-items"></div>
                         <div class="cart-summary-row">
+                            <span>Tổng số lượng</span>
+                            <strong id="cart-total-qty">0</strong>
+                        </div>
+                        <div class="cart-summary-row cart-summary-total">
                             <span>Tạm tính</span>
                             <strong id="cart-total">0₫</strong>
                         </div>

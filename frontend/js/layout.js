@@ -24,7 +24,7 @@ function renderHeader() {
     const actionsHtml = user
         ? `
             <a href="cart.html" class="cart-link" id="cart-link">
-                🛒
+                <i class="fa-solid fa-cart-shopping"></i>
                 <span class="cart-badge" id="cart-badge" hidden>0</span>
             </a>
             <div class="user-menu" id="user-menu">
@@ -432,7 +432,7 @@ async function openCheckoutModal(directItem) {
                 <div class="payment-methods">
                     <label class="payment-method">
                         <input type="radio" name="PhuongThucTT" value="COD" checked>
-                        <span class="payment-method-icon">💵</span>
+                        <span class="payment-method-icon"><i class="fa-solid fa-money-bill-wave"></i></span>
                         <span class="payment-method-info">
                             <strong>Thanh toán khi nhận hàng (COD)</strong>
                             <span>Trả tiền mặt cho người giao hàng</span>
@@ -440,7 +440,7 @@ async function openCheckoutModal(directItem) {
                     </label>
                     <label class="payment-method is-disabled">
                         <input type="radio" name="PhuongThucTT" value="ChuyenKhoan" disabled>
-                        <span class="payment-method-icon">🏦</span>
+                        <span class="payment-method-icon"><i class="fa-solid fa-building-columns"></i></span>
                         <span class="payment-method-info">
                             <strong>Chuyển khoản ngân hàng</strong>
                             <span>Sắp ra mắt</span>
@@ -448,7 +448,7 @@ async function openCheckoutModal(directItem) {
                     </label>
                     <label class="payment-method is-disabled">
                         <input type="radio" name="PhuongThucTT" value="ViDienTu" disabled>
-                        <span class="payment-method-icon">📱</span>
+                        <span class="payment-method-icon"><i class="fa-solid fa-wallet"></i></span>
                         <span class="payment-method-info">
                             <strong>Ví điện tử (Momo, ZaloPay...)</strong>
                             <span>Sắp ra mắt</span>
@@ -502,6 +502,25 @@ async function openCheckoutModal(directItem) {
             submitBtn.disabled = false;
         }
     });
+}
+
+// ============ Phan trang (dung chung cho danh sach san pham/don hang) ============
+function renderPagination(container, pagination, onPageChange) {
+    if (!container) return;
+    if (!pagination || pagination.totalPages <= 1) {
+        container.innerHTML = "";
+        return;
+    }
+
+    const { page, totalPages } = pagination;
+    container.innerHTML = `
+        <button type="button" class="pagination-btn" data-action="prev" ${page <= 1 ? "disabled" : ""}>‹ Trước</button>
+        <span class="pagination-info">Trang ${page} / ${totalPages}</span>
+        <button type="button" class="pagination-btn" data-action="next" ${page >= totalPages ? "disabled" : ""}>Sau ›</button>
+    `;
+
+    container.querySelector('[data-action="prev"]').addEventListener("click", () => onPageChange(page - 1));
+    container.querySelector('[data-action="next"]').addEventListener("click", () => onPageChange(page + 1));
 }
 
 // ============ Toast (thong bao khong chan thao tac) ============

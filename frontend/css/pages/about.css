@@ -144,6 +144,7 @@
     background: #fff;
     border: 1.5px solid var(--color-border);
     font-size: 1.15rem;
+    color: var(--color-accent);
     margin-bottom: 12px;
 }
 
