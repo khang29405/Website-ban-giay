@@ -47,12 +47,12 @@ async function createDirectOrder(maND, { MaBienThe, SoLuong, DiaChiGiaoHang, SDT
     return donHangModel.createOrder(maND, { DiaChiGiaoHang, SDTNhan, items: [item], tongTien });
 }
 
-async function getMyOrders(maND) {
-    return donHangModel.findByUser(maND);
+async function getMyOrders(maND, filters) {
+    return donHangModel.findByUser(maND, filters);
 }
 
-async function getAllOrders() {
-    return donHangModel.findAll();
+async function getAllOrders(filters) {
+    return donHangModel.findAll(filters);
 }
 
 async function getOrderById(maDH, maND, isAdmin) {

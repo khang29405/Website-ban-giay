@@ -1,5 +1,5 @@
 const express = require("express");
-const { body, param } = require("express-validator");
+const { body, param, query } = require("express-validator");
 const donHangController = require("../controllers/donHangController");
 const verifyToken = require("../middlewares/authMiddleware");
 const requireRole = require("../middlewares/requireRole");
@@ -27,6 +27,15 @@ const statusValidation = [
         .isString()
         .isLength({ max: 255 })
         .withMessage("Lý do hủy tối đa 255 ký tự"),
+];
+
+const listValidation = [
+    query("trangThai")
+        .optional({ values: "falsy" })
+        .isIn(["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"])
+        .withMessage("trangThai không hợp lệ"),
+    query("page").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("page phải là số nguyên dương"),
+    query("limit").optional({ values: "falsy" }).isInt({ min: 1, max: 100 }).withMessage("limit phải từ 1 đến 100"),
 ];
 
 const directOrderValidation = [
@@ -161,9 +170,24 @@ router.post("/mua-ngay", verifyToken, directOrderValidation, donHangController.c
  *     summary: Xem danh sach don hang
  *     description: >
  *       Khach hang (KhachHang) chi thay don hang cua chinh minh. Admin thay TOAN BO don hang cua moi khach hang.
+ *       Neu KHONG truyen page thi tra ve TOAN BO ket qua (mang, khong phan trang). Neu CO truyen page thi bat
+ *       buoc phan trang, response se co them truong `pagination`.
  *     tags: [DonHang]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: trangThai
+ *         schema: { type: string, enum: [ChoXuLy, DangGiao, HoanThanh, DaHuy] }
+ *         description: Loc theo trang thai don hang
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, minimum: 1 }
+ *         description: So trang (bat dau tu 1)
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+ *         description: So don hang moi trang (chi co tac dung khi co truyen page)
  *     responses:
  *       200:
  *         description: Thanh cong
@@ -177,6 +201,14 @@ router.post("/mua-ngay", verifyToken, directOrderValidation, donHangController.c
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/DonHang'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       400:
+ *         description: Tham so khong hop le
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Chua dang nhap
  *         content:
@@ -184,7 +216,7 @@ router.post("/mua-ngay", verifyToken, directOrderValidation, donHangController.c
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get("/", verifyToken, donHangController.getAll);
+router.get("/", verifyToken, listValidation, donHangController.getAll);
 
 /**
  * @swagger

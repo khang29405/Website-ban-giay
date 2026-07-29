@@ -33,11 +33,27 @@ async function createDirectOrder(req, res, next) {
 
 async function getAll(req, res, next) {
     try {
+        handleValidation(req);
+        const { trangThai, page, limit } = req.query;
         const isAdmin = req.user.vaiTro === "Admin";
-        const orders = isAdmin
-            ? await donHangService.getAllOrders()
-            : await donHangService.getMyOrders(req.user.maND);
-        res.json({ success: true, data: orders });
+        const result = isAdmin
+            ? await donHangService.getAllOrders({ trangThai, page, limit })
+            : await donHangService.getMyOrders(req.user.maND, { trangThai, page, limit });
+
+        if (page) {
+            res.json({
+                success: true,
+                data: result.items,
+                pagination: {
+                    page: result.page,
+                    limit: result.limit,
+                    total: result.total,
+                    totalPages: Math.max(1, Math.ceil(result.total / result.limit)),
+                },
+            });
+        } else {
+            res.json({ success: true, data: result });
+        }
     } catch (err) {
         next(err);
     }

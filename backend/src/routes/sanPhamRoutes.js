@@ -32,6 +32,8 @@ const searchValidation = [
     query("danhMuc").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("danhMuc không hợp lệ"),
     query("thuongHieu").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("thuongHieu không hợp lệ"),
     query("sapXep").optional({ values: "falsy" }).isIn(["gia_tang", "gia_giam"]).withMessage("sapXep không hợp lệ"),
+    query("page").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("page phải là số nguyên dương"),
+    query("limit").optional({ values: "falsy" }).isInt({ min: 1, max: 100 }).withMessage("limit phải từ 1 đến 100"),
 ];
 
 /**
@@ -65,6 +67,17 @@ const searchValidation = [
  *         name: sapXep
  *         schema: { type: string, enum: [gia_tang, gia_giam] }
  *         description: Sap xep theo gia tang dan hoac giam dan
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, minimum: 1 }
+ *         description: >
+ *           So trang (bat dau tu 1). Neu KHONG truyen page, tra ve TOAN BO ket qua (mang, khong co phan trang) -
+ *           dung cho cac noi can lay het du lieu (vd san pham lien quan). Neu CO truyen page thi bat buoc phan trang,
+ *           response se co them truong `pagination`.
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 12 }
+ *         description: So san pham moi trang (chi co tac dung khi co truyen page)
  *     responses:
  *       200:
  *         description: Thanh cong
@@ -78,6 +91,8 @@ const searchValidation = [
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/SanPham'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
  *       400:
  *         description: Tham so tim kiem khong hop le
  *         content:

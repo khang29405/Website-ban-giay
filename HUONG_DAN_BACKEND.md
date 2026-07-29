@@ -103,7 +103,7 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 ### Sản phẩm (`/api/san-pham`)
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
-| GET | / | Public (tuỳ chọn token) | Danh sách tất cả (kèm tên danh mục/thương hiệu qua JOIN). Hỗ trợ query ?ten=&danhMuc=&thuongHieu=&sapXep= để tìm/lọc/sắp xếp. **Khách/chưa đăng nhập chỉ thấy sản phẩm `TrangThai = true`** (sản phẩm đã ẩn bị loại khỏi danh sách); nếu gửi kèm token Admin hợp lệ thì thấy tất cả kể cả sản phẩm đã ẩn |
+| GET | / | Public (tuỳ chọn token) | Danh sách tất cả (kèm tên danh mục/thương hiệu qua JOIN). Hỗ trợ query ?ten=&danhMuc=&thuongHieu=&sapXep= để tìm/lọc/sắp xếp. **Khách/chưa đăng nhập chỉ thấy sản phẩm `TrangThai = true`** (sản phẩm đã ẩn bị loại khỏi danh sách); nếu gửi kèm token Admin hợp lệ thì thấy tất cả kể cả sản phẩm đã ẩn. **Phân trang tuỳ chọn**: không truyền `page` thì trả về toàn bộ mảng (giữ nguyên hành vi cũ, dùng cho các nơi cần lấy hết như sản phẩm liên quan); truyền `?page=&limit=` (mặc định `limit=12`, tối đa 100) thì response có thêm `pagination: { page, limit, total, totalPages }` và `data` chỉ chứa 1 trang |
 | GET | `/:id` | Public (tuỳ chọn token) | Chi tiết 1 sản phẩm, `404` nếu không có **hoặc nếu đã ẩn mà người gọi không phải Admin** (coi như không tồn tại) |
 | POST | `/` | **Admin** | Tạo mới, `201`. `400` nếu thiếu trường/danh mục hoặc thương hiệu không tồn tại |
 | PUT | `/:id` | **Admin** | Cập nhật, `200`. `404` nếu không tồn tại |
@@ -133,7 +133,7 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
 | POST | `/` | Đã đăng nhập | Đặt hàng từ **toàn bộ giỏ hàng hiện tại**, body `{ "DiaChiGiaoHang": "...", "SDTNhan": "0901234567" }`, `201`. Thanh toán mặc định COD, không nhận từ client. `400` nếu giỏ hàng trống, có sản phẩm đã ngừng bán, hoặc số lượng vượt tồn kho hiện tại (kiểm tra lại tại thời điểm đặt, không chỉ lúc thêm vào giỏ) |  
-| GET | `/` | Đã đăng nhập | **KhachHang**: chỉ thấy đơn hàng của chính mình. **Admin**: thấy toàn bộ đơn hàng của mọi khách. Mỗi đơn kèm `HoTen`/`Email` người đặt, `TongSoLuong` và `AnhXemTruoc` (tối đa 4 ảnh sản phẩm đầu tiên, tính gộp qua 1 query — không N+1) |
+| GET | `/` | Đã đăng nhập | **KhachHang**: chỉ thấy đơn hàng của chính mình. **Admin**: thấy toàn bộ đơn hàng của mọi khách. Mỗi đơn kèm `HoTen`/`Email` người đặt, `TongSoLuong` và `AnhXemTruoc` (tối đa 4 ảnh sản phẩm đầu tiên, tính gộp qua 1 query — không N+1). Hỗ trợ lọc `?trangThai=`. **Phân trang tuỳ chọn** giống `/api/san-pham`: không truyền `page` thì trả về toàn bộ mảng (dùng cho tab Thống kê Admin — cần full dữ liệu để tính tổng); truyền `?page=&limit=` (mặc định `limit=10`, tối đa 100) thì có thêm `pagination` |
 | GET | `/:id` | Đã đăng nhập | Chi tiết 1 đơn (kèm `HoTen`/`Email` người đặt và `ChiTiet` — danh sách sản phẩm/size/màu/đơn giá/ảnh). KhachHang chỉ xem được đơn của mình, `404` nếu xem đơn người khác (không lộ đơn đó có tồn tại hay không) |
 | PATCH | `/:id/trang-thai` | **Admin** | Cập nhật trạng thái, body `{ "TrangThai": "ChoXuLy" \| "DangGiao" \| "HoanThanh" \| "DaHuy", "LyDoHuy"?: "..." }`, `200`. Nếu chuyển sang `DaHuy` thì **bắt buộc phải có `LyDoHuy`** (chuỗi không rỗng, tối đa 255 ký tự) — thiếu thì `400`; đồng thời **tự động hoàn lại tồn kho** cho các biến thể trong đơn (chỉ hoàn 1 lần, hủy lại đơn đã hủy không hoàn thêm). Các trạng thái khác không cần/không lưu `LyDoHuy` |
 

@@ -16,7 +16,7 @@ const SORT_CLAUSES = {
     gia_giam: "ORDER BY sp.Gia DESC",
 };
 
-async function findAll({ ten, maDM, maTH, sapXep, chiHienThi } = {}) {
+async function findAll({ ten, maDM, maTH, sapXep, chiHienThi, page, limit } = {}) {
     const pool = await poolPromise;
     const request = pool.request();
     const conditions = [];
@@ -39,8 +39,27 @@ async function findAll({ ten, maDM, maTH, sapXep, chiHienThi } = {}) {
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
     const orderByClause = SORT_CLAUSES[sapXep] || "ORDER BY sp.MaSP";
-    const result = await request.query(`SELECT ${SELECT_COLUMNS} ${JOIN_CLAUSE} ${whereClause} ${orderByClause}`);
-    return result.recordset;
+
+    if (!page) {
+        const result = await request.query(`SELECT ${SELECT_COLUMNS} ${JOIN_CLAUSE} ${whereClause} ${orderByClause}`);
+        return result.recordset;
+    }
+
+    const pageNum = Math.max(1, Number(page) || 1);
+    const pageSize = Math.max(1, Number(limit) || 12);
+
+    const countResult = await request.query(`SELECT COUNT(*) AS Total ${JOIN_CLAUSE} ${whereClause}`);
+    const total = countResult.recordset[0].Total;
+
+    request.input("Offset", sql.Int, (pageNum - 1) * pageSize);
+    request.input("PageSize", sql.Int, pageSize);
+    const result = await request.query(`
+        SELECT ${SELECT_COLUMNS}
+        ${JOIN_CLAUSE} ${whereClause} ${orderByClause}
+        OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
+    `);
+
+    return { items: result.recordset, total, page: pageNum, limit: pageSize };
 }
 
 async function findById(id) {

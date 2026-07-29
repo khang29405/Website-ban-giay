@@ -57,24 +57,84 @@ async function attachItemsPreview(pool, orders) {
     });
 }
 
-async function findByUser(maND) {
+async function findByUser(maND, { trangThai, page, limit } = {}) {
     const pool = await poolPromise;
-    const result = await pool
-        .request()
-        .input("MaND", sql.Int, maND)
-        .query("SELECT * FROM DON_HANG WHERE MaND = @MaND ORDER BY NgayDat DESC");
-    return attachItemsPreview(pool, result.recordset);
+    const request = pool.request().input("MaND", sql.Int, maND);
+    const conditions = ["MaND = @MaND"];
+    if (trangThai) {
+        request.input("TrangThai", sql.NVarChar(50), trangThai);
+        conditions.push("TrangThai = @TrangThai");
+    }
+    const whereClause = `WHERE ${conditions.join(" AND ")}`;
+
+    if (!page) {
+        const result = await request.query(`SELECT * FROM DON_HANG ${whereClause} ORDER BY NgayDat DESC`);
+        return attachItemsPreview(pool, result.recordset);
+    }
+
+    const pageNum = Math.max(1, Number(page) || 1);
+    const pageSize = Math.max(1, Number(limit) || 10);
+
+    const countResult = await request.query(`SELECT COUNT(*) AS Total FROM DON_HANG ${whereClause}`);
+    const total = countResult.recordset[0].Total;
+
+    request.input("Offset", sql.Int, (pageNum - 1) * pageSize);
+    request.input("PageSize", sql.Int, pageSize);
+    const result = await request.query(`
+        SELECT * FROM DON_HANG ${whereClause}
+        ORDER BY NgayDat DESC
+        OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
+    `);
+
+    const items = await attachItemsPreview(pool, result.recordset);
+    return { items, total, page: pageNum, limit: pageSize };
 }
 
-async function findAll() {
+async function findAll({ trangThai, page, limit } = {}) {
     const pool = await poolPromise;
-    const result = await pool.request().query(`
+    const request = pool.request();
+    const conditions = [];
+    if (trangThai) {
+        request.input("TrangThai", sql.NVarChar(50), trangThai);
+        conditions.push("dh.TrangThai = @TrangThai");
+    }
+    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    if (!page) {
+        const result = await request.query(`
+            SELECT dh.*, nd.HoTen, nd.Email
+            FROM DON_HANG dh
+            JOIN NGUOI_DUNG nd ON dh.MaND = nd.MaND
+            ${whereClause}
+            ORDER BY dh.NgayDat DESC
+        `);
+        return attachItemsPreview(pool, result.recordset);
+    }
+
+    const pageNum = Math.max(1, Number(page) || 1);
+    const pageSize = Math.max(1, Number(limit) || 10);
+
+    const countResult = await request.query(`
+        SELECT COUNT(*) AS Total
+        FROM DON_HANG dh
+        JOIN NGUOI_DUNG nd ON dh.MaND = nd.MaND
+        ${whereClause}
+    `);
+    const total = countResult.recordset[0].Total;
+
+    request.input("Offset", sql.Int, (pageNum - 1) * pageSize);
+    request.input("PageSize", sql.Int, pageSize);
+    const result = await request.query(`
         SELECT dh.*, nd.HoTen, nd.Email
         FROM DON_HANG dh
         JOIN NGUOI_DUNG nd ON dh.MaND = nd.MaND
+        ${whereClause}
         ORDER BY dh.NgayDat DESC
+        OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
     `);
-    return attachItemsPreview(pool, result.recordset);
+
+    const items = await attachItemsPreview(pool, result.recordset);
+    return { items, total, page: pageNum, limit: pageSize };
 }
 
 async function updateTrangThai(maDH, trangThai, lyDoHuy) {

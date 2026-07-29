@@ -14,10 +14,32 @@ function handleValidation(req) {
 async function getAll(req, res, next) {
     try {
         handleValidation(req);
-        const { ten, danhMuc, thuongHieu, sapXep } = req.query;
+        const { ten, danhMuc, thuongHieu, sapXep, page, limit } = req.query;
         const isAdmin = req.user && req.user.vaiTro === "Admin";
-        const items = await sanPhamService.getAll({ ten, maDM: danhMuc, maTH: thuongHieu, sapXep, chiHienThi: !isAdmin });
-        res.json({ success: true, data: items });
+        const result = await sanPhamService.getAll({
+            ten,
+            maDM: danhMuc,
+            maTH: thuongHieu,
+            sapXep,
+            chiHienThi: !isAdmin,
+            page,
+            limit,
+        });
+
+        if (page) {
+            res.json({
+                success: true,
+                data: result.items,
+                pagination: {
+                    page: result.page,
+                    limit: result.limit,
+                    total: result.total,
+                    totalPages: Math.max(1, Math.ceil(result.total / result.limit)),
+                },
+            });
+        } else {
+            res.json({ success: true, data: result });
+        }
     } catch (err) {
         next(err);
     }

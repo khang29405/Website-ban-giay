@@ -23,6 +23,16 @@ const options = {
                 },
             },
             schemas: {
+                Pagination: {
+                    type: "object",
+                    description: "Chi co trong response khi client truyen query page",
+                    properties: {
+                        page: { type: "integer", example: 1 },
+                        limit: { type: "integer", example: 12 },
+                        total: { type: "integer", example: 37, description: "Tong so ban ghi khop dieu kien loc" },
+                        totalPages: { type: "integer", example: 4 },
+                    },
+                },
                 ErrorResponse: {
                     type: "object",
                     properties: {
