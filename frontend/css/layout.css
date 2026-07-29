@@ -147,6 +147,18 @@
     opacity: 0.85;
 }
 
+.avatar-caret {
+    margin-left: -4px;
+    font-size: 0.55rem;
+    line-height: 1;
+    color: var(--color-text-muted);
+    transition: transform 0.2s ease;
+}
+
+.avatar-btn[aria-expanded="true"] .avatar-caret {
+    transform: rotate(180deg);
+}
+
 .user-dropdown {
     position: absolute;
     top: calc(100% + 12px);

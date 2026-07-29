@@ -52,6 +52,7 @@ function renderHeader() {
                 <button type="button" class="avatar-btn" id="avatar-btn" aria-haspopup="true" aria-expanded="false">
                     <span class="user-greeting">Xin chào, ${escapeHtml(user.HoTen || user.Email)}</span>
                     <span class="avatar-circle">${getInitials(user.HoTen || user.Email)}</span>
+                    <i class="fa-solid fa-chevron-down avatar-caret"></i>
                 </button>
                 <div class="user-dropdown" id="user-dropdown" hidden>
                     <div class="user-dropdown-info">

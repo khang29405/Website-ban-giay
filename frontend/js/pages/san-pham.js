@@ -15,6 +15,10 @@ let selectedSort = "";
 let currentPage = 1;
 const PAGE_SIZE = 12;
 
+const FILTER_VISIBLE_LIMIT = 6;
+let categoryExpanded = false;
+let brandExpanded = false;
+
 function formatCurrency(amount) {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
 }
@@ -85,45 +89,79 @@ function renderProducts(products) {
         .join("");
 }
 
-function renderCategoryList() {
-    categoryList.innerHTML =
-        `<li><button type="button" class="filter-list-item${selectedCategory === "" ? " active" : ""}" data-value="">Tất cả danh mục</button></li>` +
-        categoriesData
-            .map((c) => {
-                const value = String(c.MaDM);
-                const active = selectedCategory === value ? " active" : "";
-                return `<li><button type="button" class="filter-list-item${active}" data-value="${value}">${escapeHtml(c.TenDanhMuc)}</button></li>`;
-            })
-            .join("");
+function renderExpandableFilterList({ container, items, idKey, nameKey, selectedValue, expanded, setExpanded, onSelect }) {
+    const withinLimit = items.slice(0, FILTER_VISIBLE_LIMIT);
+    const selectedOutsideLimit = selectedValue && !withinLimit.some((it) => String(it[idKey]) === selectedValue);
+    const isExpanded = expanded || selectedOutsideLimit;
+    const visibleItems = isExpanded ? items : withinLimit;
+    const hiddenCount = items.length - withinLimit.length;
 
-    categoryList.querySelectorAll(".filter-list-item").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            selectedCategory = btn.dataset.value;
+    const itemsHtml = visibleItems
+        .map((it) => {
+            const value = String(it[idKey]);
+            const active = selectedValue === value ? " active" : "";
+            return `<li><button type="button" class="filter-list-item${active}" data-value="${value}">${escapeHtml(it[nameKey])}</button></li>`;
+        })
+        .join("");
+
+    const toggleHtml =
+        hiddenCount > 0
+            ? `<li><button type="button" class="filter-list-toggle${isExpanded ? " expanded" : ""}" data-toggle>
+                ${isExpanded ? "Thu gọn" : `Xem thêm (+${hiddenCount})`} <i class="fa-solid fa-chevron-down"></i>
+            </button></li>`
+            : "";
+
+    container.innerHTML = itemsHtml + toggleHtml;
+
+    container.querySelectorAll(".filter-list-item").forEach((btn) => {
+        btn.addEventListener("click", () => onSelect(btn.dataset.value));
+    });
+
+    const toggleBtn = container.querySelector("[data-toggle]");
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => setExpanded(!isExpanded));
+    }
+}
+
+function renderCategoryList() {
+    renderExpandableFilterList({
+        container: categoryList,
+        items: [{ MaDM: "", TenDanhMuc: "Tất cả danh mục" }, ...categoriesData],
+        idKey: "MaDM",
+        nameKey: "TenDanhMuc",
+        selectedValue: selectedCategory,
+        expanded: categoryExpanded,
+        setExpanded: (value) => {
+            categoryExpanded = value;
+            renderCategoryList();
+        },
+        onSelect: (value) => {
+            selectedCategory = value;
             currentPage = 1;
             renderCategoryList();
             loadProducts();
-        });
+        },
     });
 }
 
 function renderBrandList() {
-    brandList.innerHTML =
-        `<li><button type="button" class="filter-list-item${selectedBrand === "" ? " active" : ""}" data-value="">Tất cả thương hiệu</button></li>` +
-        brandsData
-            .map((b) => {
-                const value = String(b.MaTH);
-                const active = selectedBrand === value ? " active" : "";
-                return `<li><button type="button" class="filter-list-item${active}" data-value="${value}">${escapeHtml(b.TenThuongHieu)}</button></li>`;
-            })
-            .join("");
-
-    brandList.querySelectorAll(".filter-list-item").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            selectedBrand = btn.dataset.value;
+    renderExpandableFilterList({
+        container: brandList,
+        items: [{ MaTH: "", TenThuongHieu: "Tất cả thương hiệu" }, ...brandsData],
+        idKey: "MaTH",
+        nameKey: "TenThuongHieu",
+        selectedValue: selectedBrand,
+        expanded: brandExpanded,
+        setExpanded: (value) => {
+            brandExpanded = value;
+            renderBrandList();
+        },
+        onSelect: (value) => {
+            selectedBrand = value;
             currentPage = 1;
             renderBrandList();
             loadProducts();
-        });
+        },
     });
 }
 
