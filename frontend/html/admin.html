@@ -35,6 +35,7 @@
                     <button type="button" class="admin-tab" data-tab="san-pham">Sản phẩm</button>
                     <button type="button" class="admin-tab" data-tab="don-hang">Đơn hàng</button>
                     <button type="button" class="admin-tab" data-tab="thong-ke">Thống kê</button>
+                    <button type="button" class="admin-tab" data-tab="lien-he">Tin nhắn liên hệ</button>
                 </div>
 
                 <section class="admin-panel" id="panel-danh-muc">
@@ -157,6 +158,24 @@
                             </table>
                         </div>
                     </div>
+                </section>
+
+                <section class="admin-panel" id="panel-lien-he" hidden>
+                    <div class="admin-panel-header">
+                        <h2>Tin nhắn liên hệ</h2>
+                    </div>
+                    <div class="order-tabs" id="lien-he-tabs">
+                        <button type="button" class="order-tab active" data-status="">Tất cả</button>
+                        <button type="button" class="order-tab" data-status="false">Chưa xử lý</button>
+                        <button type="button" class="order-tab" data-status="true">Đã xử lý</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>Ngày gửi</th><th>Họ tên</th><th>Email</th><th>Nội dung</th><th>Trạng thái</th><th></th></tr>
+                        </thead>
+                        <tbody id="table-lien-he-body"></tbody>
+                    </table>
+                    <div class="pagination" id="lien-he-pagination"></div>
                 </section>
             </div>
         </div>

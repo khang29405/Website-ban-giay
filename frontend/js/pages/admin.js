@@ -992,6 +992,77 @@ async function openAdminOrderDetail(id) {
     }
 }
 
+// ============ Tin nhắn liên hệ ============
+let lienHeList = [];
+let selectedLienHeStatus = "";
+let lienHePage = 1;
+const LIEN_HE_PAGE_SIZE = 10;
+
+function formatDateTime(iso) {
+    return new Date(iso).toLocaleString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+}
+
+async function loadLienHe() {
+    const { items, pagination } = await apiGetPaged("/lien-he", {
+        daXuLy: selectedLienHeStatus,
+        page: lienHePage,
+        limit: LIEN_HE_PAGE_SIZE,
+    }).catch(() => ({ items: [], pagination: null }));
+    if (!items.length && lienHePage > 1) {
+        lienHePage -= 1;
+        return loadLienHe();
+    }
+    lienHeList = items;
+    renderLienHeTable();
+    renderPagination(document.getElementById("lien-he-pagination"), pagination, (page) => {
+        lienHePage = page;
+        loadLienHe();
+    });
+}
+
+function renderLienHeTable() {
+    const tbody = document.getElementById("table-lien-he-body");
+    tbody.innerHTML = lienHeList.length
+        ? lienHeList
+              .map(
+                  (lh) => `
+            <tr>
+                <td>${formatDateTime(lh.NgayGui)}</td>
+                <td>${escapeHtml(lh.HoTen)}</td>
+                <td>${escapeHtml(lh.Email)}</td>
+                <td class="admin-lienhe-noidung" title="${escapeHtml(lh.NoiDung)}">${escapeHtml(lh.NoiDung)}</td>
+                <td>${
+                    lh.DaXuLy
+                        ? '<span class="admin-status ok">Đã xử lý</span>'
+                        : '<span class="admin-status off">Chưa xử lý</span>'
+                }</td>
+                <td class="admin-actions">
+                    <button type="button" class="btn-link" onclick="toggleLienHeXuLy(${lh.MaLienHe}, ${lh.DaXuLy ? "false" : "true"})">${
+                        lh.DaXuLy ? "Đánh dấu chưa xử lý" : "Đánh dấu đã xử lý"
+                    }</button>
+                </td>
+            </tr>`
+              )
+              .join("")
+        : `<tr><td colspan="6" class="admin-empty">Chưa có tin nhắn nào</td></tr>`;
+}
+
+async function toggleLienHeXuLy(id, newValue) {
+    try {
+        await apiPatch(`/lien-he/${id}/trang-thai`, { DaXuLy: newValue });
+        showToast("Đã cập nhật trạng thái", "success");
+        loadLienHe();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
 // ============ Tabs ============
 function initTabs() {
     document.querySelectorAll(".admin-tab").forEach((btn) => {
@@ -1069,9 +1140,22 @@ if (isAdmin) {
         });
     }
 
+    const lienHeTabs = document.getElementById("lien-he-tabs");
+    if (lienHeTabs) {
+        lienHeTabs.querySelectorAll(".order-tab").forEach((tab) => {
+            tab.addEventListener("click", () => {
+                selectedLienHeStatus = tab.dataset.status;
+                lienHePage = 1;
+                lienHeTabs.querySelectorAll(".order-tab").forEach((t) => t.classList.toggle("active", t === tab));
+                loadLienHe();
+            });
+        });
+    }
+
     loadDanhMuc();
     loadThuongHieu();
     loadSanPham();
     loadDonHang();
     loadThongKe();
+    loadLienHe();
 }

@@ -119,6 +119,20 @@ CREATE TABLE CHI_TIET_DON_HANG (
 );
 GO
 
+-- =========================================================
+-- 9. BANG LIEN_HE (loi nhan tu trang Lien he, khong lien ket NGUOI_DUNG
+--    vi khach chua dang nhap cung gui duoc)
+-- =========================================================
+CREATE TABLE LIEN_HE (
+    MaLienHe    INT IDENTITY(1,1) PRIMARY KEY,
+    HoTen       NVARCHAR(100)   NOT NULL,
+    Email       NVARCHAR(100)   NOT NULL,
+    NoiDung     NVARCHAR(1000)  NOT NULL,
+    DaXuLy      BIT             NOT NULL DEFAULT 0,
+    NgayGui     DATETIME2       NOT NULL DEFAULT SYSDATETIME()
+);
+GO
+
 UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@shoestore.com';
 UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@gmail.com';
 
@@ -132,6 +146,22 @@ IF NOT EXISTS (
 )
 BEGIN
     ALTER TABLE DON_HANG ADD LyDoHuy NVARCHAR(255) NULL;
+END
+GO
+
+-- =========================================================
+-- MIGRATION: tao bang LIEN_HE neu DB da tao truoc do chua co
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'LIEN_HE')
+BEGIN
+    CREATE TABLE LIEN_HE (
+        MaLienHe    INT IDENTITY(1,1) PRIMARY KEY,
+        HoTen       NVARCHAR(100)   NOT NULL,
+        Email       NVARCHAR(100)   NOT NULL,
+        NoiDung     NVARCHAR(1000)  NOT NULL,
+        DaXuLy      BIT             NOT NULL DEFAULT 0,
+        NgayGui     DATETIME2       NOT NULL DEFAULT SYSDATETIME()
+    );
 END
 GO
 

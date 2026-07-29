@@ -39,7 +39,7 @@ if (user) {
 
 attachLiveValidation(contactForm);
 
-contactForm.addEventListener("submit", function (e) {
+contactForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const form = e.target;
     const errorBox = document.getElementById("form-error");
@@ -49,11 +49,26 @@ contactForm.addEventListener("submit", function (e) {
 
     if (!validateContactForm(form)) return;
 
-    successBox.hidden = false;
-    showToast("Đã gửi lời nhắn thành công!", "success");
-    form.reset();
-    if (user) {
-        if (user.HoTen) form.HoTen.value = user.HoTen;
-        if (user.Email) form.Email.value = user.Email;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+
+    try {
+        await apiPost("/lien-he", {
+            HoTen: form.HoTen.value.trim(),
+            Email: form.Email.value.trim(),
+            NoiDung: form.NoiDung.value.trim(),
+        });
+        successBox.hidden = false;
+        showToast("Đã gửi lời nhắn thành công!", "success");
+        form.reset();
+        if (user) {
+            if (user.HoTen) form.HoTen.value = user.HoTen;
+            if (user.Email) form.Email.value = user.Email;
+        }
+    } catch (err) {
+        errorBox.textContent = err.message || "Gửi lời nhắn thất bại, vui lòng thử lại sau.";
+        errorBox.hidden = false;
+    } finally {
+        submitBtn.disabled = false;
     }
 });

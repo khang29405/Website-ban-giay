@@ -191,6 +191,14 @@
     font-weight: 700;
 }
 
+.admin-lienhe-noidung {
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: help;
+}
+
 .admin-table-thumb {
     display: flex;
     align-items: center;
