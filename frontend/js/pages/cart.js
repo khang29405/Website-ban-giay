@@ -54,12 +54,14 @@ function renderCartItems(items) {
 
             return `
                 <div class="cart-item" data-id="${item.MaGioHang}" data-stock="${item.SoLuongTon}">
-                    <div class="cart-item-media">${media}</div>
-                    <div class="cart-item-info">
-                        <span class="cart-item-name">${escapeHtml(item.TenSP)}</span>
-                        <span class="cart-item-variant">Size ${escapeHtml(item.KichCo)} · ${escapeHtml(item.MauSac)}</span>
-                        <span class="cart-item-price">${formatCurrency(item.Gia)} / đôi</span>
-                    </div>
+                    <a class="cart-item-link" href="product-detail.html?id=${item.MaSP}">
+                        <div class="cart-item-media">${media}</div>
+                        <div class="cart-item-info">
+                            <span class="cart-item-name">${escapeHtml(item.TenSP)}</span>
+                            <span class="cart-item-variant">Size ${escapeHtml(item.KichCo)} · ${escapeHtml(item.MauSac)}</span>
+                            <span class="cart-item-price">${formatCurrency(item.Gia)} / đôi</span>
+                        </div>
+                    </a>
                     <div class="qty-control">
                         <button type="button" class="qty-btn" data-action="minus">−</button>
                         <input type="number" class="qty-input" value="${item.SoLuong}" min="1" max="${item.SoLuongTon}">

@@ -646,6 +646,28 @@
 }
 
 /* Catalog layout - sidebar loc (danh muc/thuong hieu) + noi dung chinh */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    margin-bottom: 18px;
+}
+
+.breadcrumb a {
+    color: var(--color-text-muted);
+    transition: color 0.12s ease;
+}
+
+.breadcrumb a:hover {
+    color: var(--color-accent);
+}
+
+.breadcrumb-sep {
+    opacity: 0.5;
+}
+
 .catalog-layout {
     display: grid;
     grid-template-columns: 220px 1fr;
@@ -656,18 +678,35 @@
 .catalog-sidebar {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 24px;
     position: sticky;
     top: 88px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+}
+
+.filter-group + .filter-group {
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border);
 }
 
 .filter-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-text-muted);
     margin-bottom: 12px;
+}
+
+.filter-group-title i {
+    color: var(--color-accent);
+    font-size: 0.85rem;
 }
 
 .filter-list {
@@ -716,6 +755,11 @@
         flex-direction: row;
         flex-wrap: wrap;
         gap: 20px;
+    }
+
+    .filter-group + .filter-group {
+        padding-top: 0;
+        border-top: none;
     }
 }
 
@@ -789,11 +833,89 @@
     border-color: var(--color-ink);
 }
 
+.catalog-result-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.catalog-result-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface-alt);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: border-color 0.12s ease, color 0.12s ease;
+}
+
+.filter-chip:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.filter-chip i {
+    font-size: 0.68rem;
+    opacity: 0.7;
+}
+
+.filter-chip-clear {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 /* Product grid */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 16px;
+}
+
+/* San pham noi bat o trang chu: co dinh so cot (khong auto-fill) de luon vua khop
+   dung so luong san pham dang co, tranh hang cuoi bi thieu/le cot. */
+#featured .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 900px) {
+    #featured .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    #featured .product-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .product-card {
@@ -811,6 +933,47 @@
     border-color: #d6d6d6;
     box-shadow: var(--shadow-md);
     transform: translateY(-2px);
+}
+
+/* Skeleton - hien khi dang tai danh sach san pham, thay cho chu "Dang tai..." */
+@keyframes skeletonShimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.product-card-skeleton {
+    pointer-events: none;
+    animation: fadeInUp 0.25s ease both;
+}
+
+.product-card-skeleton .product-card-media {
+    background: var(--color-surface-alt);
+}
+
+.skeleton-line {
+    display: block;
+    height: 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, var(--color-surface-alt) 25%, #ececec 37%, var(--color-surface-alt) 63%);
+    background-size: 400px 100%;
+    animation: skeletonShimmer 1.4s ease infinite;
+}
+
+.skeleton-line-sm {
+    width: 55%;
+    height: 9px;
+}
+
+.skeleton-line-price {
+    width: 40%;
+    height: 15px;
+    margin-bottom: 0;
+    margin-top: 4px;
 }
 
 .product-card-media {

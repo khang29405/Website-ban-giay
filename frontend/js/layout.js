@@ -1,3 +1,13 @@
+// Dung cho cac o tim kiem/loc: cho go xong (het thoi gian delay) moi goi API,
+// tranh goi lien tuc theo tung phim bam.
+function debounce(fn, delay = 350) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+    };
+}
+
 function emptyStateIcon() {
     return `
         <svg class="empty-state-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">

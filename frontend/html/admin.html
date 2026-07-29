@@ -68,9 +68,15 @@
                         <h2>Sản phẩm</h2>
                         <button type="button" class="btn btn-accent" id="btn-add-san-pham">+ Thêm sản phẩm</button>
                     </div>
+                    <div class="admin-search-bar">
+                        <div class="search-box">
+                            <input type="text" id="san-pham-search-input" placeholder="Tìm theo tên sản phẩm...">
+                        </div>
+                        <button type="button" id="san-pham-search-btn" class="btn btn-outline">Tìm kiếm</button>
+                    </div>
                     <table class="admin-table">
                         <thead>
-                            <tr><th>ID</th><th>Tên sản phẩm</th><th>Danh mục</th><th>Thương hiệu</th><th>Giá</th><th>Tồn kho</th><th>Trạng thái</th><th></th></tr>
+                            <tr><th>ID</th><th>Ảnh</th><th>Tên sản phẩm</th><th>Danh mục</th><th>Thương hiệu</th><th>Giá</th><th>Tồn kho</th><th>Trạng thái</th><th></th></tr>
                         </thead>
                         <tbody id="table-san-pham-body"></tbody>
                     </table>
@@ -80,6 +86,15 @@
                 <section class="admin-panel" id="panel-don-hang" hidden>
                     <div class="admin-panel-header">
                         <h2>Đơn hàng</h2>
+                    </div>
+                    <div class="admin-search-bar">
+                        <div class="search-box search-box-narrow">
+                            <input type="text" id="don-hang-search-maDon" placeholder="Tìm theo mã đơn...">
+                        </div>
+                        <div class="search-box">
+                            <input type="text" id="don-hang-search-input" placeholder="Tìm theo tên hoặc email khách hàng...">
+                        </div>
+                        <button type="button" id="don-hang-search-btn" class="btn btn-outline">Tìm kiếm</button>
                     </div>
                     <div class="order-tabs" id="admin-order-tabs">
                         <button type="button" class="order-tab active" data-status="">Tất cả</button>
@@ -104,15 +119,43 @@
 
                     <div class="stat-cards" id="stat-cards"></div>
 
-                    <div class="stat-section">
-                        <h3>Doanh thu theo tháng gần đây</h3>
-                        <p class="admin-subtext">Chỉ tính các đơn hàng ở trạng thái "Hoàn thành"</p>
-                        <table class="admin-table">
-                            <thead>
-                                <tr><th>Tháng</th><th>Số đơn hoàn thành</th><th>Doanh thu</th></tr>
-                            </thead>
-                            <tbody id="table-thong-ke-thang-body"></tbody>
-                        </table>
+                    <div class="stat-charts">
+                        <div class="stat-chart-card">
+                            <h3>Đơn hàng theo trạng thái</h3>
+                            <div class="status-bar-chart" id="status-bar-chart"></div>
+                        </div>
+                        <div class="stat-chart-card">
+                            <h3>Doanh thu theo tháng gần đây</h3>
+                            <div class="revenue-bar-chart" id="revenue-bar-chart"></div>
+                        </div>
+                        <div class="stat-chart-card">
+                            <h3>Doanh thu theo năm</h3>
+                            <div class="revenue-bar-chart" id="revenue-year-chart"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-tables">
+                        <div class="stat-section">
+                            <h3>Chi tiết doanh thu theo tháng</h3>
+                            <p class="admin-subtext">Chỉ tính các đơn hàng ở trạng thái "Hoàn thành"</p>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr><th>Tháng</th><th>Số đơn hoàn thành</th><th>Doanh thu</th></tr>
+                                </thead>
+                                <tbody id="table-thong-ke-thang-body"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="stat-section">
+                            <h3>Doanh thu theo năm</h3>
+                            <p class="admin-subtext">Chỉ tính các đơn hàng ở trạng thái "Hoàn thành"</p>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr><th>Năm</th><th>Số đơn hoàn thành</th><th>Doanh thu</th></tr>
+                                </thead>
+                                <tbody id="table-thong-ke-nam-body"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
             </div>

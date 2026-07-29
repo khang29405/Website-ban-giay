@@ -18,17 +18,23 @@
 
     <main>
         <div class="container" id="catalog">
+            <nav class="breadcrumb" aria-label="breadcrumb">
+                <a href="index.html">Trang chủ</a>
+                <span class="breadcrumb-sep">/</span>
+                <span>Sản phẩm</span>
+            </nav>
+
             <h1 class="section-title">Tất cả sản phẩm</h1>
             <p class="section-subtitle">Chọn danh mục hoặc thương hiệu bên trái, hoặc tìm kiếm nhanh theo tên.</p>
 
             <div class="catalog-layout">
                 <aside class="catalog-sidebar fade-in">
                     <div class="filter-group">
-                        <h3 class="filter-group-title">Danh mục</h3>
+                        <h3 class="filter-group-title"><i class="fa-solid fa-layer-group"></i> Danh mục</h3>
                         <ul class="filter-list" id="category-filter-list"></ul>
                     </div>
                     <div class="filter-group">
-                        <h3 class="filter-group-title">Thương hiệu</h3>
+                        <h3 class="filter-group-title"><i class="fa-solid fa-tag"></i> Thương hiệu</h3>
                         <ul class="filter-list" id="brand-filter-list"></ul>
                     </div>
                 </aside>
@@ -43,6 +49,11 @@
                             <button type="button" class="btn btn-ghost sort-btn" data-sort="gia_tang">Giá tăng dần</button>
                             <button type="button" class="btn btn-ghost sort-btn" data-sort="gia_giam">Giá giảm dần</button>
                         </div>
+                    </div>
+
+                    <div class="catalog-result-bar">
+                        <span class="catalog-result-count" id="catalog-result-count"></span>
+                        <div class="active-filters" id="active-filters"></div>
                     </div>
 
                     <div class="product-grid" id="product-grid">

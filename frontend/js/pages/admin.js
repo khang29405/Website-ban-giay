@@ -206,12 +206,15 @@ async function deleteThuongHieu(id) {
 // ============ Sản phẩm ============
 let stockByProduct = {};
 let sanPhamPage = 1;
+let sanPhamSearchQuery = "";
 const SAN_PHAM_PAGE_SIZE = 10;
 
 async function loadSanPham() {
-    const { items, pagination } = await apiGetPaged("/san-pham", { page: sanPhamPage, limit: SAN_PHAM_PAGE_SIZE }).catch(
-        () => ({ items: [], pagination: null })
-    );
+    const { items, pagination } = await apiGetPaged("/san-pham", {
+        ten: sanPhamSearchQuery,
+        page: sanPhamPage,
+        limit: SAN_PHAM_PAGE_SIZE,
+    }).catch(() => ({ items: [], pagination: null }));
     if (!items.length && sanPhamPage > 1) {
         sanPhamPage -= 1;
         return loadSanPham();
@@ -243,7 +246,16 @@ function renderSanPhamTable() {
                   (sp) => `
             <tr>
                 <td>${sp.MaSP}</td>
-                <td>${escapeHtml(sp.TenSP)}</td>
+                <td>
+                    <a href="product-detail.html?id=${sp.MaSP}" target="_blank" rel="noopener">
+                        ${
+                            sp.HinhAnh
+                                ? `<img class="admin-table-thumb" src="${escapeHtml(sp.HinhAnh)}" alt="${escapeHtml(sp.TenSP)}">`
+                                : `<span class="admin-table-thumb admin-table-thumb-empty"><i class="fa-solid fa-image"></i></span>`
+                        }
+                    </a>
+                </td>
+                <td><a class="admin-table-product-link" href="product-detail.html?id=${sp.MaSP}" target="_blank" rel="noopener">${escapeHtml(sp.TenSP)}</a></td>
                 <td>${escapeHtml(sp.TenDanhMuc)}</td>
                 <td>${escapeHtml(sp.TenThuongHieu)}</td>
                 <td>${formatCurrency(sp.Gia)}</td>
@@ -258,7 +270,7 @@ function renderSanPhamTable() {
             </tr>`
               )
               .join("")
-        : `<tr><td colspan="8" class="admin-empty">Chưa có sản phẩm nào</td></tr>`;
+        : `<tr><td colspan="9" class="admin-empty">Chưa có sản phẩm nào</td></tr>`;
 }
 
 function sanPhamOptionsHtml() {
@@ -449,10 +461,12 @@ async function openBienTheModal(productId) {
         <h3>Biến thể — ${escapeHtml(product ? product.TenSP : "")}</h3>
         <div id="modal-error" class="form-error" hidden></div>
 
-        <table class="admin-table admin-table-compact">
-            <thead><tr><th>Kích cỡ</th><th>Màu sắc</th><th>Tồn kho</th><th></th></tr></thead>
-            <tbody id="bien-the-tbody"></tbody>
-        </table>
+        <div class="bien-the-table-wrap">
+            <table class="admin-table admin-table-compact">
+                <thead><tr><th>Kích cỡ</th><th>Màu sắc</th><th>Tồn kho</th><th></th></tr></thead>
+                <tbody id="bien-the-tbody"></tbody>
+            </table>
+        </div>
 
         <form id="bien-the-form" class="admin-inline-form" novalidate>
             <input type="text" name="KichCo" placeholder="Kích cỡ" maxlength="10">
@@ -558,6 +572,8 @@ const DON_HANG_STATUS_LABEL = {
 
 let donHangList = [];
 let selectedDonHangStatus = "";
+let donHangMaDonQuery = "";
+let donHangSearchQuery = "";
 let donHangPage = 1;
 const DON_HANG_PAGE_SIZE = 8;
 
@@ -578,6 +594,8 @@ function formatDate(iso) {
 async function loadDonHang() {
     const { items, pagination } = await apiGetPaged("/don-hang", {
         trangThai: selectedDonHangStatus,
+        maDon: donHangMaDonQuery,
+        q: donHangSearchQuery,
         page: donHangPage,
         limit: DON_HANG_PAGE_SIZE,
     }).catch(() => ({ items: [], pagination: null }));
@@ -593,14 +611,111 @@ async function loadDonHang() {
     });
 }
 
-async function loadThongKe() {
-    const allOrders = await apiGet("/don-hang").catch(() => []);
-    renderThongKe(allOrders);
+const STAT_CARD_ICONS = {
+    ChoXuLy: "fa-hourglass-half",
+    DangGiao: "fa-truck-fast",
+    HoanThanh: "fa-circle-check",
+    DaHuy: "fa-circle-xmark",
+};
+
+// ============ Hieu ung dong: nhay so + bieu do lon dan ============
+function animateCountUp(el, target, { duration = 900, format = (n) => String(Math.round(n)) } = {}) {
+    const startTime = performance.now();
+    function tick(now) {
+        const progress = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = format(target * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
 }
 
-function renderThongKe(allOrders) {
+function animateStatCards(container) {
+    container.querySelectorAll(".stat-card-value[data-value]").forEach((el) => {
+        const target = Number(el.dataset.value);
+        const format = el.dataset.format === "currency" ? (n) => formatCurrency(Math.round(n)) : undefined;
+        animateCountUp(el, target, format ? { format } : {});
+    });
+}
+
+function animateBarFills(container, selector, dimension) {
+    const fills = container.querySelectorAll(selector);
+    fills.forEach((el) => {
+        el.style[dimension] = "0%";
+    });
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            fills.forEach((el, i) => {
+                el.style.transitionDelay = `${i * 60}ms`;
+                el.style[dimension] = `${el.dataset.targetPct}%`;
+            });
+        });
+    });
+}
+
+let thongKeOrdersCache = null;
+let thongKeStockCache = 0;
+
+const DON_HANG_TAB_BASE_LABEL = {
+    "": "Tất cả",
+    ChoXuLy: "Chờ xử lý",
+    DangGiao: "Đang giao",
+    HoanThanh: "Hoàn thành",
+    DaHuy: "Đã hủy",
+};
+
+// Dung lai danh sach don hang day du (khong loc/phan trang) da fetch cho tab Thong ke
+// de cap nhat so luong tren cac tab trang thai, tranh goi API rieng them lan nua.
+function updateOrderTabCounts(allOrders) {
+    const adminOrderTabs = document.getElementById("admin-order-tabs");
+    if (!adminOrderTabs) return;
+
+    const countByStatus = { "": allOrders.length, ChoXuLy: 0, DangGiao: 0, HoanThanh: 0, DaHuy: 0 };
+    allOrders.forEach((o) => {
+        if (countByStatus[o.TrangThai] !== undefined) countByStatus[o.TrangThai]++;
+    });
+
+    adminOrderTabs.querySelectorAll(".order-tab").forEach((tab) => {
+        const status = tab.dataset.status;
+        const label = DON_HANG_TAB_BASE_LABEL[status];
+        if (label !== undefined) {
+            tab.textContent = `${label} (${countByStatus[status] ?? 0})`;
+        }
+    });
+}
+
+async function loadThongKe() {
+    const [allOrders, allProducts] = await Promise.all([
+        apiGet("/don-hang").catch(() => []),
+        apiGet("/san-pham").catch(() => []),
+    ]);
+    const variantLists = await Promise.all(
+        allProducts.map((sp) => apiGet(`/san-pham/${sp.MaSP}/bien-the`).catch(() => []))
+    );
+    const totalStock = variantLists.reduce((sum, list) => sum + list.reduce((s, v) => s + v.SoLuongTon, 0), 0);
+    thongKeOrdersCache = allOrders;
+    thongKeStockCache = totalStock;
+    renderThongKe(allOrders, totalStock);
+    updateOrderTabCounts(allOrders);
+}
+
+// Goi khi mo tab Thong ke: panel dang hidden thi CSS animation/transition khong chay,
+// nen can render lai (tu du lieu da cache, khong goi API lai) de hieu ung chay dung luc nguoi dung thay duoc.
+function replayThongKe() {
+    if (thongKeOrdersCache === null) {
+        loadThongKe();
+    } else {
+        renderThongKe(thongKeOrdersCache, thongKeStockCache);
+    }
+}
+
+function renderThongKe(allOrders, totalStock) {
     const cardsEl = document.getElementById("stat-cards");
+    const statusChartEl = document.getElementById("status-bar-chart");
+    const revenueChartEl = document.getElementById("revenue-bar-chart");
+    const revenueYearChartEl = document.getElementById("revenue-year-chart");
     const monthTbody = document.getElementById("table-thong-ke-thang-body");
+    const yearTbody = document.getElementById("table-thong-ke-nam-body");
     if (!cardsEl || !monthTbody) return;
 
     const completedOrders = allOrders.filter((o) => o.TrangThai === "HoanThanh");
@@ -611,25 +726,67 @@ function renderThongKe(allOrders) {
         if (countByStatus[o.TrangThai] !== undefined) countByStatus[o.TrangThai]++;
     });
 
+    const avgOrderValue = completedOrders.length ? totalRevenue / completedOrders.length : 0;
+
     cardsEl.innerHTML = `
-        <div class="stat-card stat-card-highlight">
-            <span class="stat-card-label">Tổng doanh thu</span>
-            <strong class="stat-card-value">${formatCurrency(totalRevenue)}</strong>
+        <div class="stat-card stat-card-highlight fade-in" style="animation-delay:0ms">
+            <span class="stat-card-icon"><i class="fa-solid fa-sack-dollar"></i></span>
+            <span class="stat-card-body">
+                <span class="stat-card-label">Tổng doanh thu</span>
+                <strong class="stat-card-value" data-value="${totalRevenue}" data-format="currency">${formatCurrency(0)}</strong>
+            </span>
         </div>
-        <div class="stat-card">
-            <span class="stat-card-label">Tổng số đơn</span>
-            <strong class="stat-card-value">${allOrders.length}</strong>
+        <div class="stat-card fade-in" style="animation-delay:60ms">
+            <span class="stat-card-icon"><i class="fa-solid fa-receipt"></i></span>
+            <span class="stat-card-body">
+                <span class="stat-card-label">Tổng số đơn</span>
+                <strong class="stat-card-value" data-value="${allOrders.length}">0</strong>
+            </span>
+        </div>
+        <div class="stat-card fade-in" style="animation-delay:120ms">
+            <span class="stat-card-icon"><i class="fa-solid fa-boxes-stacked"></i></span>
+            <span class="stat-card-body">
+                <span class="stat-card-label">Tổng sản phẩm tồn kho</span>
+                <strong class="stat-card-value" data-value="${totalStock}">0</strong>
+            </span>
+        </div>
+        <div class="stat-card fade-in" style="animation-delay:180ms">
+            <span class="stat-card-icon"><i class="fa-solid fa-chart-line"></i></span>
+            <span class="stat-card-body">
+                <span class="stat-card-label">Giá trị đơn trung bình <i class="fa-solid fa-circle-info stat-card-info" title="Tổng doanh thu ÷ Số đơn hoàn thành"></i></span>
+                <strong class="stat-card-value" data-value="${avgOrderValue}" data-format="currency">${formatCurrency(0)}</strong>
+            </span>
         </div>
         ${Object.entries(DON_HANG_STATUS_LABEL)
             .map(
-                ([value, s]) => `
-            <div class="stat-card">
-                <span class="stat-card-label">${s.text}</span>
-                <strong class="stat-card-value status-${s.cls}">${countByStatus[value]}</strong>
+                ([value, s], i) => `
+            <div class="stat-card fade-in" style="animation-delay:${240 + i * 60}ms">
+                <span class="stat-card-icon status-${s.cls}"><i class="fa-solid ${STAT_CARD_ICONS[value]}"></i></span>
+                <span class="stat-card-body">
+                    <span class="stat-card-label">${s.text}</span>
+                    <strong class="stat-card-value" data-value="${countByStatus[value]}">0</strong>
+                </span>
             </div>`
             )
             .join("")}
     `;
+    animateStatCards(cardsEl);
+
+    const maxStatusCount = Math.max(1, ...Object.values(countByStatus));
+    statusChartEl.innerHTML = Object.entries(DON_HANG_STATUS_LABEL)
+        .map(([value, s]) => {
+            const count = countByStatus[value];
+            const pct = Math.round((count / maxStatusCount) * 100);
+            return `
+                <div class="bar-row">
+                    <span class="bar-row-label">${s.text}</span>
+                    <span class="bar-row-track"><span class="bar-row-fill status-${s.cls}" data-target-pct="${pct}"></span></span>
+                    <span class="bar-row-value">${count}</span>
+                </div>
+            `;
+        })
+        .join("");
+    animateBarFills(statusChartEl, ".bar-row-fill", "width");
 
     const revenueByMonth = {};
     completedOrders.forEach((o) => {
@@ -641,6 +798,28 @@ function renderThongKe(allOrders) {
     });
 
     const months = Object.keys(revenueByMonth).sort().reverse();
+
+    if (!months.length) {
+        revenueChartEl.innerHTML = `<p class="admin-empty">Chưa có dữ liệu</p>`;
+    } else {
+        const maxRevenue = Math.max(...months.map((key) => revenueByMonth[key].revenue));
+        revenueChartEl.innerHTML = [...months]
+            .reverse()
+            .map((key) => {
+                const [, month] = key.split("-");
+                const row = revenueByMonth[key];
+                const pct = Math.max(4, Math.round((row.revenue / maxRevenue) * 100));
+                return `
+                    <div class="vbar-col" title="${formatCurrency(row.revenue)}">
+                        <span class="vbar-col-track"><span class="vbar-col-fill" data-target-pct="${pct}"></span></span>
+                        <span class="vbar-col-label">Th.${month}</span>
+                    </div>
+                `;
+            })
+            .join("");
+        animateBarFills(revenueChartEl, ".vbar-col-fill", "height");
+    }
+
     monthTbody.innerHTML = months.length
         ? months
               .map((key) => {
@@ -650,6 +829,49 @@ function renderThongKe(allOrders) {
               })
               .join("")
         : `<tr><td colspan="3" class="admin-empty">Chưa có đơn hàng hoàn thành</td></tr>`;
+
+    const revenueByYear = {};
+    completedOrders.forEach((o) => {
+        const year = new Date(o.NgayDat).getFullYear();
+        if (!revenueByYear[year]) revenueByYear[year] = { count: 0, revenue: 0 };
+        revenueByYear[year].count++;
+        revenueByYear[year].revenue += o.TongTien;
+    });
+
+    const years = Object.keys(revenueByYear).sort().reverse();
+
+    if (revenueYearChartEl) {
+        if (!years.length) {
+            revenueYearChartEl.innerHTML = `<p class="admin-empty">Chưa có dữ liệu</p>`;
+        } else {
+            const maxYearRevenue = Math.max(...years.map((year) => revenueByYear[year].revenue));
+            revenueYearChartEl.innerHTML = [...years]
+                .reverse()
+                .map((year) => {
+                    const row = revenueByYear[year];
+                    const pct = Math.max(4, Math.round((row.revenue / maxYearRevenue) * 100));
+                    return `
+                        <div class="vbar-col" title="${formatCurrency(row.revenue)}">
+                            <span class="vbar-col-track"><span class="vbar-col-fill" data-target-pct="${pct}"></span></span>
+                            <span class="vbar-col-label">${year}</span>
+                        </div>
+                    `;
+                })
+                .join("");
+            animateBarFills(revenueYearChartEl, ".vbar-col-fill", "height");
+        }
+    }
+
+    if (yearTbody) {
+        yearTbody.innerHTML = years.length
+            ? years
+                  .map((year) => {
+                      const row = revenueByYear[year];
+                      return `<tr><td>Năm ${year}</td><td>${row.count}</td><td>${formatCurrency(row.revenue)}</td></tr>`;
+                  })
+                  .join("")
+            : `<tr><td colspan="3" class="admin-empty">Chưa có đơn hàng hoàn thành</td></tr>`;
+    }
 }
 
 function renderDonHangTable() {
@@ -778,6 +1000,10 @@ function initTabs() {
             btn.classList.add("active");
             document.querySelectorAll(".admin-panel").forEach((p) => (p.hidden = true));
             document.getElementById("panel-" + btn.dataset.tab).hidden = false;
+
+            if (btn.dataset.tab === "thong-ke") {
+                replayThongKe();
+            }
         });
     });
 }
@@ -789,6 +1015,47 @@ if (isAdmin) {
     document.getElementById("btn-add-danh-muc").addEventListener("click", () => openDanhMucForm());
     document.getElementById("btn-add-thuong-hieu").addEventListener("click", () => openThuongHieuForm());
     document.getElementById("btn-add-san-pham").addEventListener("click", () => openSanPhamForm());
+
+    const sanPhamSearchInput = document.getElementById("san-pham-search-input");
+    const sanPhamSearchBtn = document.getElementById("san-pham-search-btn");
+    if (sanPhamSearchInput && sanPhamSearchBtn) {
+        const runSanPhamSearch = () => {
+            sanPhamSearchQuery = sanPhamSearchInput.value.trim();
+            sanPhamPage = 1;
+            loadSanPham();
+        };
+        sanPhamSearchBtn.addEventListener("click", runSanPhamSearch);
+        sanPhamSearchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                runSanPhamSearch();
+            }
+        });
+        sanPhamSearchInput.addEventListener("input", debounce(runSanPhamSearch));
+    }
+
+    const donHangMaDonInput = document.getElementById("don-hang-search-maDon");
+    const donHangSearchInput = document.getElementById("don-hang-search-input");
+    const donHangSearchBtn = document.getElementById("don-hang-search-btn");
+    if (donHangMaDonInput && donHangSearchInput && donHangSearchBtn) {
+        const runDonHangSearch = () => {
+            donHangMaDonQuery = donHangMaDonInput.value.trim();
+            donHangSearchQuery = donHangSearchInput.value.trim();
+            donHangPage = 1;
+            loadDonHang();
+        };
+        donHangSearchBtn.addEventListener("click", runDonHangSearch);
+        const debouncedDonHangSearch = debounce(runDonHangSearch);
+        [donHangMaDonInput, donHangSearchInput].forEach((input) => {
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    runDonHangSearch();
+                }
+            });
+            input.addEventListener("input", debouncedDonHangSearch);
+        });
+    }
 
     const adminOrderTabs = document.getElementById("admin-order-tabs");
     if (adminOrderTabs) {
