@@ -14,10 +14,11 @@ function handleValidation(req) {
 async function getAll(req, res, next) {
     try {
         handleValidation(req);
-        const { ten, danhMuc, thuongHieu, sapXep, page, limit } = req.query;
+        const { ten, maSp, danhMuc, thuongHieu, sapXep, page, limit } = req.query;
         const isAdmin = req.user && req.user.vaiTro === "Admin";
         const result = await sanPhamService.getAll({
             ten,
+            maSp,
             maDM: danhMuc,
             maTH: thuongHieu,
             sapXep,

@@ -30,7 +30,7 @@ function renderDanhMucTable() {
               .map(
                   (dm) => `
             <tr>
-                <td>${dm.MaDM}</td>
+                <td>${formatId("DM", dm.MaDM, 3)}</td>
                 <td>${escapeHtml(dm.TenDanhMuc)}</td>
                 <td class="admin-actions">
                     <button type="button" class="btn-link" onclick="openDanhMucForm(${dm.MaDM})">Sửa</button>
@@ -123,7 +123,7 @@ function renderThuongHieuTable() {
               .map(
                   (th) => `
             <tr>
-                <td>${th.MaTH}</td>
+                <td>${formatId("TH", th.MaTH, 3)}</td>
                 <td>${escapeHtml(th.TenThuongHieu)}</td>
                 <td class="admin-actions">
                     <button type="button" class="btn-link" onclick="openThuongHieuForm(${th.MaTH})">Sửa</button>
@@ -206,12 +206,14 @@ async function deleteThuongHieu(id) {
 // ============ Sản phẩm ============
 let stockByProduct = {};
 let sanPhamPage = 1;
+let sanPhamMaSpQuery = "";
 let sanPhamSearchQuery = "";
 const SAN_PHAM_PAGE_SIZE = 10;
 
 async function loadSanPham() {
     const { items, pagination } = await apiGetPaged("/san-pham", {
         ten: sanPhamSearchQuery,
+        maSp: sanPhamMaSpQuery,
         page: sanPhamPage,
         limit: SAN_PHAM_PAGE_SIZE,
     }).catch(() => ({ items: [], pagination: null }));
@@ -245,7 +247,7 @@ function renderSanPhamTable() {
               .map(
                   (sp) => `
             <tr>
-                <td>${sp.MaSP}</td>
+                <td>${formatId("SP", sp.MaSP, 5)}</td>
                 <td>
                     <a href="product-detail.html?id=${sp.MaSP}" target="_blank" rel="noopener">
                         ${
@@ -882,7 +884,7 @@ function renderDonHangTable() {
               .map(
                   (o) => `
             <tr>
-                <td>#${o.MaDH}</td>
+                <td>${formatId("DH", o.MaDH, 5)}</td>
                 <td>${escapeHtml(o.HoTen || "")}<br><span class="admin-subtext">${escapeHtml(o.Email || "")}</span></td>
                 <td>${formatDate(o.NgayDat)}</td>
                 <td>${o.TongSoLuong || 0}</td>
@@ -967,7 +969,7 @@ async function openAdminOrderDetail(id) {
         }).join("");
 
         openModal(`
-            <h3>Đơn hàng #${order.MaDH}</h3>
+            <h3>Đơn hàng ${formatId("DH", order.MaDH, 5)}</h3>
             <p class="order-detail-meta"><span>Khách hàng</span><strong>${escapeHtml(order.HoTen || "")} (${escapeHtml(order.Email || "")})</strong></p>
             <p class="order-detail-meta"><span>Trạng thái</span>${donHangStatusBadge(order.TrangThai)}</p>
             ${
@@ -1111,22 +1113,32 @@ if (isAdmin) {
     document.getElementById("btn-add-thuong-hieu").addEventListener("click", () => openThuongHieuForm());
     document.getElementById("btn-add-san-pham").addEventListener("click", () => openSanPhamForm());
 
+    const sanPhamMaSpInput = document.getElementById("san-pham-search-maSp");
     const sanPhamSearchInput = document.getElementById("san-pham-search-input");
     const sanPhamSearchBtn = document.getElementById("san-pham-search-btn");
-    if (sanPhamSearchInput && sanPhamSearchBtn) {
+    if (sanPhamMaSpInput && sanPhamSearchInput && sanPhamSearchBtn) {
         const runSanPhamSearch = () => {
+            // Bang hien "SP00001" nhung backend so khop theo so goc -> bo tien to
+            // "SP" va so 0 dau (neu co) truoc khi gui tim kiem, vd "SP00001" -> "1".
+            sanPhamMaSpQuery = sanPhamMaSpInput.value
+                .trim()
+                .replace(/^sp/i, "")
+                .replace(/^0+(?=\d)/, "");
             sanPhamSearchQuery = sanPhamSearchInput.value.trim();
             sanPhamPage = 1;
             loadSanPham();
         };
         sanPhamSearchBtn.addEventListener("click", runSanPhamSearch);
-        sanPhamSearchInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                runSanPhamSearch();
-            }
+        const debouncedSanPhamSearch = debounce(runSanPhamSearch);
+        [sanPhamMaSpInput, sanPhamSearchInput].forEach((input) => {
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    runSanPhamSearch();
+                }
+            });
+            input.addEventListener("input", debouncedSanPhamSearch);
         });
-        sanPhamSearchInput.addEventListener("input", debounce(runSanPhamSearch));
     }
 
     const donHangMaDonInput = document.getElementById("don-hang-search-maDon");
@@ -1134,7 +1146,12 @@ if (isAdmin) {
     const donHangSearchBtn = document.getElementById("don-hang-search-btn");
     if (donHangMaDonInput && donHangSearchInput && donHangSearchBtn) {
         const runDonHangSearch = () => {
-            donHangMaDonQuery = donHangMaDonInput.value.trim();
+            // Bang hien "DH0029" nhung backend so khop theo so goc -> bo tien to
+            // "DH" va so 0 dau (neu co) truoc khi gui tim kiem, vd "DH0029" -> "29".
+            donHangMaDonQuery = donHangMaDonInput.value
+                .trim()
+                .replace(/^dh/i, "")
+                .replace(/^0+(?=\d)/, "");
             donHangSearchQuery = donHangSearchInput.value.trim();
             donHangPage = 1;
             loadDonHang();

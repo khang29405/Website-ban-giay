@@ -29,6 +29,12 @@ const bienTheBodyValidation = [
 
 const searchValidation = [
     query("ten").optional({ values: "falsy" }).isString().trim().isLength({ max: 200 }).withMessage("Từ khóa tìm kiếm tối đa 200 ký tự"),
+    query("maSp")
+        .optional({ values: "falsy" })
+        .isString()
+        .trim()
+        .isLength({ max: 20 })
+        .withMessage("Mã sản phẩm tìm kiếm tối đa 20 ký tự"),
     query("danhMuc").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("danhMuc không hợp lệ"),
     query("thuongHieu").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("thuongHieu không hợp lệ"),
     query("sapXep").optional({ values: "falsy" }).isIn(["gia_tang", "gia_giam"]).withMessage("sapXep không hợp lệ"),
@@ -48,6 +54,11 @@ const searchValidation = [
  *         schema: { type: string }
  *         description: Tim theo ten san pham (khong phan biet hoa thuong, khop mot phan)
  *         example: nike
+ *       - in: query
+ *         name: maSp
+ *         schema: { type: string }
+ *         description: Tim theo MaSP (khop mot phan, vd "1" khop ca SP1 va SP21)
+ *         example: "1"
  *       - in: query
  *         name: danhMuc
  *         schema: { type: integer }

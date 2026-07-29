@@ -99,7 +99,7 @@ function renderOrders(orders) {
                 <div class="order-card">
                     <div class="order-card-header">
                         <div class="order-card-heading">
-                            <span class="order-code">Đơn #${o.MaDH}</span>
+                            <span class="order-code">Đơn ${formatId("DH", o.MaDH, 5)}</span>
                             <span class="order-date">${formatDate(o.NgayDat)}</span>
                         </div>
                         ${statusBadge(o.TrangThai)}
@@ -146,7 +146,7 @@ async function openOrderDetailModal(id) {
         }).join("");
 
         openModal(`
-            <h3>Đơn hàng #${order.MaDH}</h3>
+            <h3>Đơn hàng ${formatId("DH", order.MaDH, 5)}</h3>
 
             ${renderOrderProgress(order.TrangThai, order.LyDoHuy)}
 

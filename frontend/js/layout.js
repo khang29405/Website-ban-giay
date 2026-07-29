@@ -8,6 +8,12 @@ function debounce(fn, delay = 350) {
     };
 }
 
+// Chi doi CACH HIEN THI ma (VD: SP0001, DH0029) - khoa chinh trong DB va moi cho
+// goi API/onclick/href van dung so goc, khong lien quan gi den ham nay.
+function formatId(prefix, id, digits = 4) {
+    return `${prefix}${String(id).padStart(digits, "0")}`;
+}
+
 function emptyStateIcon() {
     return `
         <svg class="empty-state-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">

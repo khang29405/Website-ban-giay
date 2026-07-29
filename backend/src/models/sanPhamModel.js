@@ -16,7 +16,7 @@ const SORT_CLAUSES = {
     gia_giam: "ORDER BY sp.Gia DESC",
 };
 
-async function findAll({ ten, maDM, maTH, sapXep, chiHienThi, page, limit } = {}) {
+async function findAll({ ten, maSp, maDM, maTH, sapXep, chiHienThi, page, limit } = {}) {
     const pool = await poolPromise;
     const request = pool.request();
     const conditions = [];
@@ -24,6 +24,10 @@ async function findAll({ ten, maDM, maTH, sapXep, chiHienThi, page, limit } = {}
     if (ten) {
         request.input("Ten", sql.NVarChar(200), `%${ten}%`);
         conditions.push("sp.TenSP LIKE @Ten");
+    }
+    if (maSp) {
+        request.input("MaSpSearch", sql.NVarChar(20), `%${maSp}%`);
+        conditions.push("CAST(sp.MaSP AS NVARCHAR(20)) LIKE @MaSpSearch");
     }
     if (maDM) {
         request.input("MaDM", sql.Int, maDM);
