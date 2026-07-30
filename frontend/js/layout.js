@@ -549,7 +549,13 @@ function renderPagination(container, pagination, onPageChange) {
 }
 
 // ============ Toast (thong bao khong chan thao tac) ============
-const MAX_TOASTS = 3;
+const MAX_TOASTS = 1;
+
+const TOAST_ICONS = {
+    success: "fa-solid fa-check",
+    error: "fa-solid fa-xmark",
+    info: "fa-solid fa-info",
+};
 
 function showToast(message, type = "info") {
     let container = document.getElementById("toast-container");
@@ -568,13 +574,17 @@ function showToast(message, type = "info") {
 
     const toast = document.createElement("div");
     toast.className = `toast toast-${type}`;
-    toast.textContent = message;
+    toast.innerHTML = `
+        <span class="toast-icon"><i class="${TOAST_ICONS[type] || TOAST_ICONS.info}"></i></span>
+        <span class="toast-message">${escapeHtml(message)}</span>
+        <span class="toast-progress"></span>
+    `;
     container.appendChild(toast);
 
     setTimeout(() => {
         toast.classList.add("toast-out");
         setTimeout(() => toast.remove(), 200);
-    }, 3200);
+    }, 2000);
 }
 
 // ============ Modal (dung chung cho moi trang) ============
