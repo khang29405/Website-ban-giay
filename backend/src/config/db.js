@@ -8,10 +8,11 @@ const config = {
     options: {
         encrypt: process.env.DB_ENCRYPT === "true",
         trustServerCertificate: true,
-        // SQL Server luu SYSDATETIME()/GETDATE() theo gio local cua may chay DB (VN, UTC+7),
-        // khong phai UTC. Mac dinh driver (useUTC: true) se hieu nham gia tri do la UTC,
-        // lam moi thoi gian hien thi bi lech +7h. Tat useUTC de doc/ghi dung theo gio local.
-        useUTC: false,
+        // Cac cot NgayTao/NgayDat/NgayGui dung DEFAULT SYSUTCDATETIME() (UTC that, khong phu
+        // thuoc mui gio may chay SQL Server hay may chay Node/container). Vi vay giu useUTC
+        // mac dinh (true) la dung - KHONG duoc tat, neu khong se lech gio (da tung thu useUTC:
+        // false truoc day nhung bi sai khi chay trong Docker vi mui gio container mac dinh la
+        // UTC, khac mui gio may host la nguon goc cua SYSDATETIME() cu).
     },
 };
 

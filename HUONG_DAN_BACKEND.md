@@ -147,7 +147,11 @@ Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET
 | PATCH | `/:id/trang-thai` | **Admin** | Đánh dấu đã/chưa xử lý, body `{ "DaXuLy": true/false }`, `200`. `404` nếu không tồn tại |
 
 ### Múi giờ (NgayDat, NgayGui, NgayTao...)
-Các cột `DATETIME2` trong DB dùng `DEFAULT SYSDATETIME()` — trả về giờ **local của máy chạy SQL Server** (VN, UTC+7), không phải UTC. Package `mssql` mặc định (`useUTC: true`) hiểu nhầm giá trị local đó là UTC khi đọc ra, làm mọi thời gian hiển thị bị lệch +7 giờ (VD: đặt đơn lúc 23:xx tối lại hiện thành 06:xx sáng hôm sau). Đã tắt bằng `useUTC: false` trong `src/config/db.js` — chỉ ảnh hưởng cách driver *đọc/ghi* giá trị (không đổi dữ liệu đã lưu trong DB), nên áp dụng đúng ngay cho cả bản ghi cũ lẫn mới, không cần migrate gì thêm.
+Các cột `DATETIME2` dùng `DEFAULT SYSUTCDATETIME()` (UTC thật, do SQL Server tự sinh lúc INSERT), kết hợp driver `mssql` giữ **mặc định** `useUTC: true` trong `src/config/db.js` — **không được tắt `useUTC`**.
+
+Lịch sử: trước đó dùng `SYSDATETIME()` (giờ local của máy chạy SQL Server, VN UTC+7) và từng thử tắt `useUTC: false` để driver tự dịch lại cho đúng. Cách đó **chỉ đúng khi tiến trình Node và SQL Server cùng múi giờ** (đúng khi chạy `npm run dev` trên máy Windows VN) — nhưng sai khi chạy trong Docker, vì container `node:20-alpine` mặc định múi giờ UTC (khác múi giờ VN của máy host chạy SQL Server), khiến `useUTC:false` dịch sai theo múi giờ container thay vì múi giờ thật của dữ liệu, gây lệch giờ theo kiểu khác.
+
+Cách sửa dứt điểm (không phụ thuộc môi trường): đổi toàn bộ cột sang `SYSUTCDATETIME()` (UTC thật ngay từ lúc lưu, không cần driver dịch lại gì cả) và **dịch lùi 7 giờ 1 lần** cho dữ liệu cũ (đang lưu theo giờ VN) để đồng bộ với dữ liệu mới. Đã chạy migration này trực tiếp trên DB đang có sẵn (cả 4 bảng NGUOI_DUNG/SAN_PHAM/DON_HANG/LIEN_HE), và đã thêm block migration idempotent tương ứng vào `ShoeStoreDB.sql` cho ai chạy lại script trên bản DB cũ.
 
 ### Tạo tài khoản Admin
 Đăng ký một tài khoản bình thường qua `/api/auth/register`, sau đó tự nâng quyền trong SSMS:

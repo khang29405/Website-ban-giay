@@ -20,7 +20,7 @@ CREATE TABLE NGUOI_DUNG (
     SDT         NVARCHAR(15)    NULL,
     DiaChi      NVARCHAR(255)   NULL,
     VaiTro      NVARCHAR(20)    NOT NULL DEFAULT 'KhachHang', -- KhachHang | Admin
-    NgayTao     DATETIME2       NOT NULL DEFAULT SYSDATETIME()
+    NgayTao     DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME()
 );
 GO
 
@@ -54,7 +54,7 @@ CREATE TABLE SAN_PHAM (
     TrangThai   BIT             NOT NULL DEFAULT 1, -- 1: dang ban, 0: an/ngung ban
     MaDM        INT             NOT NULL,
     MaTH        INT             NOT NULL,
-    NgayTao     DATETIME2       NOT NULL DEFAULT SYSDATETIME(),
+    NgayTao     DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
     CONSTRAINT FK_SanPham_DanhMuc FOREIGN KEY (MaDM) REFERENCES DANH_MUC(MaDM),
     CONSTRAINT FK_SanPham_ThuongHieu FOREIGN KEY (MaTH) REFERENCES THUONG_HIEU(MaTH)
 );
@@ -100,7 +100,7 @@ CREATE TABLE DON_HANG (
     PhuongThucTT    NVARCHAR(50)    NOT NULL DEFAULT 'COD', -- COD, ChuyenKhoan...
     TrangThai       NVARCHAR(50)    NOT NULL DEFAULT 'ChoXuLy', -- ChoXuLy, DangGiao, HoanThanh, DaHuy
     LyDoHuy         NVARCHAR(255)   NULL, -- chi co gia tri khi TrangThai = DaHuy, Admin nhap khi huy don
-    NgayDat         DATETIME2       NOT NULL DEFAULT SYSDATETIME(),
+    NgayDat         DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
     CONSTRAINT FK_DonHang_NguoiDung FOREIGN KEY (MaND) REFERENCES NGUOI_DUNG(MaND)
 );
 GO
@@ -129,7 +129,7 @@ CREATE TABLE LIEN_HE (
     Email       NVARCHAR(100)   NOT NULL,
     NoiDung     NVARCHAR(1000)  NOT NULL,
     DaXuLy      BIT             NOT NULL DEFAULT 0,
-    NgayGui     DATETIME2       NOT NULL DEFAULT SYSDATETIME()
+    NgayGui     DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME()
 );
 GO
 
@@ -160,8 +160,80 @@ BEGIN
         Email       NVARCHAR(100)   NOT NULL,
         NoiDung     NVARCHAR(1000)  NOT NULL,
         DaXuLy      BIT             NOT NULL DEFAULT 0,
-        NgayGui     DATETIME2       NOT NULL DEFAULT SYSDATETIME()
+        NgayGui     DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME()
     );
+END
+GO
+
+-- =========================================================
+-- MIGRATION: doi default NgayTao/NgayDat/NgayGui tu SYSDATETIME() (gio local cua may
+-- chay SQL Server) sang SYSUTCDATETIME() (UTC that). Ly do: driver ket noi (mssql/tedious)
+-- va may chay backend co the o mui gio khac nhau (VD chay trong Docker container mac dinh
+-- la UTC, khac mui gio VN cua may host) -> neu cot luu gio local se bi doc/hien thi sai lech.
+-- Dich lui 7 tieng cho du lieu cu (dang luu theo gio VN) de dong bo voi cach luu UTC moi.
+-- Idempotent: bo qua neu cot da la SYSUTCDATETIME roi.
+-- =========================================================
+IF NOT EXISTS (
+    SELECT 1 FROM sys.default_constraints dc
+    JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
+    WHERE dc.parent_object_id = OBJECT_ID('NGUOI_DUNG') AND c.name = 'NgayTao' AND dc.definition LIKE '%SYSUTCDATETIME%'
+)
+BEGIN
+    DECLARE @cn1 NVARCHAR(200);
+    SELECT @cn1 = dc.name FROM sys.default_constraints dc
+        JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
+        WHERE dc.parent_object_id = OBJECT_ID('NGUOI_DUNG') AND c.name = 'NgayTao';
+    IF @cn1 IS NOT NULL EXEC('ALTER TABLE NGUOI_DUNG DROP CONSTRAINT ' + @cn1);
+    ALTER TABLE NGUOI_DUNG ADD DEFAULT SYSUTCDATETIME() FOR NgayTao;
+    UPDATE NGUOI_DUNG SET NgayTao = DATEADD(HOUR, -7, NgayTao);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.default_constraints dc
+    JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
+    WHERE dc.parent_object_id = OBJECT_ID('SAN_PHAM') AND c.name = 'NgayTao' AND dc.definition LIKE '%SYSUTCDATETIME%'
+)
+BEGIN
+    DECLARE @cn2 NVARCHAR(200);
+    SELECT @cn2 = dc.name FROM sys.default_constraints dc
+        JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
+        WHERE dc.parent_object_id = OBJECT_ID('SAN_PHAM') AND c.name = 'NgayTao';
+    IF @cn2 IS NOT NULL EXEC('ALTER TABLE SAN_PHAM DROP CONSTRAINT ' + @cn2);
+    ALTER TABLE SAN_PHAM ADD DEFAULT SYSUTCDATETIME() FOR NgayTao;
+    UPDATE SAN_PHAM SET NgayTao = DATEADD(HOUR, -7, NgayTao);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.default_constraints dc
+    JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
+    WHERE dc.parent_object_id = OBJECT_ID('DON_HANG') AND c.name = 'NgayDat' AND dc.definition LIKE '%SYSUTCDATETIME%'
+)
+BEGIN
+    DECLARE @cn3 NVARCHAR(200);
+    SELECT @cn3 = dc.name FROM sys.default_constraints dc
+        JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
+        WHERE dc.parent_object_id = OBJECT_ID('DON_HANG') AND c.name = 'NgayDat';
+    IF @cn3 IS NOT NULL EXEC('ALTER TABLE DON_HANG DROP CONSTRAINT ' + @cn3);
+    ALTER TABLE DON_HANG ADD DEFAULT SYSUTCDATETIME() FOR NgayDat;
+    UPDATE DON_HANG SET NgayDat = DATEADD(HOUR, -7, NgayDat);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.default_constraints dc
+    JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
+    WHERE dc.parent_object_id = OBJECT_ID('LIEN_HE') AND c.name = 'NgayGui' AND dc.definition LIKE '%SYSUTCDATETIME%'
+)
+BEGIN
+    DECLARE @cn4 NVARCHAR(200);
+    SELECT @cn4 = dc.name FROM sys.default_constraints dc
+        JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
+        WHERE dc.parent_object_id = OBJECT_ID('LIEN_HE') AND c.name = 'NgayGui';
+    IF @cn4 IS NOT NULL EXEC('ALTER TABLE LIEN_HE DROP CONSTRAINT ' + @cn4);
+    ALTER TABLE LIEN_HE ADD DEFAULT SYSUTCDATETIME() FOR NgayGui;
+    UPDATE LIEN_HE SET NgayGui = DATEADD(HOUR, -7, NgayGui);
 END
 GO
 
