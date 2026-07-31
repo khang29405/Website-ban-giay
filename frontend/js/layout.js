@@ -32,6 +32,21 @@ function getInitials(name) {
     return (first + last).toUpperCase();
 }
 
+// ============ Che do sang/toi (mac dinh toi, luu lua chon vao localStorage) ============
+function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+    const icon = document.querySelector("#theme-toggle-btn i");
+    if (icon) {
+        icon.className = theme === "dark" ? "fa-regular fa-lightbulb" : "fa-solid fa-lightbulb";
+    }
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute("data-theme") || window.DEFAULT_THEME;
+    applyTheme(current === "dark" ? "light" : "dark");
+}
+
 function renderHeader() {
     const header = document.getElementById("header");
     if (!header) return;
@@ -92,10 +107,20 @@ function renderHeader() {
             </ul>
 
             <div class="header-actions">
+                <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Chuyển chế độ sáng/tối" title="Chuyển chế độ sáng/tối">
+                    <i class="fa-regular fa-lightbulb"></i>
+                </button>
                 ${actionsHtml}
             </div>
         </div>
     `;
+
+    const themeToggleBtn = document.getElementById("theme-toggle-btn");
+    if (themeToggleBtn) {
+        const currentTheme = document.documentElement.getAttribute("data-theme") || window.DEFAULT_THEME;
+        themeToggleBtn.querySelector("i").className = currentTheme === "dark" ? "fa-regular fa-lightbulb" : "fa-solid fa-lightbulb";
+        themeToggleBtn.addEventListener("click", toggleTheme);
+    }
 
     const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {

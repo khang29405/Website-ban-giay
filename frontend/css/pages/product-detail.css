@@ -172,11 +172,18 @@
 }
 
 .pd-chip:disabled {
-    color: #c4c4c4;
+    color: var(--color-text-muted);
     border-color: var(--color-border);
-    background: var(--color-surface-alt);
+    background: repeating-linear-gradient(
+        135deg,
+        var(--color-surface-alt),
+        var(--color-surface-alt) 5px,
+        var(--color-border) 5px,
+        var(--color-border) 6px
+    );
     cursor: not-allowed;
     text-decoration: line-through;
+    opacity: 0.75;
 }
 
 .pd-stock {

@@ -42,7 +42,7 @@
    Dung kieu pill vien mau accent, dong bo voi .filter-chip/.about-brand-pill da co san
    trong site thay vi mau den lac tong. */
 .admin-tab.admin-tab-right {
-    margin-bottom: 0;
+    margin-bottom: 5px;
     padding: 7px 16px;
     border: 1.5px solid var(--color-accent);
     border-radius: 999px;

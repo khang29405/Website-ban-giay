@@ -1,0 +1,167 @@
+/* Che do toi - kich hoat khi <html data-theme="dark">.
+   File nay chi ghi de bien mau va cac truong hop dung hex/rgba truc tiep
+   (khong tu theo bien --color-*) trong base.css/layout.css/components.css/pages/*.css.
+   Khong sua cac file goc de tranh anh huong giao dien sang mac dinh cu. */
+
+:root[data-theme="dark"] {
+    --color-paper: #121212;
+    --color-surface: #1c1c1e;
+    --color-surface-alt: #232327;
+    --color-text: #ededed;
+    --color-text-muted: #a3a3a8;
+    --color-border: #333338;
+    --color-accent: #ff4d4f;
+    --color-accent-dark: #d93034;
+    --color-ink: #f2f2f2;
+    --shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 16px 34px rgba(0, 0, 0, 0.6);
+}
+
+/* Cac "chip" toi co dinh dung --color-ink lam nen (huy hieu, avatar...):
+   giu rieng mot mau than, khong de --color-ink doi thanh mau sang lam hong nen cua chung */
+:root[data-theme="dark"] .product-badge,
+:root[data-theme="dark"] .avatar-circle,
+:root[data-theme="dark"] .about-step-number,
+:root[data-theme="dark"] .stat-card-highlight {
+    background: #2c2c30;
+    border-color: #2c2c30;
+}
+
+/* Cac o nhap/nen dang hardcode #fff trong file goc -> chuyen sang mau surface toi */
+:root[data-theme="dark"] .modal-box,
+:root[data-theme="dark"] .confirm-box,
+:root[data-theme="dark"] .user-dropdown,
+:root[data-theme="dark"] .search-box input,
+:root[data-theme="dark"] .filter-select,
+:root[data-theme="dark"] .about-value-icon,
+:root[data-theme="dark"] .pd-chip,
+:root[data-theme="dark"] .form-group input,
+:root[data-theme="dark"] .form-group select,
+:root[data-theme="dark"] .form-group textarea,
+:root[data-theme="dark"] .admin-inline-form input {
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+/* Cac mang mau nhat kieu "tint" tren nen accent (#fff5f5/#fdeaea) */
+:root[data-theme="dark"] .payment-method:has(input:checked),
+:root[data-theme="dark"] .admin-tab.admin-tab-right,
+:root[data-theme="dark"] .about-brand-pill:hover,
+:root[data-theme="dark"] .filter-list-item.active {
+    background: rgba(255, 77, 79, 0.14);
+}
+
+/* .admin-tab-right co :hover/.active rieng doi sang nen accent dac + chu trang -
+   phai khai bao lai o day, neu khong background tint o tren se de len (giong bug hover mau xam) */
+:root[data-theme="dark"] .admin-tab.admin-tab-right:hover,
+:root[data-theme="dark"] .admin-tab.admin-tab-right.active {
+    background: var(--color-accent);
+    color: #fff;
+}
+
+:root[data-theme="dark"] .filter-list-item.active::before {
+    box-shadow: inset 0 0 0 2px var(--color-surface);
+}
+
+/* Nhom mau trang thai: cho xu ly / dang giao / hoan tat / da huy - dung chung
+   giua don hang khach hang, quan tri don hang va bang thong ke Admin */
+:root[data-theme="dark"] .order-status.pending,
+:root[data-theme="dark"] .admin-order-status-select.status-pending,
+:root[data-theme="dark"] .stat-card-icon.status-pending,
+:root[data-theme="dark"] .pd-stock.low {
+    background-color: rgba(230, 149, 10, 0.18);
+    color: #ffb066;
+}
+
+:root[data-theme="dark"] .order-status.shipping,
+:root[data-theme="dark"] .admin-order-status-select.status-shipping,
+:root[data-theme="dark"] .stat-card-icon.status-shipping {
+    background-color: rgba(66, 133, 244, 0.18);
+    color: #7fb0ff;
+}
+
+:root[data-theme="dark"] .order-status.done,
+:root[data-theme="dark"] .admin-order-status-select.status-done,
+:root[data-theme="dark"] .stat-card-icon.status-done,
+:root[data-theme="dark"] .admin-status.ok,
+:root[data-theme="dark"] .pd-stock.ok,
+:root[data-theme="dark"] .form-success {
+    background-color: rgba(30, 126, 52, 0.18);
+    color: #6fd18c;
+}
+
+:root[data-theme="dark"] .order-status.cancelled,
+:root[data-theme="dark"] .admin-order-status-select.status-cancelled,
+:root[data-theme="dark"] .stat-card-icon.status-cancelled,
+:root[data-theme="dark"] .order-progress.is-cancelled,
+:root[data-theme="dark"] .pd-stock.out,
+:root[data-theme="dark"] .form-error {
+    background-color: rgba(211, 47, 47, 0.18);
+    color: #ff8f87;
+}
+
+:root[data-theme="dark"] .form-success {
+    border-color: rgba(30, 126, 52, 0.35);
+}
+
+:root[data-theme="dark"] .form-error {
+    border-color: rgba(211, 47, 47, 0.35);
+}
+
+:root[data-theme="dark"] .admin-status.off {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text-muted);
+}
+
+/* Toast - giu nguyen mau icon (da la mau dac, du tuong phan), chi doi nen/vien/chu cua than toast */
+:root[data-theme="dark"] .toast-error {
+    background-color: #3a1f1d;
+    color: #ff9a90;
+    border-color: #5c2d29;
+}
+
+:root[data-theme="dark"] .toast-success {
+    background-color: #1c3326;
+    color: #8fe0ab;
+    border-color: #2c4f3a;
+}
+
+:root[data-theme="dark"] .toast-info {
+    background-color: #3a201f;
+    color: #ff9d99;
+    border-color: #5c2f2d;
+}
+
+/* Chu mau xam dam tren nen header/footer - can sang mau hon de doc duoc tren nen toi.
+   Luu y: phai khai bao lai :hover/.active o day voi do dac ta cao hon, neu khong
+   mau nen tren se de len ca trang thai hover (bug da gap: hover khong doi mau). */
+:root[data-theme="dark"] .main-menu a {
+    color: #b7b7bc;
+}
+
+:root[data-theme="dark"] .main-menu a:hover,
+:root[data-theme="dark"] .main-menu a.active {
+    color: var(--color-accent);
+}
+
+:root[data-theme="dark"] .site-footer {
+    color: #a3a3a8;
+}
+
+:root[data-theme="dark"] .footer-grid a {
+    color: #9a9aa0;
+}
+
+:root[data-theme="dark"] .footer-grid a:hover {
+    color: var(--color-accent);
+}
+
+:root[data-theme="dark"] .footer-bottom {
+    color: #86868c;
+}
+
+/* Vong trang quanh cham timeline (About) - doi sang mau nen trang de hoa vao nen toi thay vi tao quang trang */
+:root[data-theme="dark"] .about-timeline-item::before {
+    box-shadow: 0 0 0 3px var(--color-paper), 0 0 0 4px var(--color-accent);
+}
