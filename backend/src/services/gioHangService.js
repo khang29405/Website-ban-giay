@@ -12,10 +12,15 @@ async function addToCart(maND, { MaBienThe, SoLuong }) {
     }
 
     const existing = await gioHangModel.findByUserAndVariant(maND, MaBienThe);
-    const tongSoLuong = (existing ? existing.SoLuong : 0) + SoLuong;
+    const daCoTrongGio = existing ? existing.SoLuong : 0;
+    const tongSoLuong = daCoTrongGio + SoLuong;
 
     if (tongSoLuong > variant.SoLuongTon) {
-        throw httpError(400, `Số lượng vượt quá tồn kho (còn ${variant.SoLuongTon})`);
+        const conLaiDeThem = Math.max(0, variant.SoLuongTon - daCoTrongGio);
+        throw httpError(
+            400,
+            `Chỉ còn ${variant.SoLuongTon} sản phẩm trong kho, bạn đã có ${daCoTrongGio} trong giỏ hàng (thêm được tối đa ${conLaiDeThem} nữa)`
+        );
     }
 
     if (existing) {
