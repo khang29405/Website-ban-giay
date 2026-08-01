@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <script src="../js/theme-init.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Không tìm thấy trang - MyShoes</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23e01e26'/><text x='50' y='70' font-family='Arial, sans-serif' font-weight='800' font-size='58' fill='white' text-anchor='middle'>M</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/dark-theme.css">
+    <link rel="stylesheet" href="../css/pages/error.css">
+</head>
+<body>
+    <header id="header"></header>
+
+    <main>
+        <section class="error-page fade-in">
+            <div class="container">
+                <svg class="error-illustration" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 120C20 100 35 95 55 92L100 82C115 78 125 70 135 60C140 55 148 55 150 62C153 70 150 82 140 90L130 98C150 100 165 108 165 120C165 128 158 132 148 132L35 132C26 132 20 128 20 120Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M55 92L60 108" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M78 87L82 105" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M100 82L103 100" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="150" cy="45" r="24" stroke="currentColor" stroke-width="4"/>
+                    <line x1="167" y1="62" x2="182" y2="77" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+                    <text x="150" y="53" font-size="24" font-weight="800" fill="currentColor" text-anchor="middle" font-family="Arial, sans-serif">?</text>
+                </svg>
+                <span class="error-code">404</span>
+                <h1>Không tìm thấy trang bạn cần</h1>
+                <p>Đường dẫn này không tồn tại hoặc đã được di chuyển. Hãy quay lại trang chủ hoặc tiếp tục xem sản phẩm.</p>
+                <div class="error-actions">
+                    <a href="index.html" class="btn btn-accent"><i class="fa-solid fa-house"></i> Về trang chủ</a>
+                    <a href="san-pham.html" class="btn btn-outline"><i class="fa-solid fa-store"></i> Xem sản phẩm</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/validate.js"></script>
+    <script src="../js/layout.js"></script>
+</body>
+</html>

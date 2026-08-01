@@ -57,7 +57,7 @@ function renderHeader() {
         ? `
             ${
                 isAdmin
-                    ? `<a href="admin.html" class="btn btn-outline admin-link"><i class="fa-solid fa-user-shield"></i> Quản trị</a>`
+                    ? `<a href="admin.html" class="btn btn-outline admin-link"><i class="fa-solid fa-user-shield"></i> <span class="btn-label">Quản trị</span></a>`
                     : `<a href="cart.html" class="cart-link" id="cart-link">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span class="cart-badge" id="cart-badge" hidden>0</span>
@@ -87,8 +87,8 @@ function renderHeader() {
             </div>
           `
         : `
-            <a href="login.html" class="btn btn-outline"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</a>
-            <a href="register.html" class="btn btn-accent"><i class="fa-solid fa-user-plus"></i> Đăng ký</a>
+            <a href="login.html" class="btn btn-outline"><i class="fa-solid fa-right-to-bracket"></i> <span class="btn-label">Đăng nhập</span></a>
+            <a href="register.html" class="btn btn-accent"><i class="fa-solid fa-user-plus"></i> <span class="btn-label">Đăng ký</span></a>
           `;
 
     header.className = "site-header";
@@ -111,6 +111,9 @@ function renderHeader() {
                     <i class="fa-regular fa-lightbulb"></i>
                 </button>
                 ${actionsHtml}
+                <button type="button" class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Mở menu" aria-expanded="false">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
         </div>
     `;
@@ -120,6 +123,30 @@ function renderHeader() {
         const currentTheme = document.documentElement.getAttribute("data-theme") || window.DEFAULT_THEME;
         themeToggleBtn.querySelector("i").className = currentTheme === "dark" ? "fa-regular fa-lightbulb" : "fa-solid fa-lightbulb";
         themeToggleBtn.addEventListener("click", toggleTheme);
+    }
+
+    const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
+    const mainMenu = header.querySelector(".main-menu");
+    if (mobileMenuToggle && mainMenu) {
+        const closeMobileMenu = () => {
+            mainMenu.classList.remove("mobile-open");
+            mobileMenuToggle.setAttribute("aria-expanded", "false");
+            mobileMenuToggle.querySelector("i").className = "fa-solid fa-bars";
+        };
+        mobileMenuToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = mainMenu.classList.toggle("mobile-open");
+            mobileMenuToggle.setAttribute("aria-expanded", String(isOpen));
+            mobileMenuToggle.querySelector("i").className = isOpen ? "fa-solid fa-xmark" : "fa-solid fa-bars";
+        });
+        mainMenu.querySelectorAll("a").forEach((link) => {
+            link.addEventListener("click", closeMobileMenu);
+        });
+        document.addEventListener("click", (e) => {
+            if (mainMenu.classList.contains("mobile-open") && !mainMenu.contains(e.target) && e.target !== mobileMenuToggle) {
+                closeMobileMenu();
+            }
+        });
     }
 
     const logoutBtn = document.getElementById("logout-btn");
@@ -361,6 +388,7 @@ function openEditProfileModal(user) {
 function renderFooter() {
     const footer = document.getElementById("footer");
     if (!footer) return;
+    if (window.location.pathname.endsWith("admin.html")) return;
 
     footer.className = "site-footer";
     footer.innerHTML = `
@@ -383,8 +411,8 @@ function renderFooter() {
                 <div>
                     <h4>Liên hệ</h4>
                     <ul>
-                        <li>123 Nguyễn Trãi, Q1, TP.HCM</li>
-                        <li><a href="tel:1900636999">1900 636 999</a></li>
+                        <li>126 Nguyễn Thiện Thành, P. Trà Vinh, Vĩnh Long</li>
+                        <li><a href="tel:0974714067">0974 714 067</a></li>
                         <li><a href="mailto:support@myshoes.local">support@myshoes.local</a></li>
                         <li>8:00 - 21:00 tất cả các ngày</li>
                     </ul>
@@ -397,9 +425,31 @@ function renderFooter() {
     `;
 }
 
+// ============ Nut lien he noi (fixed) o goc duoi ben trai - dung chung moi trang ============
+function renderFloatingContact() {
+    if (document.getElementById("floating-contact")) return;
+    if (window.location.pathname.endsWith("admin.html")) return;
+
+    const wrap = document.createElement("div");
+    wrap.id = "floating-contact";
+    wrap.className = "contact-floating-actions";
+    wrap.innerHTML = `
+        <a href="https://zalo.me/0974714067" target="_blank" rel="noopener" class="floating-contact-btn floating-contact-zalo" aria-label="Chat Zalo">
+            <i class="fa-solid fa-comment-dots"></i>
+            <span class="floating-contact-tooltip">Chat Zalo</span>
+        </a>
+        <a href="tel:0974714067" class="floating-contact-btn floating-contact-call" aria-label="Gọi ngay 0974 714 067">
+            <i class="fa-solid fa-phone"></i>
+            <span class="floating-contact-tooltip">Gọi ngay: 0974 714 067</span>
+        </a>
+    `;
+    document.body.appendChild(wrap);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     renderHeader();
     renderFooter();
+    renderFloatingContact();
 });
 
 // ============ Cart badge (dung chung moi trang, goi lai sau khi sua gio hang) ============
@@ -412,6 +462,9 @@ async function updateCartBadge() {
         if (count > 0) {
             badge.textContent = count > 99 ? "99+" : count;
             badge.hidden = false;
+            badge.classList.remove("cart-badge-bump");
+            void badge.offsetWidth;
+            badge.classList.add("cart-badge-bump");
         } else {
             badge.hidden = true;
         }
@@ -629,9 +682,11 @@ function getModalOverlay() {
     return overlay;
 }
 
-function openModal(html) {
+function openModal(html, extraClass) {
     const overlay = getModalOverlay();
-    document.getElementById("modal-box").innerHTML = html;
+    const box = document.getElementById("modal-box");
+    box.innerHTML = html;
+    box.className = extraClass ? `modal-box ${extraClass}` : "modal-box";
     overlay.hidden = false;
 }
 
@@ -639,7 +694,9 @@ function closeModal() {
     const overlay = document.getElementById("modal-overlay");
     if (overlay) {
         overlay.hidden = true;
-        document.getElementById("modal-box").innerHTML = "";
+        const box = document.getElementById("modal-box");
+        box.innerHTML = "";
+        box.className = "modal-box";
     }
 }
 

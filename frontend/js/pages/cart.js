@@ -86,7 +86,26 @@ function updateCheckoutState(hasItems) {
     if (checkoutBtn) checkoutBtn.disabled = !hasItems;
 }
 
+function renderCartSkeleton(count = 3) {
+    cartItemsEl.innerHTML = Array.from({ length: count })
+        .map(
+            () => `
+        <div class="cart-item cart-item-skeleton">
+            <div class="cart-item-media"></div>
+            <div class="cart-item-info">
+                <span class="skeleton-line skeleton-line-sm"></span>
+                <span class="skeleton-line"></span>
+                <span class="skeleton-line skeleton-line-sm"></span>
+            </div>
+        </div>
+    `
+        )
+        .join("");
+    cartSummaryItemsEl.innerHTML = "";
+}
+
 async function loadCart() {
+    renderCartSkeleton();
     try {
         const items = await apiGet("/gio-hang");
         renderCartItems(items);

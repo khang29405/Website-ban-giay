@@ -35,6 +35,9 @@ body {
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     transition: background-color 0.25s ease, color 0.25s ease;
+    /* Header la position:fixed (khong con chiem cho trong flex flow) - bu lai dung 1 khoang
+       bang chieu cao header de noi dung khong bi che khuat phia sau */
+    padding-top: 69px;
 }
 
 main {

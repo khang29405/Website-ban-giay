@@ -44,6 +44,13 @@
     color: var(--color-text);
 }
 
+/* Modal xem anh lon (.modal-box-image) can trong suot ca 2 theme, khong lay mau
+   surface cua .modal-box o tren - phai khai bao lai o day vi cung do dac ta,
+   nguon sau thang nguon truoc trong cung 1 file */
+:root[data-theme="dark"] .modal-box-image {
+    background: transparent;
+}
+
 /* Cac mang mau nhat kieu "tint" tren nen accent (#fff5f5/#fdeaea) */
 :root[data-theme="dark"] .payment-method:has(input:checked),
 :root[data-theme="dark"] .admin-tab.admin-tab-right,
@@ -164,4 +171,10 @@
 /* Vong trang quanh cham timeline (About) - doi sang mau nen trang de hoa vao nen toi thay vi tao quang trang */
 :root[data-theme="dark"] .about-timeline-item::before {
     box-shadow: 0 0 0 3px var(--color-paper), 0 0 0 4px var(--color-accent);
+}
+
+/* Vien sang cua hieu ung shimmer (#ececec) qua sang, chop nhoang tren nen toi -
+   doi sang mau border (toi hon nhung van sang hon surface-alt de con thay hieu ung "quet") */
+:root[data-theme="dark"] .skeleton-line {
+    background-image: linear-gradient(90deg, var(--color-surface-alt) 25%, var(--color-border) 37%, var(--color-surface-alt) 63%);
 }

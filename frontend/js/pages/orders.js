@@ -170,8 +170,37 @@ async function openOrderDetailModal(id) {
     }
 }
 
+function renderOrdersSkeleton(count = 3) {
+    ordersList.innerHTML = Array.from({ length: count })
+        .map(
+            () => `
+        <div class="order-card order-card-skeleton">
+            <div class="order-card-header">
+                <div class="order-card-heading">
+                    <span class="skeleton-line skeleton-line-sm" style="width:70px"></span>
+                    <span class="skeleton-line skeleton-line-sm" style="width:90px"></span>
+                </div>
+                <span class="skeleton-line skeleton-line-sm" style="width:60px;margin:0"></span>
+            </div>
+            <div class="order-item-preview">
+                <div class="order-item-preview-noimg"></div>
+            </div>
+            <div class="order-card-body">
+                <span class="skeleton-line" style="width:80%"></span>
+                <div class="order-card-total">
+                    <span class="skeleton-line skeleton-line-sm" style="width:70px;margin:0"></span>
+                    <span class="skeleton-line skeleton-line-sm" style="width:90px;margin:0"></span>
+                </div>
+            </div>
+            <span class="skeleton-line" style="width:100%;height:36px;margin:0"></span>
+        </div>
+    `
+        )
+        .join("");
+}
+
 async function loadOrders() {
-    ordersList.innerHTML = `<div class="empty-state"><strong>Đang tải đơn hàng...</strong></div>`;
+    renderOrdersSkeleton();
     try {
         const { items, pagination } = await apiGetPaged("/don-hang", {
             trangThai: selectedStatus,

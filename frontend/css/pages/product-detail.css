@@ -38,6 +38,10 @@
     position: relative;
 }
 
+.pd-media.pd-media-zoomable {
+    cursor: zoom-in;
+}
+
 .pd-media img {
     width: 100%;
     height: 100%;
@@ -47,6 +51,68 @@
 
 .pd-media:hover img {
     transform: scale(1.08);
+}
+
+/* Goi y "xem anh lon" - truot len khi hover, cung mot kieu voi .product-card-view */
+.pd-media-zoom-hint {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 10px;
+    text-align: center;
+    background: rgba(13, 13, 15, 0.82);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    transform: translateY(100%);
+    transition: transform 0.2s ease;
+}
+
+.pd-media.pd-media-zoomable:hover .pd-media-zoom-hint {
+    transform: translateY(0);
+}
+
+/* Modal xem anh lon - bo padding/nen mac dinh cua .modal-box, chi hien anh */
+.modal-box-image {
+    background: transparent;
+    padding: 0;
+    width: auto;
+    max-width: 90vw;
+    overflow: visible;
+    box-shadow: none;
+}
+
+.pd-zoom-img-wrap {
+    position: relative;
+    display: inline-flex;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.pd-zoom-img {
+    display: block;
+    max-width: 90vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius-lg);
+}
+
+/* Nut dong nam de len goc anh (khong dat lech ra ngoai) - tranh tran ra khoi
+   khung nhin gay thanh cuon ngang o trang, la loi truoc do */
+.pd-zoom-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(13, 13, 15, 0.75);
+    color: #fff;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
 }
 
 .pd-info {
@@ -211,6 +277,18 @@
     font-weight: 700;
 }
 
+.pd-admin-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    background: var(--color-surface-alt);
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    width: 100%;
+}
+
 .pd-add-cart {
     display: flex;
     flex-wrap: wrap;
@@ -287,5 +365,26 @@
     .pd-layout {
         grid-template-columns: 1fr;
         gap: 24px;
+    }
+
+    /* Dinh thanh "Them vao gio hang" o day man hinh, luon hien du cuon toi dau -
+       tranh cuon mat nut mua tren trang chi tiet san pham (thuong kha dai tren mobile).
+       Dung fixed (khong phai sticky) vi .pd-info ket thuc qua som (chi con vai dong
+       trust-mini phia sau), sticky se "het pham vi" va boc ra khoi vi tri day man hinh. */
+    body {
+        padding-bottom: 82px;
+    }
+
+    .pd-add-cart {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 15;
+        background: var(--color-paper);
+        border-top: 1px solid var(--color-border);
+        margin-top: 0;
+        padding: 12px 24px;
+        box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.15);
     }
 }

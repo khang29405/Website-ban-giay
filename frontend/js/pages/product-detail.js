@@ -6,6 +6,10 @@ let variants = [];
 let selectedSize = null;
 let selectedColor = null;
 let lastChangedAxis = null;
+// So luong da them vao gio trong phien nay theo tung bien the - "Them vao gio hang"
+// KHONG tru ton kho that (chi tru khi dat hang thanh cong, xem donHangModel.js), nen
+// dung de canh bao "da co X trong gio" thay vi gia vo ton kho that da giam.
+let cartQtyByVariant = {};
 
 function formatCurrency(amount) {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
@@ -13,6 +17,20 @@ function formatCurrency(amount) {
 
 function uniqueValues(list, key) {
     return [...new Set(list.map((v) => v[key]))];
+}
+
+// Phan hoi truc quan tren chinh nut "Them vao gio hang" trong vai giay,
+// bo sung cho toast + badge da co san
+function flashAddedToCart(btn) {
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.classList.add("btn-added");
+    btn.innerHTML = `<i class="fa-solid fa-check"></i> Đã thêm`;
+    setTimeout(() => {
+        btn.classList.remove("btn-added");
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+    }, 1200);
 }
 
 function findVariant(size, color) {
@@ -50,14 +68,24 @@ function renderStock() {
         return;
     }
 
+    const inCart = cartQtyByVariant[variant.MaBienThe] || 0;
+    const conLaiDeThem = variant.SoLuongTon - inCart;
+    const ghiChuGio = inCart > 0 ? ` (đã có ${inCart} trong giỏ hàng)` : "";
+
+    if (conLaiDeThem <= 0) {
+        stockBox.className = "pd-stock out";
+        stockBox.textContent = `Bạn đã thêm hết ${variant.SoLuongTon} sản phẩm còn lại vào giỏ hàng`;
+        return;
+    }
+
     if (variant.SoLuongTon <= 5) {
         stockBox.className = "pd-stock low";
-        stockBox.textContent = `Chỉ còn ${variant.SoLuongTon} đôi - sắp hết hàng!`;
+        stockBox.textContent = `Chỉ còn ${variant.SoLuongTon} đôi - sắp hết hàng!${ghiChuGio}`;
         return;
     }
 
     stockBox.className = "pd-stock ok";
-    stockBox.textContent = `Còn ${variant.SoLuongTon} sản phẩm`;
+    stockBox.textContent = `Còn ${variant.SoLuongTon} sản phẩm${ghiChuGio}`;
 }
 
 function updateAddToCartState() {
@@ -65,9 +93,11 @@ function updateAddToCartState() {
     if (!qtyInput) return;
 
     const variant = selectedSize && selectedColor ? findVariant(selectedSize, selectedColor) : null;
-    const inStock = !!variant && variant.SoLuongTon > 0;
+    const inCart = variant ? cartQtyByVariant[variant.MaBienThe] || 0 : 0;
+    const conLaiDeThem = variant ? variant.SoLuongTon - inCart : 0;
+    const inStock = !!variant && conLaiDeThem > 0;
 
-    qtyInput.max = inStock ? variant.SoLuongTon : 1;
+    qtyInput.max = inStock ? conLaiDeThem : 1;
     if (Number(qtyInput.value) > Number(qtyInput.max)) {
         qtyInput.value = qtyInput.max;
     }
@@ -128,12 +158,15 @@ function renderProduct(product) {
         ? `<img src="${escapeHtml(product.HinhAnh)}" alt="${escapeHtml(product.TenSP)}">`
         : `<div class="product-card-noimg">Chưa có ảnh</div>`;
     const badge = !product.TrangThai ? `<span class="product-badge badge-off">Ngừng bán</span>` : "";
+    const user = getCurrentUser();
+    const isAdmin = !!user && user.VaiTro === "Admin";
 
     detailContainer.innerHTML = `
-        <div class="pd-layout fade-in">
-            <div class="pd-media">
+        <div class="pd-layout">
+            <div class="pd-media${product.HinhAnh ? " pd-media-zoomable" : ""}" id="pd-media">
                 ${badge}
                 ${media}
+                ${product.HinhAnh ? `<span class="pd-media-zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Xem ảnh lớn</span>` : ""}
             </div>
             <div class="pd-info">
                 <span class="product-brand">${escapeHtml(product.TenThuongHieu)}</span>
@@ -159,7 +192,9 @@ function renderProduct(product) {
 
                 <div class="pd-add-cart">
                     ${
-                        getCurrentUser()
+                        isAdmin
+                            ? `<p class="pd-admin-notice"><i class="fa-solid fa-circle-info"></i> Tài khoản quản trị không thể thêm vào giỏ hàng hoặc đặt hàng.</p>`
+                            : user
                             ? `
                         <div class="qty-control">
                             <button type="button" class="qty-btn" id="qty-minus">−</button>
@@ -186,6 +221,8 @@ function renderProduct(product) {
     if (breadcrumb) {
         breadcrumb.innerHTML = `
             <a href="index.html">Trang chủ</a>
+            <span>/</span>
+            <a href="san-pham.html">Sản phẩm</a>
             <span>/</span>
             <a href="san-pham.html?danhMuc=${product.MaDM}">${escapeHtml(product.TenDanhMuc)}</a>
             <span>/</span>
@@ -232,6 +269,12 @@ function renderProduct(product) {
             return null;
         }
 
+        const inCart = cartQtyByVariant[variant.MaBienThe] || 0;
+        if (inCart >= variant.SoLuongTon) {
+            showToast("Bạn đã thêm hết số lượng còn lại của lựa chọn này vào giỏ hàng", "error");
+            return null;
+        }
+
         return variant;
     }
 
@@ -241,10 +284,25 @@ function renderProduct(product) {
             if (!variant) return;
 
             const soLuong = Number(qtyInput.value) || 1;
+            const daCoTrongGio = cartQtyByVariant[variant.MaBienThe] || 0;
+            const conLaiDeThem = variant.SoLuongTon - daCoTrongGio;
+            if (soLuong > conLaiDeThem) {
+                showToast(
+                    `Chỉ còn ${variant.SoLuongTon} sản phẩm trong kho, bạn đã có ${daCoTrongGio} trong giỏ hàng (thêm được tối đa ${conLaiDeThem} nữa)`,
+                    "error"
+                );
+                return;
+            }
+
             try {
                 await apiPost("/gio-hang", { MaBienThe: variant.MaBienThe, SoLuong: soLuong });
                 showToast("Đã thêm vào giỏ hàng", "success");
                 updateCartBadge();
+                flashAddedToCart(addToCartBtn);
+
+                cartQtyByVariant[variant.MaBienThe] = (cartQtyByVariant[variant.MaBienThe] || 0) + soLuong;
+                renderStock();
+                updateAddToCartState();
             } catch (err) {
                 showToast(err.message, "error");
             }
@@ -258,6 +316,21 @@ function renderProduct(product) {
 
             const soLuong = Number(qtyInput.value) || 1;
             openCheckoutModal({ MaBienThe: variant.MaBienThe, SoLuong: soLuong });
+        });
+    }
+
+    const pdMedia = document.getElementById("pd-media");
+    if (pdMedia && product.HinhAnh) {
+        pdMedia.addEventListener("click", () => {
+            openModal(
+                `
+                <div class="pd-zoom-img-wrap">
+                    <button type="button" class="pd-zoom-close" onclick="closeModal()" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+                    <img src="${escapeHtml(product.HinhAnh)}" alt="${escapeHtml(product.TenSP)}" class="pd-zoom-img">
+                </div>
+            `,
+                "modal-box-image"
+            );
         });
     }
 
@@ -362,11 +435,32 @@ async function loadRelatedByBrand(product) {
     }
 }
 
+function renderProductSkeleton() {
+    detailContainer.innerHTML = `
+        <div class="pd-layout">
+            <div class="pd-media">
+                <div class="product-card-media"></div>
+            </div>
+            <div class="pd-info">
+                <span class="skeleton-line skeleton-line-sm" style="width:90px"></span>
+                <span class="skeleton-line" style="width:70%;height:26px;margin-top:6px"></span>
+                <span class="skeleton-line skeleton-line-sm" style="width:110px"></span>
+                <span class="skeleton-line skeleton-line-price" style="width:150px;height:24px;margin:10px 0"></span>
+                <span class="skeleton-line" style="width:100%"></span>
+                <span class="skeleton-line" style="width:85%"></span>
+                <span class="skeleton-line" style="width:40%;height:36px;margin-top:16px"></span>
+            </div>
+        </div>
+    `;
+}
+
 async function loadProductDetail() {
     if (!productId) {
         detailContainer.innerHTML = `<div class="empty-state"><strong>Thiếu mã sản phẩm</strong></div>`;
         return;
     }
+
+    renderProductSkeleton();
 
     try {
         const [product, variantList] = await Promise.all([

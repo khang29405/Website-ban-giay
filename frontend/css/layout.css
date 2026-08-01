@@ -2,8 +2,10 @@
 .site-header {
     background: var(--color-paper);
     border-bottom: 1px solid var(--color-border);
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 20;
     transition: background-color 0.25s ease, border-color 0.25s ease;
 }
@@ -111,6 +113,25 @@
     color: #f5a623;
 }
 
+.mobile-menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius);
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.mobile-menu-toggle:hover {
+    background: var(--color-surface-alt);
+}
+
 .cart-badge {
     position: absolute;
     top: -2px;
@@ -127,6 +148,26 @@
     align-items: center;
     justify-content: center;
     line-height: 1;
+}
+
+/* Nay nhe khi so luong gio hang thay doi (them/xoa/sua so luong) - phan hoi truc quan tuc thi */
+@keyframes cartBadgeBump {
+    0% {
+        transform: scale(1);
+    }
+    35% {
+        transform: scale(1.4);
+    }
+    65% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.cart-badge-bump {
+    animation: cartBadgeBump 0.4s ease;
 }
 
 .cart-badge[hidden] {
@@ -337,6 +378,13 @@
     border-color: var(--color-ink);
 }
 
+/* Phan hoi tam thoi khi them vao gio hang thanh cong - tu doi mau roi tu tro lai binh thuong */
+.btn-added {
+    background: #1e7e34;
+    border-color: #1e7e34;
+    color: #fff;
+}
+
 /* Footer - xam nhat, khong dung mau den nang */
 .site-footer {
     background: var(--color-surface-alt);
@@ -391,8 +439,60 @@
 }
 
 @media (max-width: 720px) {
+    .mobile-menu-toggle {
+        display: inline-flex;
+    }
+
+    /* Thu gon nut Dang nhap/Dang ky/Quan tri thanh icon-only, giam khoang cach -
+       tranh header bi tran ngang khi them nut hamburger vao header-actions */
+    .site-header .container {
+        gap: 10px;
+    }
+
+    .header-actions {
+        gap: 4px;
+    }
+
+    .header-actions .btn {
+        padding: 8px 10px;
+    }
+
+    .header-actions .btn-label {
+        display: none;
+    }
+
     .main-menu {
         display: none;
+        position: fixed;
+        top: 69px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        background: var(--color-paper);
+        border-bottom: 1px solid var(--color-border);
+        box-shadow: var(--shadow-md);
+        padding: 6px 24px 14px;
+        z-index: 19;
+    }
+
+    .main-menu.mobile-open {
+        display: flex;
+    }
+
+    .main-menu li {
+        width: 100%;
+    }
+
+    .main-menu a {
+        display: block;
+        padding: 12px 0;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .main-menu li:first-child a {
+        border-top: none;
     }
 
     .avatar-btn .user-greeting {
@@ -527,6 +627,115 @@
     }
     to {
         transform: scaleX(0);
+    }
+}
+
+/* 2 nut lien he noi (fixed) o goc duoi ben trai - dung chung moi trang */
+.contact-floating-actions {
+    position: fixed;
+    left: 24px;
+    bottom: 24px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.floating-contact-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.15s ease;
+}
+
+.floating-contact-btn:hover {
+    transform: scale(1.08);
+}
+
+/* Tooltip luon nen toi + chu trang co dinh (khong theo --color-ink) -
+   --color-ink doi thanh mau sang o che do toi nen neu dung se bi chu trang tren nen trang, mat chu */
+.floating-contact-tooltip {
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-6px);
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 7px 12px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.floating-contact-btn:hover .floating-contact-tooltip {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+.floating-contact-call {
+    background: var(--color-accent);
+}
+
+.floating-contact-zalo {
+    background: #0068ff;
+}
+
+/* Vong song lan toa lien tuc quanh ca 2 nut, thu hut chu y */
+.floating-contact-btn::before,
+.floating-contact-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    animation: floatingContactPulse 2.2s ease-out infinite;
+}
+
+.floating-contact-btn::after {
+    animation-delay: 1.1s;
+}
+
+.floating-contact-call::before,
+.floating-contact-call::after {
+    color: var(--color-accent);
+}
+
+.floating-contact-zalo::before,
+.floating-contact-zalo::after {
+    color: #0068ff;
+}
+
+@keyframes floatingContactPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(1.7);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .contact-floating-actions {
+        left: 16px;
+        bottom: 16px;
+    }
+
+    .floating-contact-tooltip {
+        display: none;
     }
 }
 
