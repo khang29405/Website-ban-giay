@@ -74,3 +74,13 @@ function apiPatch(path, body) {
 function apiDelete(path) {
     return apiSend("DELETE", path);
 }
+
+// Dung cho upload file (multipart/form-data) - khong dat Content-Type thu cong vi
+// trinh duyet phai tu sinh boundary, dat tay se lam server khong doc duoc file.
+function apiUpload(path, formData) {
+    return fetch(API_BASE_URL + path, {
+        method: "POST",
+        headers: authHeaders(),
+        body: formData,
+    }).then(handleApiResponse);
+}

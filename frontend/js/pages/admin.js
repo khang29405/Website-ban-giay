@@ -304,12 +304,6 @@ function validateSanPhamForm(form) {
         valid = false;
     }
 
-    const hinhAnh = form.HinhAnh.value.trim();
-    if (hinhAnh.length > 255) {
-        showFieldError(form.HinhAnh, "Đường dẫn ảnh tối đa 255 ký tự");
-        valid = false;
-    }
-
     if (!form.MaDM.value) {
         showFieldError(form.MaDM, "Vui lòng chọn danh mục");
         valid = false;
@@ -317,6 +311,12 @@ function validateSanPhamForm(form) {
 
     if (!form.MaTH.value) {
         showFieldError(form.MaTH, "Vui lòng chọn thương hiệu");
+        valid = false;
+    }
+
+    const file = form.HinhAnhFile.files[0];
+    if (file && file.size > 5 * 1024 * 1024) {
+        showFieldError(form.HinhAnhFile, "Ảnh vượt quá dung lượng tối đa 5MB");
         valid = false;
     }
 
@@ -339,28 +339,32 @@ function openSanPhamForm(id) {
                 <label>Mô tả</label>
                 <textarea name="MoTa" rows="3">${item ? escapeHtml(item.MoTa || "") : ""}</textarea>
             </div>
-            <div class="form-group">
-                <label>Giá (VNĐ)</label>
-                <input type="number" name="Gia" min="0" step="1000" value="${item ? item.Gia : ""}">
-            </div>
-            <div class="form-group">
-                <label>Đường dẫn ảnh</label>
-                <input type="text" name="HinhAnh" value="${item ? escapeHtml(item.HinhAnh || "") : ""}">
-            </div>
-            <div class="form-group">
-                <label>Danh mục</label>
-                <select name="MaDM">${opts.danhMuc}</select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Giá (VNĐ)</label>
+                    <input type="number" name="Gia" min="0" step="1000" value="${item ? item.Gia : ""}">
+                </div>
+                <div class="form-group">
+                    <label>Danh mục</label>
+                    <select name="MaDM">${opts.danhMuc}</select>
+                </div>
             </div>
             <div class="form-group">
                 <label>Thương hiệu</label>
                 <select name="MaTH">${opts.thuongHieu}</select>
+            </div>
+            <div class="form-group">
+                <label>Ảnh sản phẩm</label>
+                <input type="file" name="HinhAnhFile" accept="image/jpeg,image/png,image/webp,image/gif">
+                <input type="hidden" name="HinhAnh" value="${item ? escapeHtml(item.HinhAnh || "") : ""}">
+                <img id="san-pham-anh-preview" class="admin-form-preview" src="${item ? escapeHtml(item.HinhAnh || "") : ""}" ${item && item.HinhAnh ? "" : "hidden"}>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-ghost" onclick="closeModal()">Hủy</button>
                 <button type="submit" class="btn btn-accent">Lưu</button>
             </div>
         </form>
-    `);
+    `, "modal-box-wide");
 
     if (item) {
         document.querySelector('#san-pham-form select[name="MaDM"]').value = item.MaDM;
@@ -370,21 +374,37 @@ function openSanPhamForm(id) {
     const sanPhamForm = document.getElementById("san-pham-form");
     attachLiveValidation(sanPhamForm, "modal-error");
 
+    const anhFileInput = sanPhamForm.querySelector('input[name="HinhAnhFile"]');
+    const anhPreview = document.getElementById("san-pham-anh-preview");
+    anhFileInput.addEventListener("change", () => {
+        const file = anhFileInput.files[0];
+        if (!file) return;
+        anhPreview.src = URL.createObjectURL(file);
+        anhPreview.hidden = false;
+    });
+
     sanPhamForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const errorBox = document.getElementById("modal-error");
         errorBox.hidden = true;
         const form = e.target;
         if (!validateSanPhamForm(form)) return;
-        const data = {
-            TenSP: form.TenSP.value.trim(),
-            MoTa: form.MoTa.value.trim() || undefined,
-            Gia: Number(form.Gia.value),
-            HinhAnh: form.HinhAnh.value.trim() || undefined,
-            MaDM: Number(form.MaDM.value),
-            MaTH: Number(form.MaTH.value),
-        };
         try {
+            const file = form.HinhAnhFile.files[0];
+            if (file) {
+                const fd = new FormData();
+                fd.append("anh", file);
+                const { url } = await apiUpload("/upload/anh", fd);
+                form.HinhAnh.value = url;
+            }
+            const data = {
+                TenSP: form.TenSP.value.trim(),
+                MoTa: form.MoTa.value.trim() || undefined,
+                Gia: Number(form.Gia.value),
+                HinhAnh: form.HinhAnh.value.trim() || undefined,
+                MaDM: Number(form.MaDM.value),
+                MaTH: Number(form.MaTH.value),
+            };
             if (item) {
                 await apiPut(`/san-pham/${item.MaSP}`, data);
             } else {

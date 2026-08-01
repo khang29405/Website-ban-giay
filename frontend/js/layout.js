@@ -521,13 +521,15 @@ async function openCheckoutModal(directItem) {
         <h3>${directItem ? "Mua ngay" : "Xác nhận đặt hàng"}</h3>
         <div id="checkout-error" class="form-error" hidden></div>
         <form id="checkout-form" novalidate>
-            <div class="form-group">
-                <label>Địa chỉ giao hàng</label>
-                <input type="text" name="DiaChiGiaoHang" value="${escapeHtml(profile.DiaChi || "")}" placeholder="VD: 123 Nguyễn Trãi, Q1, TP.HCM" maxlength="255">
-            </div>
-            <div class="form-group">
-                <label>Số điện thoại nhận hàng</label>
-                <input type="text" name="SDTNhan" value="${escapeHtml(profile.SDT || "")}" placeholder="VD: 0901234567">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Địa chỉ giao hàng</label>
+                    <input type="text" name="DiaChiGiaoHang" value="${escapeHtml(profile.DiaChi || "")}" placeholder="VD: 123 Nguyễn Trãi, Q1, TP.HCM" maxlength="255">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại nhận hàng</label>
+                    <input type="text" name="SDTNhan" value="${escapeHtml(profile.SDT || "")}" placeholder="VD: 0901234567">
+                </div>
             </div>
 
             <div class="form-group">
@@ -566,7 +568,7 @@ async function openCheckoutModal(directItem) {
                 <button type="submit" class="btn btn-accent"><i class="fa-solid fa-check"></i> Đặt hàng</button>
             </div>
         </form>
-    `);
+    `, "modal-box-wide");
 
     const form = document.getElementById("checkout-form");
     attachLiveValidation(form, "checkout-error");

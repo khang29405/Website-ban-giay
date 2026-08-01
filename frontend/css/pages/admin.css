@@ -251,6 +251,16 @@
     font-size: 1rem;
 }
 
+.admin-form-preview {
+    display: block;
+    margin-top: 10px;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    background: var(--color-surface-alt);
+}
+
 .admin-table-product-link {
     color: var(--color-text);
     font-weight: 600;

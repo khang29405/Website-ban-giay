@@ -9,3 +9,8 @@ backend/.env
 Thumbs.db
 
 npm-debug.log*
+
+# Kho anh goc tam thoi (JPG mau...) de upload thu cong qua trang Admin - khong commit
+# len GitHub, anh that da nam tren Cloudinary sau khi upload.
+assets/*
+!assets/.gitkeep

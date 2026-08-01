@@ -193,6 +193,24 @@
     margin-top: 20px;
 }
 
+/* Modifier cho modal co nhieu truong (thu them san pham, xac nhan dat hang...) -
+   dung chung voi .form-row de xep 2 truong ngan tren cung 1 hang thay vi don doc. */
+.modal-box-wide {
+    max-width: 680px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+}
+
+@media (max-width: 640px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 .checkout-note {
     font-size: 0.85rem;
     color: var(--color-text-muted);
