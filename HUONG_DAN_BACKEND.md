@@ -153,6 +153,22 @@ Lịch sử: trước đó dùng `SYSDATETIME()` (giờ local của máy chạy 
 
 Cách sửa dứt điểm (không phụ thuộc môi trường): đổi toàn bộ cột sang `SYSUTCDATETIME()` (UTC thật ngay từ lúc lưu, không cần driver dịch lại gì cả) và **dịch lùi 7 giờ 1 lần** cho dữ liệu cũ (đang lưu theo giờ VN) để đồng bộ với dữ liệu mới. Đã chạy migration này trực tiếp trên DB đang có sẵn (cả 4 bảng NGUOI_DUNG/SAN_PHAM/DON_HANG/LIEN_HE), và đã thêm block migration idempotent tương ứng vào `ShoeStoreDB.sql` cho ai chạy lại script trên bản DB cũ.
 
+### Cấu hình gửi email (Nodemailer, Sprint 4 - quên mật khẩu)
+
+`backend/.env` cần thêm các biến SMTP để gửi được email đặt lại mật khẩu:
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=<email_gui@gmail.com>
+SMTP_PASS=<app_password_16_ky_tu>
+```
+
+Nếu dùng Gmail: phải bật **2-Step Verification** cho tài khoản Google rồi tạo **App password** tại https://myaccount.google.com/apppasswords — mật khẩu Gmail thường (mật khẩu đăng nhập bình thường) sẽ **không** dùng được với SMTP.
+
+Transporter được cấu hình sẵn ở `src/config/mailer.js`, hàm gửi email (kèm template HTML) nằm ở `src/services/mailService.js` (`sendResetPasswordEmail`). Lúc server khởi động, log sẽ báo `Đã kết nối SMTP, sẵn sàng gửi email` nếu cấu hình đúng, hoặc `Lỗi kết nối SMTP: ...` nếu sai — **không làm crash server**, chỉ ảnh hưởng riêng chức năng gửi email.
+
 ### Tạo tài khoản Admin
 Đăng ký một tài khoản bình thường qua `/api/auth/register`, sau đó tự nâng quyền trong SSMS:
 ```sql
