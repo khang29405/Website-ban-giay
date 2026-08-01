@@ -1,4 +1,5 @@
 const sanPhamModel = require("../models/sanPhamModel");
+const uploadService = require("./uploadService");
 const httpError = require("../utils/httpError");
 
 const FK_VIOLATION = 547;
@@ -31,7 +32,11 @@ async function update(id, data) {
     if (!existing) throw httpError(404, "Không tìm thấy sản phẩm");
 
     try {
-        return await sanPhamModel.update(id, data);
+        const updated = await sanPhamModel.update(id, data);
+        if (existing.HinhAnh && existing.HinhAnh !== updated.HinhAnh) {
+            await uploadService.deleteImageIfManaged(existing.HinhAnh);
+        }
+        return updated;
     } catch (err) {
         if (err.number === FK_VIOLATION) {
             throw httpError(400, "Danh mục hoặc thương hiệu không tồn tại");
@@ -52,6 +57,7 @@ async function remove(id) {
 
     try {
         await sanPhamModel.remove(id);
+        await uploadService.deleteImageIfManaged(existing.HinhAnh);
     } catch (err) {
         if (err.number === FK_VIOLATION) {
             throw httpError(409, "Không thể xóa vì sản phẩm đang có biến thể hoặc đơn hàng liên quan");

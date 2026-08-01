@@ -27,6 +27,7 @@ const options = {
             { name: "GioHang", description: "Gio hang cua khach hang dang dang nhap" },
             { name: "DonHang", description: "Dat hang tu gio hang (thanh toan COD)" },
             { name: "LienHe", description: "Tin nhan tu trang Lien he" },
+            { name: "Upload", description: "Upload anh len Cloudinary (dung cho truong HinhAnh cua san pham)" },
         ],
         components: {
             securitySchemes: {

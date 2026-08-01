@@ -153,6 +153,18 @@ Lịch sử: trước đó dùng `SYSDATETIME()` (giờ local của máy chạy 
 
 Cách sửa dứt điểm (không phụ thuộc môi trường): đổi toàn bộ cột sang `SYSUTCDATETIME()` (UTC thật ngay từ lúc lưu, không cần driver dịch lại gì cả) và **dịch lùi 7 giờ 1 lần** cho dữ liệu cũ (đang lưu theo giờ VN) để đồng bộ với dữ liệu mới. Đã chạy migration này trực tiếp trên DB đang có sẵn (cả 4 bảng NGUOI_DUNG/SAN_PHAM/DON_HANG/LIEN_HE), và đã thêm block migration idempotent tương ứng vào `ShoeStoreDB.sql` cho ai chạy lại script trên bản DB cũ.
 
+### Upload ảnh sản phẩm (Cloudinary)
+
+`POST /api/upload/anh` — **Admin**, nhận `multipart/form-data` field `anh` (JPG/PNG/WEBP/GIF, tối đa 5MB), trả về `{ url }` là link Cloudinary. Trang quản trị sản phẩm (`admin.js`) gọi API này trước khi tạo/sửa sản phẩm, rồi dùng `url` trả về làm giá trị `HinhAnh` — không còn dán URL ảnh thủ công.
+
+`backend/.env` cần thêm:
+```
+CLOUDINARY_CLOUD_NAME=<cloud_name>
+CLOUDINARY_API_KEY=<api_key>
+CLOUDINARY_API_SECRET=<api_secret>
+```
+Đăng ký tài khoản miễn phí tại https://cloudinary.com, lấy 3 giá trị này ở trang Dashboard. Nếu chưa cấu hình hoặc sai, endpoint trả `502` kèm thông báo lỗi — không làm crash server.
+
 ### Cấu hình gửi email (Nodemailer, Sprint 4 - quên mật khẩu)
 
 `backend/.env` cần thêm các biến SMTP để gửi được email đặt lại mật khẩu:
