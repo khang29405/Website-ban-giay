@@ -19,8 +19,11 @@ CREATE TABLE NGUOI_DUNG (
     MatKhau     NVARCHAR(255)   NOT NULL,
     SDT         NVARCHAR(15)    NULL,
     DiaChi      NVARCHAR(255)   NULL,
-    VaiTro      NVARCHAR(20)    NOT NULL DEFAULT 'KhachHang', -- KhachHang | Admin
-    NgayTao     DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME()
+    VaiTro      NVARCHAR(20)    NOT NULL DEFAULT 'KhachHang', -- KhachHang | NhanVien | Admin
+    NgayTao     DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    ResetToken          NVARCHAR(255)   NULL, -- token quen mat khau, null khi khong co yeu cau dang cho
+    ResetTokenExpiry    DATETIME2       NULL, -- han su dung cua ResetToken (UTC)
+    CONSTRAINT CK_NguoiDung_VaiTro CHECK (VaiTro IN (N'KhachHang', N'NhanVien', N'Admin'))
 );
 GO
 
@@ -133,6 +136,20 @@ CREATE TABLE LIEN_HE (
 );
 GO
 
+-- =========================================================
+-- 10. BANG YEU_THICH (san pham yeu thich cua khach hang)
+-- =========================================================
+CREATE TABLE YEU_THICH (
+    MaYeuThich  INT IDENTITY(1,1) PRIMARY KEY,
+    MaND        INT             NOT NULL,
+    MaSP        INT             NOT NULL,
+    NgayThem    DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_YeuThich_NguoiDung FOREIGN KEY (MaND) REFERENCES NGUOI_DUNG(MaND) ON DELETE CASCADE,
+    CONSTRAINT FK_YeuThich_SanPham FOREIGN KEY (MaSP) REFERENCES SAN_PHAM(MaSP) ON DELETE CASCADE,
+    CONSTRAINT UQ_YeuThich UNIQUE (MaND, MaSP) -- 1 khach khong yeu thich trung 1 san pham 2 lan
+);
+GO
+
 UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@shoestore.com';
 UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@gmail.com';
 
@@ -162,6 +179,59 @@ BEGIN
         DaXuLy      BIT             NOT NULL DEFAULT 0,
         NgayGui     DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME()
     );
+END
+GO
+
+-- =========================================================
+-- MIGRATION: them CHECK constraint VaiTro (KhachHang | NhanVien | Admin)
+-- neu DB da tao truoc do chua co (Sprint 4 - bo sung vai tro Nhan Vien)
+-- =========================================================
+IF NOT EXISTS (
+    SELECT 1 FROM sys.check_constraints WHERE name = 'CK_NguoiDung_VaiTro'
+)
+BEGIN
+    ALTER TABLE NGUOI_DUNG WITH CHECK ADD CONSTRAINT CK_NguoiDung_VaiTro
+        CHECK (VaiTro IN (N'KhachHang', N'NhanVien', N'Admin'));
+END
+GO
+
+-- =========================================================
+-- MIGRATION: tao bang YEU_THICH neu DB da tao truoc do chua co
+-- (Sprint 4 - chuc nang danh dau san pham yeu thich)
+-- =========================================================
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'YEU_THICH')
+BEGIN
+    CREATE TABLE YEU_THICH (
+        MaYeuThich  INT IDENTITY(1,1) PRIMARY KEY,
+        MaND        INT             NOT NULL,
+        MaSP        INT             NOT NULL,
+        NgayThem    DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_YeuThich_NguoiDung FOREIGN KEY (MaND) REFERENCES NGUOI_DUNG(MaND) ON DELETE CASCADE,
+        CONSTRAINT FK_YeuThich_SanPham FOREIGN KEY (MaSP) REFERENCES SAN_PHAM(MaSP) ON DELETE CASCADE,
+        CONSTRAINT UQ_YeuThich UNIQUE (MaND, MaSP)
+    );
+END
+GO
+
+-- =========================================================
+-- MIGRATION: them cot ResetToken/ResetTokenExpiry neu DB da tao truoc do chua co
+-- (Sprint 4 - chuc nang quen mat khau, luu token trong DB thay vi JWT stateless)
+-- =========================================================
+IF NOT EXISTS (
+    SELECT 1 FROM sys.columns
+    WHERE object_id = OBJECT_ID('NGUOI_DUNG') AND name = 'ResetToken'
+)
+BEGIN
+    ALTER TABLE NGUOI_DUNG ADD ResetToken NVARCHAR(255) NULL;
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.columns
+    WHERE object_id = OBJECT_ID('NGUOI_DUNG') AND name = 'ResetTokenExpiry'
+)
+BEGIN
+    ALTER TABLE NGUOI_DUNG ADD ResetTokenExpiry DATETIME2 NULL;
 END
 GO
 
