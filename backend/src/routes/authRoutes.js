@@ -311,4 +311,97 @@ router.put(
     authController.changePassword
 );
 
+/**
+ * @swagger
+ * /auth/quen-mat-khau:
+ *   post:
+ *     summary: Gui email dat lai mat khau (khong yeu cau dang nhap)
+ *     description: >
+ *       Luon tra ve 200 voi cung 1 thong bao du Email co ton tai trong he thong hay khong
+ *       (tranh lo email nao da dang ky). Neu ton tai, mot link dat lai mat khau (chua token,
+ *       het han sau 15 phut) se duoc gui qua email.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [Email]
+ *             properties:
+ *               Email:
+ *                 type: string
+ *                 format: email
+ *                 example: a@test.com
+ *     responses:
+ *       200:
+ *         description: Da xu ly yeu cau (khong tiet lo email co ton tai hay khong)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 message: { type: string, example: "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi link đặt lại mật khẩu" }
+ *       400:
+ *         description: Du lieu khong hop le
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.post(
+    "/quen-mat-khau",
+    [body("Email").trim().isEmail().withMessage("Email không hợp lệ")],
+    authController.quenMatKhau
+);
+
+/**
+ * @swagger
+ * /auth/dat-lai-mat-khau:
+ *   post:
+ *     summary: Dat lai mat khau bang token nhan tu email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [Token, MatKhauMoi]
+ *             properties:
+ *               Token:
+ *                 type: string
+ *                 example: 3f2a8e1c9b7d4a6f5e0c1b2a3d4e5f6a...
+ *               MatKhauMoi:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 6
+ *                 example: "654321"
+ *     responses:
+ *       200:
+ *         description: Dat lai mat khau thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 message: { type: string, example: "Đặt lại mật khẩu thành công" }
+ *       400:
+ *         description: Du lieu khong hop le, hoac token khong hop le/da het han
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.post(
+    "/dat-lai-mat-khau",
+    [
+        body("Token").notEmpty().withMessage("Thiếu token"),
+        body("MatKhauMoi").isLength({ min: 6 }).withMessage("Mật khẩu mới tối thiểu 6 ký tự"),
+    ],
+    authController.datLaiMatKhau
+);
+
 module.exports = router;

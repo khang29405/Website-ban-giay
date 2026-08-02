@@ -60,4 +60,27 @@ async function changePassword(req, res, next) {
     }
 }
 
-module.exports = { register, login, me, updateMe, changePassword };
+async function quenMatKhau(req, res, next) {
+    try {
+        handleValidation(req);
+        await authService.forgotPassword(req.body.Email);
+        res.json({
+            success: true,
+            message: "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi link đặt lại mật khẩu",
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function datLaiMatKhau(req, res, next) {
+    try {
+        handleValidation(req);
+        await authService.resetPassword(req.body.Token, req.body.MatKhauMoi);
+        res.json({ success: true, message: "Đặt lại mật khẩu thành công" });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { register, login, me, updateMe, changePassword, quenMatKhau, datLaiMatKhau };

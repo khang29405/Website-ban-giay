@@ -87,6 +87,12 @@ Body (JSON):
 - `400`: dữ liệu không hợp lệ.
 - `401`: sai email hoặc mật khẩu.
 
+### Quên mật khẩu (Sprint 4)
+
+`POST /api/auth/quen-mat-khau` — Public, body `{ "Email": "a@test.com" }`. Luôn trả `200` với cùng 1 thông báo chung dù email có tồn tại hay không (tránh lộ email nào đã đăng ký). Nếu email tồn tại: tạo token ngẫu nhiên (hết hạn sau 15 phút, lưu dạng hash SHA-256 trong `NGUOI_DUNG.ResetToken`/`ResetTokenExpiry`), gửi email chứa link `${FRONTEND_URL}/html/reset-password.html?token=...` qua `mailService.sendResetPasswordEmail`. Lỗi gửi email chỉ log ra console, không làm fail request.
+
+`POST /api/auth/dat-lai-mat-khau` — Public, body `{ "Token": "...", "MatKhauMoi": "..." }`. Băm token nhận được rồi so khớp với `ResetToken` còn hạn trong DB — khớp thì đổi mật khẩu và xóa `ResetToken`/`ResetTokenExpiry`. `400` nếu token sai/hết hạn hoặc mật khẩu mới < 6 ký tự.
+
 ### Danh mục (`/api/danh-muc`) và Thương hiệu (`/api/thuong-hieu`)
 CRUD đầy đủ, cấu trúc endpoint giống hệt nhau cho cả 2 (chỉ khác tên trường `TenDanhMuc`/`TenThuongHieu`):
 

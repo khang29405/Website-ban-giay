@@ -71,4 +71,46 @@ async function updatePassword(maND, matKhauHash) {
         .query("UPDATE NGUOI_DUNG SET MatKhau = @MatKhau WHERE MaND = @MaND");
 }
 
-module.exports = { findByEmail, findById, createUser, updateUser, getPasswordHash, updatePassword };
+async function setResetToken(maND, tokenHash, expiry) {
+    const pool = await poolPromise;
+    await pool
+        .request()
+        .input("MaND", sql.Int, maND)
+        .input("ResetToken", sql.NVarChar(255), tokenHash)
+        .input("ResetTokenExpiry", sql.DateTime2, expiry)
+        .query("UPDATE NGUOI_DUNG SET ResetToken = @ResetToken, ResetTokenExpiry = @ResetTokenExpiry WHERE MaND = @MaND");
+}
+
+async function findByResetToken(tokenHash) {
+    const pool = await poolPromise;
+    const result = await pool
+        .request()
+        .input("ResetToken", sql.NVarChar(255), tokenHash)
+        .query(
+            "SELECT * FROM NGUOI_DUNG WHERE ResetToken = @ResetToken AND ResetTokenExpiry > SYSUTCDATETIME()"
+        );
+    return result.recordset[0] || null;
+}
+
+async function updatePasswordAndClearResetToken(maND, matKhauHash) {
+    const pool = await poolPromise;
+    await pool
+        .request()
+        .input("MaND", sql.Int, maND)
+        .input("MatKhau", sql.NVarChar(255), matKhauHash)
+        .query(
+            "UPDATE NGUOI_DUNG SET MatKhau = @MatKhau, ResetToken = NULL, ResetTokenExpiry = NULL WHERE MaND = @MaND"
+        );
+}
+
+module.exports = {
+    findByEmail,
+    findById,
+    createUser,
+    updateUser,
+    getPasswordHash,
+    updatePassword,
+    setResetToken,
+    findByResetToken,
+    updatePasswordAndClearResetToken,
+};

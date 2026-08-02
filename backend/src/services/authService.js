@@ -1,9 +1,16 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const userModel = require("../models/userModel");
+const mailService = require("./mailService");
 const httpError = require("../utils/httpError");
 
 const SALT_ROUNDS = 10;
+const RESET_TOKEN_EXPIRES_MINUTES = 15;
+
+function hashResetToken(token) {
+    return crypto.createHash("sha256").update(token).digest("hex");
+}
 
 async function register({ HoTen, Email, MatKhau, SDT, DiaChi }) {
     const existing = await userModel.findByEmail(Email);
@@ -79,4 +86,37 @@ async function changePassword(maND, { MatKhauCu, MatKhauMoi }) {
     await userModel.updatePassword(maND, newHash);
 }
 
-module.exports = { register, login, getProfile, updateProfile, changePassword };
+// Luon tra ve thanh cong du Email co ton tai hay khong, tranh lo tai khoan nao dang dung
+// (user enumeration). Chi thuc su tao token + gui mail khi tim thay user.
+async function forgotPassword(email) {
+    const user = await userModel.findByEmail(email);
+    if (!user) return;
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const expiry = new Date(Date.now() + RESET_TOKEN_EXPIRES_MINUTES * 60 * 1000);
+    await userModel.setResetToken(user.MaND, hashResetToken(rawToken), expiry);
+
+    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:8080"}/html/reset-password.html?token=${rawToken}`;
+    try {
+        await mailService.sendResetPasswordEmail({
+            to: user.Email,
+            hoTen: user.HoTen,
+            resetUrl,
+            expiresInMinutes: RESET_TOKEN_EXPIRES_MINUTES,
+        });
+    } catch (err) {
+        console.error("Gửi email đặt lại mật khẩu thất bại:", err.message);
+    }
+}
+
+async function resetPassword(token, matKhauMoi) {
+    const user = await userModel.findByResetToken(hashResetToken(token));
+    if (!user) {
+        throw httpError(400, "Token không hợp lệ hoặc đã hết hạn");
+    }
+
+    const newHash = await bcrypt.hash(matKhauMoi, SALT_ROUNDS);
+    await userModel.updatePasswordAndClearResetToken(user.MaND, newHash);
+}
+
+module.exports = { register, login, getProfile, updateProfile, changePassword, forgotPassword, resetPassword };
