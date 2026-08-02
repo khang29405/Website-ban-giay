@@ -65,6 +65,8 @@ frontend/
 Các trang đã có:
 - `html/index.html` — trang chủ
 - `html/login.html` + `js/pages/login.js`, `html/register.html` + `js/pages/register.js`
+- `html/quen-mat-khau.html` + `js/pages/quen-mat-khau.js` (Sprint 4) — nhập email, gọi `POST /api/auth/quen-mat-khau`, luôn hiện cùng 1 thông báo chung dù email có tồn tại hay không (không lộ thông tin), không chuyển trang
+- `html/reset-password.html` + `js/pages/reset-password.js` (Sprint 4) — đọc `token` từ query string (link trong email), nhập mật khẩu mới + xác nhận, gọi `POST /api/auth/dat-lai-mat-khau`; thiếu token hoặc token sai/hết hạn thì ẩn form, hiện lỗi kèm link quay lại `quen-mat-khau.html`; thành công thì chuyển sang `login.html?reset=1`
 - `html/san-pham.html` + `js/pages/san-pham.js` — danh sách sản phẩm, lọc theo danh mục/thương hiệu, tìm kiếm, sắp xếp giá
 - `html/product-detail.html` + `js/pages/product-detail.js` + `css/pages/product-detail.css` — chi tiết sản phẩm, chọn size/màu, thêm vào giỏ/mua ngay, sản phẩm cùng danh mục/thương hiệu
 - `html/about.html` + `js/pages/about.js` + `css/pages/about.css` — giới thiệu (câu chuyện, cách mua hàng, giá trị cốt lõi, thương hiệu phân phối, CTA cuối trang dẫn sang trang sản phẩm/liên hệ)

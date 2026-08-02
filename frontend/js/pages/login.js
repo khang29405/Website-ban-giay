@@ -7,6 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
+    if (params.get("reset") === "1") {
+        const successBox = document.getElementById("form-success");
+        successBox.textContent = "Đặt lại mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.";
+        successBox.hidden = false;
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     attachLiveValidation(document.getElementById("login-form"));
 });
 

@@ -630,10 +630,10 @@
     }
 }
 
-/* 2 nut lien he noi (fixed) o goc duoi ben trai - dung chung moi trang */
+/* 2 nut lien he noi (fixed) o goc duoi ben phai - dung chung moi trang */
 .contact-floating-actions {
     position: fixed;
-    left: 24px;
+    right: 24px;
     bottom: 24px;
     z-index: 100;
     display: flex;
@@ -663,9 +663,9 @@
    --color-ink doi thanh mau sang o che do toi nen neu dung se bi chu trang tren nen trang, mat chu */
 .floating-contact-tooltip {
     position: absolute;
-    left: calc(100% + 12px);
+    right: calc(100% + 12px);
     top: 50%;
-    transform: translateY(-50%) translateX(-6px);
+    transform: translateY(-50%) translateX(6px);
     background: #1a1a1a;
     color: #fff;
     font-size: 0.8rem;
@@ -730,7 +730,7 @@
 
 @media (max-width: 600px) {
     .contact-floating-actions {
-        left: 16px;
+        right: 16px;
         bottom: 16px;
     }
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <script src="../js/theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - MyShoes</title>
+    <title>Quên mật khẩu - MyShoes</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23e01e26'/><text x='50' y='70' font-family='Arial, sans-serif' font-weight='800' font-size='58' fill='white' text-anchor='middle'>M</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,26 +22,21 @@
         <div class="container">
             <div class="auth-wrapper">
                 <div class="auth-card fade-in">
-                    <h2>Đăng nhập</h2>
-                    <p class="auth-subtitle">Chào mừng bạn quay lại MyShoes.</p>
+                    <h2>Quên mật khẩu</h2>
+                    <p class="auth-subtitle">Nhập email đã đăng ký, chúng tôi sẽ gửi link đặt lại mật khẩu.</p>
 
                     <div id="form-success" class="form-success" hidden></div>
                     <div id="form-error" class="form-error" hidden></div>
 
-                    <form id="login-form" novalidate>
+                    <form id="quen-mat-khau-form" novalidate>
                         <div class="form-group">
                             <label for="email">Email</label>
                             <input type="email" id="email" name="Email" required>
                         </div>
-                        <div class="form-group">
-                            <label for="password">Mật khẩu</label>
-                            <input type="password" id="password" name="MatKhau" required minlength="6">
-                        </div>
-                        <p class="auth-forgot"><a href="quen-mat-khau.html">Quên mật khẩu?</a></p>
-                        <button type="submit" class="btn btn-accent btn-block"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</button>
+                        <button type="submit" class="btn btn-accent btn-block"><i class="fa-solid fa-paper-plane"></i> Gửi link đặt lại</button>
                     </form>
 
-                    <p class="auth-switch">Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a></p>
+                    <p class="auth-switch">Đã nhớ mật khẩu? <a href="login.html">Đăng nhập</a></p>
                 </div>
             </div>
         </div>
@@ -54,6 +49,6 @@
     <script src="../js/auth.js"></script>
     <script src="../js/validate.js"></script>
     <script src="../js/layout.js"></script>
-    <script src="../js/pages/login.js"></script>
+    <script src="../js/pages/quen-mat-khau.js"></script>
 </body>
 </html>

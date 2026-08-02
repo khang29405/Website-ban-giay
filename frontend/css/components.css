@@ -555,6 +555,12 @@
     margin: 48px auto;
 }
 
+/* Form nhieu truong (dang ky...) - rong hon de ghep 2 truong/hang qua .form-row,
+   giam chieu cao tong the thay vi xep don doc qua nhieu hang. */
+.auth-wrapper-wide {
+    max-width: 560px;
+}
+
 .auth-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -651,6 +657,12 @@
     margin-top: 20px;
     font-size: 0.9rem;
     color: var(--color-text-muted);
+}
+
+.auth-forgot {
+    text-align: right;
+    margin: -10px 0 18px;
+    font-size: 0.85rem;
 }
 
 .btn-block {
