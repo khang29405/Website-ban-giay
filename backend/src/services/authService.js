@@ -34,6 +34,10 @@ async function login({ Email, MatKhau }) {
         throw httpError(401, "Email hoặc mật khẩu không đúng");
     }
 
+    if (user.DaKhoa) {
+        throw httpError(403, "Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên");
+    }
+
     const token = jwt.sign(
         { maND: user.MaND, vaiTro: user.VaiTro, email: user.Email },
         process.env.JWT_SECRET,

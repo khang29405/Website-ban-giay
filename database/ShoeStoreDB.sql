@@ -23,6 +23,7 @@ CREATE TABLE NGUOI_DUNG (
     NgayTao     DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
     ResetToken          NVARCHAR(255)   NULL, -- token quen mat khau, null khi khong co yeu cau dang cho
     ResetTokenExpiry    DATETIME2       NULL, -- han su dung cua ResetToken (UTC)
+    DaKhoa              BIT             NOT NULL DEFAULT 0, -- 1 = tai khoan bi Admin khoa, khong dang nhap duoc
     CONSTRAINT CK_NguoiDung_VaiTro CHECK (VaiTro IN (N'KhachHang', N'NhanVien', N'Admin'))
 );
 GO
@@ -232,6 +233,19 @@ IF NOT EXISTS (
 )
 BEGIN
     ALTER TABLE NGUOI_DUNG ADD ResetTokenExpiry DATETIME2 NULL;
+END
+GO
+
+-- =========================================================
+-- MIGRATION: them cot DaKhoa cho NGUOI_DUNG neu DB da tao truoc do chua co
+-- (Sprint 4 - Admin khoa/mo tai khoan trong tab "Tai khoan")
+-- =========================================================
+IF NOT EXISTS (
+    SELECT 1 FROM sys.columns
+    WHERE object_id = OBJECT_ID('NGUOI_DUNG') AND name = 'DaKhoa'
+)
+BEGIN
+    ALTER TABLE NGUOI_DUNG ADD DaKhoa BIT NOT NULL DEFAULT 0;
 END
 GO
 

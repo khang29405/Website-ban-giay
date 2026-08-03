@@ -9,6 +9,7 @@ const gioHangRoutes = require("./gioHangRoutes");
 const donHangRoutes = require("./donHangRoutes");
 const lienHeRoutes = require("./lienHeRoutes");
 const uploadRoutes = require("./uploadRoutes");
+const userRoutes = require("./userRoutes");
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use("/gio-hang", gioHangRoutes);
 router.use("/don-hang", donHangRoutes);
 router.use("/lien-he", lienHeRoutes);
 router.use("/upload", uploadRoutes);
+router.use("/nguoi-dung", userRoutes);
 
 module.exports = router;

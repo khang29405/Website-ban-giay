@@ -15,7 +15,7 @@ async function findById(maND) {
         .request()
         .input("MaND", sql.Int, maND)
         .query(
-            "SELECT MaND, HoTen, Email, SDT, DiaChi, VaiTro, NgayTao FROM NGUOI_DUNG WHERE MaND = @MaND"
+            "SELECT MaND, HoTen, Email, SDT, DiaChi, VaiTro, NgayTao, DaKhoa FROM NGUOI_DUNG WHERE MaND = @MaND"
         );
     return result.recordset[0] || null;
 }
@@ -103,6 +103,58 @@ async function updatePasswordAndClearResetToken(maND, matKhauHash) {
         );
 }
 
+async function findAll({ vaiTro, q } = {}) {
+    const pool = await poolPromise;
+    const request = pool.request();
+    const conditions = [];
+
+    if (vaiTro) {
+        request.input("VaiTro", sql.NVarChar(20), vaiTro);
+        conditions.push("VaiTro = @VaiTro");
+    }
+    if (q) {
+        request.input("Q", sql.NVarChar(100), `%${q}%`);
+        conditions.push("(HoTen LIKE @Q OR Email LIKE @Q)");
+    }
+    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    const result = await request.query(`
+        SELECT MaND, HoTen, Email, SDT, DiaChi, VaiTro, NgayTao, DaKhoa
+        FROM NGUOI_DUNG
+        ${whereClause}
+        ORDER BY MaND
+    `);
+    return result.recordset;
+}
+
+async function updateRole(maND, vaiTro) {
+    const pool = await poolPromise;
+    const result = await pool
+        .request()
+        .input("MaND", sql.Int, maND)
+        .input("VaiTro", sql.NVarChar(20), vaiTro)
+        .query(`
+            UPDATE NGUOI_DUNG SET VaiTro = @VaiTro
+            OUTPUT INSERTED.MaND, INSERTED.HoTen, INSERTED.Email, INSERTED.SDT, INSERTED.DiaChi, INSERTED.VaiTro, INSERTED.NgayTao, INSERTED.DaKhoa
+            WHERE MaND = @MaND
+        `);
+    return result.recordset[0] || null;
+}
+
+async function setLocked(maND, daKhoa) {
+    const pool = await poolPromise;
+    const result = await pool
+        .request()
+        .input("MaND", sql.Int, maND)
+        .input("DaKhoa", sql.Bit, daKhoa)
+        .query(`
+            UPDATE NGUOI_DUNG SET DaKhoa = @DaKhoa
+            OUTPUT INSERTED.MaND, INSERTED.HoTen, INSERTED.Email, INSERTED.SDT, INSERTED.DiaChi, INSERTED.VaiTro, INSERTED.NgayTao, INSERTED.DaKhoa
+            WHERE MaND = @MaND
+        `);
+    return result.recordset[0] || null;
+}
+
 module.exports = {
     findByEmail,
     findById,
@@ -113,4 +165,7 @@ module.exports = {
     setResetToken,
     findByResetToken,
     updatePasswordAndClearResetToken,
+    findAll,
+    updateRole,
+    setLocked,
 };

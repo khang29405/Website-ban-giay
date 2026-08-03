@@ -28,6 +28,7 @@ const options = {
             { name: "DonHang", description: "Dat hang tu gio hang (thanh toan COD)" },
             { name: "LienHe", description: "Tin nhan tu trang Lien he" },
             { name: "Upload", description: "Upload anh len Cloudinary (dung cho truong HinhAnh cua san pham)" },
+            { name: "NguoiDung", description: "Quan ly tai khoan nguoi dung - danh sach, doi vai tro, khoa/mo (chi Admin)" },
         ],
         components: {
             securitySchemes: {
@@ -53,6 +54,19 @@ const options = {
                     properties: {
                         success: { type: "boolean", example: false },
                         message: { type: "string", example: "Loi may chu" },
+                    },
+                },
+                NguoiDung: {
+                    type: "object",
+                    properties: {
+                        MaND: { type: "integer", example: 1 },
+                        HoTen: { type: "string", example: "Nguyen Van A" },
+                        Email: { type: "string", example: "a@test.com" },
+                        SDT: { type: "string", nullable: true, example: "0901234567" },
+                        DiaChi: { type: "string", nullable: true, example: "123 Nguyen Trai, Q1, TP.HCM" },
+                        VaiTro: { type: "string", enum: ["KhachHang", "NhanVien", "Admin"], example: "KhachHang" },
+                        NgayTao: { type: "string", format: "date-time" },
+                        DaKhoa: { type: "boolean", example: false },
                     },
                 },
                 DanhMuc: {
