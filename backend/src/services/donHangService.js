@@ -84,4 +84,17 @@ async function updateStatus(maDH, trangThaiMoi, lyDoHuy) {
     return donHangModel.updateTrangThai(maDH, trangThaiMoi, null);
 }
 
-module.exports = { createOrder, createDirectOrder, getMyOrders, getAllOrders, getOrderById, updateStatus, TRANG_THAI_HOP_LE };
+async function topSanPhamBanChay(limit) {
+    return donHangModel.topSanPhamBanChay(limit);
+}
+
+module.exports = {
+    createOrder,
+    createDirectOrder,
+    getMyOrders,
+    getAllOrders,
+    getOrderById,
+    updateStatus,
+    TRANG_THAI_HOP_LE,
+    topSanPhamBanChay,
+};

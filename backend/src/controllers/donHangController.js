@@ -80,4 +80,15 @@ async function updateStatus(req, res, next) {
     }
 }
 
-module.exports = { createOrder, createDirectOrder, getAll, getById, updateStatus };
+async function topSanPhamBanChay(req, res, next) {
+    try {
+        handleValidation(req);
+        const limit = Number(req.query.limit) || 10;
+        const items = await donHangService.topSanPhamBanChay(limit);
+        res.json({ success: true, data: items });
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { createOrder, createDirectOrder, getAll, getById, updateStatus, topSanPhamBanChay };

@@ -248,4 +248,34 @@ async function createOrder(maND, { DiaChiGiaoHang, SDTNhan, items, tongTien }) {
     }
 }
 
-module.exports = { findById, findByUser, findAll, updateTrangThai, restoreStock, createOrder, findVariantWithProduct };
+async function topSanPhamBanChay(limit) {
+    const pool = await poolPromise;
+    const result = await pool
+        .request()
+        .input("Limit", sql.Int, limit)
+        .query(`
+            SELECT TOP (@Limit)
+                sp.MaSP, sp.TenSP, sp.HinhAnh,
+                SUM(ctdh.SoLuong) AS SoLuongBan,
+                SUM(ctdh.SoLuong * ctdh.DonGia) AS DoanhThu
+            FROM CHI_TIET_DON_HANG ctdh
+            JOIN DON_HANG dh ON ctdh.MaDH = dh.MaDH
+            JOIN BIEN_THE_SAN_PHAM bt ON ctdh.MaBienThe = bt.MaBienThe
+            JOIN SAN_PHAM sp ON bt.MaSP = sp.MaSP
+            WHERE dh.TrangThai = 'HoanThanh'
+            GROUP BY sp.MaSP, sp.TenSP, sp.HinhAnh
+            ORDER BY SoLuongBan DESC
+        `);
+    return result.recordset;
+}
+
+module.exports = {
+    findById,
+    findByUser,
+    findAll,
+    updateTrangThai,
+    restoreStock,
+    createOrder,
+    findVariantWithProduct,
+    topSanPhamBanChay,
+};

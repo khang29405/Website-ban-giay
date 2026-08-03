@@ -93,6 +93,19 @@ Body (JSON):
 
 `POST /api/auth/dat-lai-mat-khau` — Public, body `{ "Token": "...", "MatKhauMoi": "..." }`. Băm token nhận được rồi so khớp với `ResetToken` còn hạn trong DB — khớp thì đổi mật khẩu và xóa `ResetToken`/`ResetTokenExpiry`. `400` nếu token sai/hết hạn hoặc mật khẩu mới < 6 ký tự.
 
+### Quản lý tài khoản (`/api/nguoi-dung`, Sprint 4) — chỉ Admin
+
+| Method | Path | Ghi chú |
+|---|---|---|
+| GET | `/` | Danh sách tài khoản, hỗ trợ lọc `?vaiTro=` và tìm `?q=` (theo họ tên/email) |
+| PATCH | `/:id/vai-tro` | Đổi vai trò `{ "VaiTro": "KhachHang" \| "NhanVien" \| "Admin" }`. `400` nếu tự đổi vai trò chính mình (tránh tự khóa quyền Admin của bản thân) |
+| PATCH | `/:id/khoa` | Khóa/mở khóa `{ "DaKhoa": true/false }`. `400` nếu tự khóa chính mình |
+
+Tài khoản bị khóa (`DaKhoa = true`) sẽ nhận `403` khi gọi `POST /api/auth/login`, dù đúng mật khẩu.
+
+### Top sản phẩm bán chạy (`GET /api/don-hang/thong-ke/top-san-pham`, Sprint 4) — chỉ Admin
+Query `?limit=` (mặc định 10, tối đa 50). Tính từ `CHI_TIET_DON_HANG` của các đơn `TrangThai = HoanThanh`, `GROUP BY` sản phẩm, sắp xếp theo `SoLuongBan` giảm dần — trả về `MaSP, TenSP, HinhAnh, SoLuongBan, DoanhThu`.
+
 ### Danh mục (`/api/danh-muc`) và Thương hiệu (`/api/thuong-hieu`)
 CRUD đầy đủ, cấu trúc endpoint giống hệt nhau cho cả 2 (chỉ khác tên trường `TenDanhMuc`/`TenThuongHieu`):
 

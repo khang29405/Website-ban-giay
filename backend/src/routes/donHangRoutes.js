@@ -240,6 +240,50 @@ router.get("/", verifyToken, listValidation, donHangController.getAll);
 
 /**
  * @swagger
+ * /don-hang/thong-ke/top-san-pham:
+ *   get:
+ *     summary: Top san pham ban chay nhat (chi Admin, tinh tu don Hoan thanh)
+ *     tags: [DonHang]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+ *     responses:
+ *       200:
+ *         description: Thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       MaSP: { type: integer, example: 1 }
+ *                       TenSP: { type: string, example: "Nike Air Max 270" }
+ *                       HinhAnh: { type: string, nullable: true }
+ *                       SoLuongBan: { type: integer, example: 42 }
+ *                       DoanhThu: { type: number, example: 134400000 }
+ *       401:
+ *         description: Chua dang nhap
+ *       403:
+ *         description: Khong co quyen (khong phai Admin)
+ */
+router.get(
+    "/thong-ke/top-san-pham",
+    verifyToken,
+    requireRole("Admin"),
+    [query("limit").optional({ values: "falsy" }).isInt({ min: 1, max: 50 }).withMessage("limit phải từ 1 đến 50")],
+    donHangController.topSanPhamBanChay
+);
+
+/**
+ * @swagger
  * /don-hang/{id}:
  *   get:
  *     summary: Xem chi tiet 1 don hang
