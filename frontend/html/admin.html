@@ -37,6 +37,7 @@
                     <button type="button" class="admin-tab" data-tab="san-pham">Sản phẩm</button>
                     <button type="button" class="admin-tab" data-tab="don-hang">Đơn hàng</button>
                     <button type="button" class="admin-tab" data-tab="lien-he">Tin nhắn liên hệ</button>
+                    <button type="button" class="admin-tab" data-tab="tai-khoan">Tài khoản</button>
                     <button type="button" class="admin-tab admin-tab-right" data-tab="thong-ke"><i class="fa-solid fa-chart-line"></i> Thống kê</button>
                 </div>
 
@@ -118,10 +119,36 @@
                     <div class="pagination" id="don-hang-pagination"></div>
                 </section>
 
+                <section class="admin-panel" id="panel-tai-khoan" hidden>
+                    <div class="admin-panel-header">
+                        <h2>Tài khoản</h2>
+                    </div>
+                    <div class="admin-search-bar">
+                        <div class="search-box">
+                            <input type="text" id="tai-khoan-search-input" placeholder="Tìm theo họ tên hoặc email...">
+                        </div>
+                        <button type="button" id="tai-khoan-search-btn" class="btn btn-outline"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
+                    </div>
+                    <div class="order-tabs" id="tai-khoan-tabs">
+                        <button type="button" class="order-tab active" data-vai-tro="">Tất cả</button>
+                        <button type="button" class="order-tab" data-vai-tro="KhachHang">Khách hàng</button>
+                        <button type="button" class="order-tab" data-vai-tro="NhanVien">Nhân viên</button>
+                        <button type="button" class="order-tab" data-vai-tro="Admin">Admin</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>ID</th><th>Họ tên</th><th>Email</th><th>Ngày tạo</th><th>Vai trò</th><th>Trạng thái</th><th></th></tr>
+                        </thead>
+                        <tbody id="table-tai-khoan-body"></tbody>
+                    </table>
+                </section>
+
                 <section class="admin-panel" id="panel-thong-ke" hidden>
                     <div class="admin-panel-header">
                         <h2>Thống kê doanh thu</h2>
                     </div>
+
+                    <div class="stat-compare" id="stat-compare"></div>
 
                     <div class="stat-cards" id="stat-cards"></div>
 
@@ -160,6 +187,28 @@
                                     <tr><th>Năm</th><th>Số đơn hoàn thành</th><th>Doanh thu</th></tr>
                                 </thead>
                                 <tbody id="table-thong-ke-nam-body"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="stat-section">
+                            <h3>Top sản phẩm bán chạy</h3>
+                            <p class="admin-subtext">Tính từ đơn hàng ở trạng thái "Hoàn thành"</p>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr><th>Sản phẩm</th><th>Số lượng bán</th><th>Doanh thu</th></tr>
+                                </thead>
+                                <tbody id="table-top-san-pham-body"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="stat-section">
+                            <h3>Cảnh báo sắp hết hàng</h3>
+                            <p class="admin-subtext">Biến thể còn dưới 5 sản phẩm trong kho</p>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr><th>Sản phẩm</th><th>Size</th><th>Màu</th><th>Tồn kho</th></tr>
+                                </thead>
+                                <tbody id="table-sap-het-hang-body"></tbody>
                             </table>
                         </div>
                     </div>

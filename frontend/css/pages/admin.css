@@ -327,6 +327,64 @@
     z-index: 1;
 }
 
+.stat-compare {
+    margin-bottom: 20px;
+}
+
+.stat-compare-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+}
+
+.stat-compare-label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    width: 100%;
+}
+
+.stat-compare-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-ink);
+}
+
+.stat-compare-delta {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-compare-delta.up {
+    background: #e6f4ea;
+    color: #1e7e34;
+}
+
+.stat-compare-delta.down {
+    background: #fdecea;
+    color: #b3261e;
+}
+
+.stat-compare-delta.neutral {
+    background: var(--color-surface-alt);
+    color: var(--color-text-muted);
+}
+
+.stat-compare-sub {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
 .stat-cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

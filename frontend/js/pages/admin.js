@@ -677,6 +677,8 @@ function animateBarFills(container, selector, dimension) {
 
 let thongKeOrdersCache = null;
 let thongKeStockCache = 0;
+let thongKeLowStockCache = [];
+let thongKeTopSanPhamCache = [];
 
 const DON_HANG_TAB_BASE_LABEL = {
     "": "Tất cả",
@@ -706,18 +708,34 @@ function updateOrderTabCounts(allOrders) {
     });
 }
 
+const LOW_STOCK_THRESHOLD = 5;
+
 async function loadThongKe() {
-    const [allOrders, allProducts] = await Promise.all([
+    const [allOrders, allProducts, topSanPham] = await Promise.all([
         apiGet("/don-hang").catch(() => []),
         apiGet("/san-pham").catch(() => []),
+        apiGet("/don-hang/thong-ke/top-san-pham", { limit: 5 }).catch(() => []),
     ]);
     const variantLists = await Promise.all(
         allProducts.map((sp) => apiGet(`/san-pham/${sp.MaSP}/bien-the`).catch(() => []))
     );
     const totalStock = variantLists.reduce((sum, list) => sum + list.reduce((s, v) => s + v.SoLuongTon, 0), 0);
+
+    const lowStock = [];
+    allProducts.forEach((sp, i) => {
+        variantLists[i].forEach((bt) => {
+            if (bt.SoLuongTon < LOW_STOCK_THRESHOLD) {
+                lowStock.push({ TenSP: sp.TenSP, KichCo: bt.KichCo, MauSac: bt.MauSac, SoLuongTon: bt.SoLuongTon });
+            }
+        });
+    });
+    lowStock.sort((a, b) => a.SoLuongTon - b.SoLuongTon);
+
     thongKeOrdersCache = allOrders;
     thongKeStockCache = totalStock;
-    renderThongKe(allOrders, totalStock);
+    thongKeLowStockCache = lowStock;
+    thongKeTopSanPhamCache = topSanPham;
+    renderThongKe(allOrders, totalStock, lowStock, topSanPham);
     updateOrderTabCounts(allOrders);
 }
 
@@ -727,11 +745,85 @@ function replayThongKe() {
     if (thongKeOrdersCache === null) {
         loadThongKe();
     } else {
-        renderThongKe(thongKeOrdersCache, thongKeStockCache);
+        renderThongKe(thongKeOrdersCache, thongKeStockCache, thongKeLowStockCache, thongKeTopSanPhamCache);
     }
 }
 
-function renderThongKe(allOrders, totalStock) {
+function getMonthKey(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function renderStatCompare(completedOrders) {
+    const compareEl = document.getElementById("stat-compare");
+    if (!compareEl) return;
+
+    const now = new Date();
+    const thisMonthKey = getMonthKey(now);
+    const prevMonthKey = getMonthKey(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+
+    const sumRevenue = (key) =>
+        completedOrders.filter((o) => getMonthKey(new Date(o.NgayDat)) === key).reduce((sum, o) => sum + o.TongTien, 0);
+
+    const thisMonthRevenue = sumRevenue(thisMonthKey);
+    const prevMonthRevenue = sumRevenue(prevMonthKey);
+
+    let deltaHtml;
+    if (prevMonthRevenue === 0) {
+        deltaHtml = thisMonthRevenue > 0
+            ? `<span class="stat-compare-delta up"><i class="fa-solid fa-arrow-up"></i> Mới so với tháng trước (chưa có doanh thu)</span>`
+            : `<span class="stat-compare-delta neutral">Chưa có dữ liệu để so sánh</span>`;
+    } else {
+        const pct = Math.round(((thisMonthRevenue - prevMonthRevenue) / prevMonthRevenue) * 100);
+        const isUp = pct >= 0;
+        deltaHtml = `<span class="stat-compare-delta ${isUp ? "up" : "down"}"><i class="fa-solid ${isUp ? "fa-arrow-up" : "fa-arrow-down"}"></i> ${isUp ? "+" : ""}${pct}% so với tháng trước</span>`;
+    }
+
+    compareEl.innerHTML = `
+        <div class="stat-compare-card">
+            <span class="stat-compare-label">Doanh thu tháng này</span>
+            <strong class="stat-compare-value">${formatCurrency(thisMonthRevenue)}</strong>
+            ${deltaHtml}
+            <span class="stat-compare-sub">Tháng trước: ${formatCurrency(prevMonthRevenue)}</span>
+        </div>
+    `;
+}
+
+function renderTopSanPhamTable(topSanPham) {
+    const tbody = document.getElementById("table-top-san-pham-body");
+    if (!tbody) return;
+    tbody.innerHTML = topSanPham.length
+        ? topSanPham
+              .map(
+                  (sp) => `
+            <tr>
+                <td><a class="admin-table-product-link" href="product-detail.html?id=${sp.MaSP}" target="_blank" rel="noopener">${escapeHtml(sp.TenSP)}</a></td>
+                <td>${sp.SoLuongBan}</td>
+                <td>${formatCurrency(sp.DoanhThu)}</td>
+            </tr>`
+              )
+              .join("")
+        : `<tr><td colspan="3" class="admin-empty">Chưa có đơn hàng hoàn thành</td></tr>`;
+}
+
+function renderLowStockTable(lowStock) {
+    const tbody = document.getElementById("table-sap-het-hang-body");
+    if (!tbody) return;
+    tbody.innerHTML = lowStock.length
+        ? lowStock
+              .map(
+                  (bt) => `
+            <tr>
+                <td>${escapeHtml(bt.TenSP)}</td>
+                <td>${escapeHtml(bt.KichCo)}</td>
+                <td>${escapeHtml(bt.MauSac)}</td>
+                <td>${bt.SoLuongTon === 0 ? '<span class="admin-status off">Hết hàng</span>' : bt.SoLuongTon}</td>
+            </tr>`
+              )
+              .join("")
+        : `<tr><td colspan="4" class="admin-empty">Không có biến thể nào sắp hết hàng</td></tr>`;
+}
+
+function renderThongKe(allOrders, totalStock, lowStock = [], topSanPham = []) {
     const cardsEl = document.getElementById("stat-cards");
     const statusChartEl = document.getElementById("status-bar-chart");
     const revenueChartEl = document.getElementById("revenue-bar-chart");
@@ -742,6 +834,10 @@ function renderThongKe(allOrders, totalStock) {
 
     const completedOrders = allOrders.filter((o) => o.TrangThai === "HoanThanh");
     const totalRevenue = completedOrders.reduce((sum, o) => sum + o.TongTien, 0);
+
+    renderStatCompare(completedOrders);
+    renderTopSanPhamTable(topSanPham);
+    renderLowStockTable(lowStock);
 
     const countByStatus = { ChoXuLy: 0, DangGiao: 0, HoanThanh: 0, DaHuy: 0 };
     allOrders.forEach((o) => {
@@ -1109,6 +1205,116 @@ async function toggleLienHeXuLy(id, newValue) {
     }
 }
 
+// ============ Tài khoản ============
+let taiKhoanList = [];
+let selectedVaiTro = "";
+let taiKhoanSearchQuery = "";
+
+const VAI_TRO_LABEL = { KhachHang: "Khách hàng", NhanVien: "Nhân viên", Admin: "Admin" };
+const TAI_KHOAN_TAB_BASE_LABEL = { "": "Tất cả", KhachHang: "Khách hàng", NhanVien: "Nhân viên", Admin: "Admin" };
+
+async function updateTaiKhoanTabCounts() {
+    const taiKhoanTabs = document.getElementById("tai-khoan-tabs");
+    if (!taiKhoanTabs) return;
+
+    const allUsers = await apiGet("/nguoi-dung").catch(() => []);
+    const countByVaiTro = { "": allUsers.length, KhachHang: 0, NhanVien: 0, Admin: 0 };
+    allUsers.forEach((nd) => {
+        if (countByVaiTro[nd.VaiTro] !== undefined) countByVaiTro[nd.VaiTro]++;
+    });
+
+    taiKhoanTabs.querySelectorAll(".order-tab").forEach((tab) => {
+        const vaiTro = tab.dataset.vaiTro;
+        const label = TAI_KHOAN_TAB_BASE_LABEL[vaiTro];
+        if (label !== undefined) {
+            tab.textContent = `${label} (${countByVaiTro[vaiTro] ?? 0})`;
+        }
+    });
+}
+
+async function loadTaiKhoan() {
+    const [list] = await Promise.all([
+        apiGet("/nguoi-dung", { vaiTro: selectedVaiTro, q: taiKhoanSearchQuery }).catch(() => []),
+        updateTaiKhoanTabCounts(),
+    ]);
+    taiKhoanList = list;
+    renderTaiKhoanTable();
+}
+
+function renderTaiKhoanTable() {
+    const tbody = document.getElementById("table-tai-khoan-body");
+    tbody.innerHTML = taiKhoanList.length
+        ? taiKhoanList
+              .map((nd) => {
+                  const isSelf = nd.MaND === currentUser.MaND;
+                  return `
+            <tr>
+                <td>${formatId("ND", nd.MaND, 3)}</td>
+                <td>${escapeHtml(nd.HoTen)}</td>
+                <td>${escapeHtml(nd.Email)}</td>
+                <td>${formatDate(nd.NgayTao)}</td>
+                <td>
+                    <select class="admin-order-status-select" data-id="${nd.MaND}" ${isSelf ? "disabled" : ""}>
+                        ${Object.entries(VAI_TRO_LABEL)
+                            .map(
+                                ([value, label]) =>
+                                    `<option value="${value}" ${nd.VaiTro === value ? "selected" : ""}>${label}</option>`
+                            )
+                            .join("")}
+                    </select>
+                </td>
+                <td>${
+                    nd.DaKhoa
+                        ? '<span class="admin-status off">Đã khóa</span>'
+                        : '<span class="admin-status ok">Hoạt động</span>'
+                }</td>
+                <td class="admin-actions">
+                    ${
+                        isSelf
+                            ? '<span class="admin-subtext">Tài khoản của bạn</span>'
+                            : `<button type="button" class="btn-link${nd.DaKhoa ? "" : " btn-link-danger"}" onclick="toggleKhoaTaiKhoan(${nd.MaND}, ${nd.DaKhoa ? "false" : "true"})">${nd.DaKhoa ? "Mở khóa" : "Khóa"}</button>`
+                    }
+                </td>
+            </tr>`;
+              })
+              .join("")
+        : `<tr><td colspan="7" class="admin-empty">Không tìm thấy tài khoản nào</td></tr>`;
+
+    tbody.querySelectorAll(".admin-order-status-select").forEach((select) => {
+        const originalValue = select.value;
+        select.addEventListener("change", async () => {
+            const newValue = select.value;
+            const id = select.dataset.id;
+            if (!(await showConfirm(`Đổi vai trò tài khoản #${id} sang "${VAI_TRO_LABEL[newValue]}"?`))) {
+                select.value = originalValue;
+                return;
+            }
+            try {
+                await apiPatch(`/nguoi-dung/${id}/vai-tro`, { VaiTro: newValue });
+                showToast("Đã đổi vai trò", "success");
+                loadTaiKhoan();
+            } catch (err) {
+                select.value = originalValue;
+                showToast(err.message, "error");
+            }
+        });
+    });
+}
+
+async function toggleKhoaTaiKhoan(id, newValue) {
+    const confirmMsg = newValue
+        ? `Khóa tài khoản #${id}? Tài khoản này sẽ không đăng nhập được cho đến khi mở khóa lại.`
+        : `Mở khóa tài khoản #${id}?`;
+    if (!(await showConfirm(confirmMsg))) return;
+    try {
+        await apiPatch(`/nguoi-dung/${id}/khoa`, { DaKhoa: newValue });
+        showToast(newValue ? "Đã khóa tài khoản" : "Đã mở khóa tài khoản", "success");
+        loadTaiKhoan();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
 // ============ Tabs ============
 function initTabs() {
     document.querySelectorAll(".admin-tab").forEach((btn) => {
@@ -1213,10 +1419,40 @@ if (isAdmin) {
         });
     }
 
+    const taiKhoanTabs = document.getElementById("tai-khoan-tabs");
+    if (taiKhoanTabs) {
+        taiKhoanTabs.querySelectorAll(".order-tab").forEach((tab) => {
+            tab.addEventListener("click", () => {
+                selectedVaiTro = tab.dataset.vaiTro;
+                taiKhoanTabs.querySelectorAll(".order-tab").forEach((t) => t.classList.toggle("active", t === tab));
+                loadTaiKhoan();
+            });
+        });
+    }
+
+    const taiKhoanSearchInput = document.getElementById("tai-khoan-search-input");
+    const taiKhoanSearchBtn = document.getElementById("tai-khoan-search-btn");
+    if (taiKhoanSearchInput && taiKhoanSearchBtn) {
+        const runTaiKhoanSearch = () => {
+            taiKhoanSearchQuery = taiKhoanSearchInput.value.trim();
+            loadTaiKhoan();
+        };
+        taiKhoanSearchBtn.addEventListener("click", runTaiKhoanSearch);
+        const debouncedTaiKhoanSearch = debounce(runTaiKhoanSearch);
+        taiKhoanSearchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                runTaiKhoanSearch();
+            }
+        });
+        taiKhoanSearchInput.addEventListener("input", debouncedTaiKhoanSearch);
+    }
+
     loadDanhMuc();
     loadThuongHieu();
     loadSanPham();
     loadDonHang();
     loadThongKe();
     loadLienHe();
+    loadTaiKhoan();
 }
