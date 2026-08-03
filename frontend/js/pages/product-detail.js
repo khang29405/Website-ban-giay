@@ -159,7 +159,7 @@ function renderProduct(product) {
         : `<div class="product-card-noimg">Chưa có ảnh</div>`;
     const badge = !product.TrangThai ? `<span class="product-badge badge-off">Ngừng bán</span>` : "";
     const user = getCurrentUser();
-    const isAdmin = !!user && user.VaiTro === "Admin";
+    const isAdmin = !!user && (user.VaiTro === "Admin" || user.VaiTro === "NhanVien");
 
     detailContainer.innerHTML = `
         <div class="pd-layout">
@@ -193,7 +193,7 @@ function renderProduct(product) {
                 <div class="pd-add-cart">
                     ${
                         isAdmin
-                            ? `<p class="pd-admin-notice"><i class="fa-solid fa-circle-info"></i> Tài khoản quản trị không thể thêm vào giỏ hàng hoặc đặt hàng.</p>`
+                            ? `<p class="pd-admin-notice"><i class="fa-solid fa-circle-info"></i> Tài khoản quản trị/nhân viên không thể thêm vào giỏ hàng hoặc đặt hàng.</p>`
                             : user
                             ? `
                         <div class="qty-control">

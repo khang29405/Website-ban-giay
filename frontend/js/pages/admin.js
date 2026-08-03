@@ -5,9 +5,13 @@ function formatCurrency(amount) {
 // ============ Auth guard ============
 const currentUser = getCurrentUser();
 const isAdmin = !!currentUser && currentUser.VaiTro === "Admin";
+const isStaff = !!currentUser && (currentUser.VaiTro === "Admin" || currentUser.VaiTro === "NhanVien");
 
-document.getElementById("admin-root").hidden = !isAdmin;
-document.getElementById("access-denied").hidden = isAdmin;
+// Cac tab chi danh cho Admin (nhan vien khong duoc quan ly danh muc/thuong hieu/tai khoan/thong ke)
+const ADMIN_ONLY_TABS = ["danh-muc", "thuong-hieu", "tai-khoan", "thong-ke"];
+
+document.getElementById("admin-root").hidden = !isStaff;
+document.getElementById("access-denied").hidden = isStaff;
 
 // ============ State ============
 let danhMucList = [];
@@ -267,7 +271,7 @@ function renderSanPhamTable() {
                     <button type="button" class="btn-link" onclick="openSanPhamForm(${sp.MaSP})">Sửa</button>
                     <button type="button" class="btn-link" onclick="toggleTrangThai(${sp.MaSP}, ${sp.TrangThai ? "false" : "true"})">${sp.TrangThai ? "Ẩn" : "Hiện"}</button>
                     <button type="button" class="btn-link" onclick="openBienTheModal(${sp.MaSP})">Biến thể</button>
-                    <button type="button" class="btn-link btn-link-danger" onclick="deleteSanPham(${sp.MaSP})">Xóa</button>
+                    ${isAdmin ? `<button type="button" class="btn-link btn-link-danger" onclick="deleteSanPham(${sp.MaSP})">Xóa</button>` : ""}
                 </td>
             </tr>`
               )
@@ -548,7 +552,7 @@ function renderBienTheTable() {
                 <td>${bt.SoLuongTon}</td>
                 <td class="admin-actions">
                     <button type="button" class="btn-link" onclick="editBienThe(${bt.MaBienThe})">Sửa</button>
-                    <button type="button" class="btn-link btn-link-danger" onclick="deleteBienThe(${bt.MaBienThe})">Xóa</button>
+                    ${isAdmin ? `<button type="button" class="btn-link btn-link-danger" onclick="deleteBienThe(${bt.MaBienThe})">Xóa</button>` : ""}
                 </td>
             </tr>`
               )
@@ -614,13 +618,16 @@ function formatDate(iso) {
 }
 
 async function loadDonHang() {
-    const { items, pagination } = await apiGetPaged("/don-hang", {
-        trangThai: selectedDonHangStatus,
-        maDon: donHangMaDonQuery,
-        q: donHangSearchQuery,
-        page: donHangPage,
-        limit: DON_HANG_PAGE_SIZE,
-    }).catch(() => ({ items: [], pagination: null }));
+    const [{ items, pagination }] = await Promise.all([
+        apiGetPaged("/don-hang", {
+            trangThai: selectedDonHangStatus,
+            maDon: donHangMaDonQuery,
+            q: donHangSearchQuery,
+            page: donHangPage,
+            limit: DON_HANG_PAGE_SIZE,
+        }).catch(() => ({ items: [], pagination: null })),
+        updateDonHangTabCounts(),
+    ]);
     if (!items.length && donHangPage > 1) {
         donHangPage -= 1;
         return loadDonHang();
@@ -631,6 +638,13 @@ async function loadDonHang() {
         donHangPage = page;
         loadDonHang();
     });
+}
+
+// Goi rieng (khong phu thuoc tab Thong ke) de tab con cua Don hang luon co so luong,
+// ke ca voi Nhan vien (khong tai Thong ke nen truoc day khong bao gio duoc goi).
+async function updateDonHangTabCounts() {
+    const allOrders = await apiGet("/don-hang").catch(() => []);
+    updateOrderTabCounts(allOrders);
 }
 
 const STAT_CARD_ICONS = {
@@ -736,7 +750,6 @@ async function loadThongKe() {
     thongKeLowStockCache = lowStock;
     thongKeTopSanPhamCache = topSanPham;
     renderThongKe(allOrders, totalStock, lowStock, topSanPham);
-    updateOrderTabCounts(allOrders);
 }
 
 // Goi khi mo tab Thong ke: panel dang hidden thi CSS animation/transition khong chay,
@@ -1332,8 +1345,20 @@ function initTabs() {
 }
 
 // ============ Init ============
-if (isAdmin) {
+if (isStaff) {
     initTabs();
+
+    if (!isAdmin) {
+        // Nhan vien: chi thao tac San pham + Don hang, an cac tab con lai
+        ADMIN_ONLY_TABS.forEach((tab) => {
+            const tabBtn = document.querySelector(`.admin-tab[data-tab="${tab}"]`);
+            if (tabBtn) tabBtn.hidden = true;
+        });
+        document.querySelector('.admin-tab[data-tab="danh-muc"]').classList.remove("active");
+        document.getElementById("panel-danh-muc").hidden = true;
+        document.querySelector('.admin-tab[data-tab="san-pham"]').classList.add("active");
+        document.getElementById("panel-san-pham").hidden = false;
+    }
 
     document.getElementById("btn-add-danh-muc").addEventListener("click", () => openDanhMucForm());
     document.getElementById("btn-add-thuong-hieu").addEventListener("click", () => openThuongHieuForm());
@@ -1452,7 +1477,9 @@ if (isAdmin) {
     loadThuongHieu();
     loadSanPham();
     loadDonHang();
-    loadThongKe();
     loadLienHe();
-    loadTaiKhoan();
+    if (isAdmin) {
+        loadThongKe();
+        loadTaiKhoan();
+    }
 }

@@ -52,11 +52,11 @@ function renderHeader() {
     if (!header) return;
 
     const user = getCurrentUser();
-    const isAdmin = !!user && user.VaiTro === "Admin";
+    const isStaff = !!user && (user.VaiTro === "Admin" || user.VaiTro === "NhanVien");
     const actionsHtml = user
         ? `
             ${
-                isAdmin
+                isStaff
                     ? `<a href="admin.html" class="btn btn-outline admin-link"><i class="fa-solid fa-user-shield"></i> <span class="btn-label">Quản trị</span></a>`
                     : `<a href="cart.html" class="cart-link" id="cart-link">
                 <i class="fa-solid fa-cart-shopping"></i>
@@ -75,7 +75,7 @@ function renderHeader() {
                         <span>${escapeHtml(user.Email || "")}</span>
                     </div>
                     ${
-                        isAdmin
+                        isStaff
                             ? ""
                             : `<a href="orders.html" class="user-dropdown-item"><i class="fa-solid fa-box"></i> Đơn hàng của tôi</a>`
                     }
@@ -320,7 +320,9 @@ function openViewProfileModal(user) {
             <div class="profile-view-row"><span>Email</span><strong>${escapeHtml(user.Email || "—")}</strong></div>
             <div class="profile-view-row"><span>Số điện thoại</span><strong>${escapeHtml(user.SDT || "Chưa cập nhật")}</strong></div>
             <div class="profile-view-row"><span>Địa chỉ</span><strong>${escapeHtml(user.DiaChi || "Chưa cập nhật")}</strong></div>
-            <div class="profile-view-row"><span>Vai trò</span><strong>${user.VaiTro === "Admin" ? "Quản trị viên" : "Khách hàng"}</strong></div>
+            <div class="profile-view-row"><span>Vai trò</span><strong>${
+                user.VaiTro === "Admin" ? "Quản trị viên" : user.VaiTro === "NhanVien" ? "Nhân viên" : "Khách hàng"
+            }</strong></div>
             <div class="profile-view-row"><span>Ngày tạo tài khoản</span><strong>${ngayTao}</strong></div>
         </div>
         <div class="modal-actions">

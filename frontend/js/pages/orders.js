@@ -234,7 +234,7 @@ if (orderTabs) {
 }
 
 const currentUser = getCurrentUser();
-if (currentUser && currentUser.VaiTro === "Admin") {
+if (currentUser && (currentUser.VaiTro === "Admin" || currentUser.VaiTro === "NhanVien")) {
     window.location.href = "index.html";
 } else if (currentUser) {
     ordersGuest.hidden = true;
