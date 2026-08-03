@@ -15,7 +15,7 @@ async function getAll(req, res, next) {
     try {
         handleValidation(req);
         const { ten, maSp, danhMuc, thuongHieu, sapXep, page, limit } = req.query;
-        const isAdmin = req.user && req.user.vaiTro === "Admin";
+        const isAdmin = req.user && (req.user.vaiTro === "Admin" || req.user.vaiTro === "NhanVien");
         const result = await sanPhamService.getAll({
             ten,
             maSp,
@@ -49,7 +49,7 @@ async function getAll(req, res, next) {
 async function getById(req, res, next) {
     try {
         handleValidation(req);
-        const isAdmin = req.user && req.user.vaiTro === "Admin";
+        const isAdmin = req.user && (req.user.vaiTro === "Admin" || req.user.vaiTro === "NhanVien");
         const item = await sanPhamService.getById(req.params.id, isAdmin);
         res.json({ success: true, data: item });
     } catch (err) {

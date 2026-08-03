@@ -122,21 +122,21 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 ### Sản phẩm (`/api/san-pham`)
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
-| GET | / | Public (tuỳ chọn token) | Danh sách tất cả (kèm tên danh mục/thương hiệu qua JOIN). Hỗ trợ query ?ten=&danhMuc=&thuongHieu=&sapXep= để tìm/lọc/sắp xếp. **Khách/chưa đăng nhập chỉ thấy sản phẩm `TrangThai = true`** (sản phẩm đã ẩn bị loại khỏi danh sách); nếu gửi kèm token Admin hợp lệ thì thấy tất cả kể cả sản phẩm đã ẩn. **Phân trang tuỳ chọn**: không truyền `page` thì trả về toàn bộ mảng (giữ nguyên hành vi cũ, dùng cho các nơi cần lấy hết như sản phẩm liên quan); truyền `?page=&limit=` (mặc định `limit=12`, tối đa 100) thì response có thêm `pagination: { page, limit, total, totalPages }` và `data` chỉ chứa 1 trang |
-| GET | `/:id` | Public (tuỳ chọn token) | Chi tiết 1 sản phẩm, `404` nếu không có **hoặc nếu đã ẩn mà người gọi không phải Admin** (coi như không tồn tại) |
-| POST | `/` | **Admin** | Tạo mới, `201`. `400` nếu thiếu trường/danh mục hoặc thương hiệu không tồn tại |
-| PUT | `/:id` | **Admin** | Cập nhật, `200`. `404` nếu không tồn tại |
-| PATCH | `/:id/trang-thai` | **Admin** | Ẩn/hiện sản phẩm, body `{ "TrangThai": true/false }` — không xóa dữ liệu |
-| DELETE | `/:id` | **Admin** | Xoá hẳn, `200`. `409` nếu còn biến thể đang có trong giỏ hàng/đơn hàng |
+| GET | / | Public (tuỳ chọn token) | Danh sách tất cả (kèm tên danh mục/thương hiệu qua JOIN). Hỗ trợ query ?ten=&danhMuc=&thuongHieu=&sapXep= để tìm/lọc/sắp xếp. **Khách/chưa đăng nhập chỉ thấy sản phẩm `TrangThai = true`** (sản phẩm đã ẩn bị loại khỏi danh sách); nếu gửi kèm token Admin/NhanVien hợp lệ thì thấy tất cả kể cả sản phẩm đã ẩn. **Phân trang tuỳ chọn**: không truyền `page` thì trả về toàn bộ mảng (giữ nguyên hành vi cũ, dùng cho các nơi cần lấy hết như sản phẩm liên quan); truyền `?page=&limit=` (mặc định `limit=12`, tối đa 100) thì response có thêm `pagination: { page, limit, total, totalPages }` và `data` chỉ chứa 1 trang |
+| GET | `/:id` | Public (tuỳ chọn token) | Chi tiết 1 sản phẩm, `404` nếu không có **hoặc nếu đã ẩn mà người gọi không phải Admin/NhanVien** (coi như không tồn tại) |
+| POST | `/` | **Admin, NhanVien** | Tạo mới, `201`. `400` nếu thiếu trường/danh mục hoặc thương hiệu không tồn tại |
+| PUT | `/:id` | **Admin, NhanVien** | Cập nhật, `200`. `404` nếu không tồn tại |
+| PATCH | `/:id/trang-thai` | **Admin, NhanVien** | Ẩn/hiện sản phẩm, body `{ "TrangThai": true/false }` — không xóa dữ liệu |
+| DELETE | `/:id` | **Admin** (NhanVien không được xoá) | Xoá hẳn, `200`. `409` nếu còn biến thể đang có trong giỏ hàng/đơn hàng |
 
 ### Biến thể sản phẩm (size/màu/tồn kho)
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
 | GET | `/api/san-pham/:id/bien-the` | Public | Danh sách biến thể của 1 sản phẩm, `404` nếu sản phẩm không tồn tại |
-| POST | `/api/san-pham/:id/bien-the` | **Admin** | Thêm biến thể mới, `201`. `409` nếu trùng cặp kích cỡ+màu đã có |
+| POST | `/api/san-pham/:id/bien-the` | **Admin, NhanVien** | Thêm biến thể mới, `201`. `409` nếu trùng cặp kích cỡ+màu đã có |
 | GET | `/api/bien-the/:id` | Public | Chi tiết 1 biến thể |
-| PUT | `/api/bien-the/:id` | **Admin** | Cập nhật kích cỡ/màu/tồn kho, `200` |
-| DELETE | `/api/bien-the/:id` | **Admin** | Xoá, `200`. `409` nếu đang có trong giỏ hàng/đơn hàng |
+| PUT | `/api/bien-the/:id` | **Admin, NhanVien** | Cập nhật kích cỡ/màu/tồn kho, `200` |
+| DELETE | `/api/bien-the/:id` | **Admin** (NhanVien không được xoá) | Xoá, `200`. `409` nếu đang có trong giỏ hàng/đơn hàng |
 
 ### Giỏ hàng (`/api/gio-hang`) — cần đăng nhập, mỗi người chỉ thấy/sửa được giỏ của chính mình
 | Method | Path | Quyền | Ghi chú |
@@ -152,9 +152,9 @@ Route Admin cần header `Authorization: Bearer <token>` (lấy từ `/api/auth/
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
 | POST | `/` | Đã đăng nhập | Đặt hàng từ **toàn bộ giỏ hàng hiện tại**, body `{ "DiaChiGiaoHang": "...", "SDTNhan": "0901234567" }`, `201`. Thanh toán mặc định COD, không nhận từ client. `400` nếu giỏ hàng trống, có sản phẩm đã ngừng bán, hoặc số lượng vượt tồn kho hiện tại (kiểm tra lại tại thời điểm đặt, không chỉ lúc thêm vào giỏ) |  
-| GET | `/` | Đã đăng nhập | **KhachHang**: chỉ thấy đơn hàng của chính mình. **Admin**: thấy toàn bộ đơn hàng của mọi khách. Mỗi đơn kèm `HoTen`/`Email` người đặt, `TongSoLuong` và `AnhXemTruoc` (tối đa 4 ảnh sản phẩm đầu tiên, tính gộp qua 1 query — không N+1). Hỗ trợ lọc `?trangThai=` và tìm kiếm `?q=` (khớp một phần theo MaDH, tên hoặc email khách hàng — **chỉ áp dụng khi gọi bằng token Admin**, khách hàng tự xem đơn của mình thì q bị bỏ qua). **Phân trang tuỳ chọn** giống `/api/san-pham`: không truyền `page` thì trả về toàn bộ mảng (dùng cho tab Thống kê Admin — cần full dữ liệu để tính tổng); truyền `?page=&limit=` (mặc định `limit=10`, tối đa 100) thì có thêm `pagination` |
+| GET | `/` | Đã đăng nhập | **KhachHang**: chỉ thấy đơn hàng của chính mình. **Admin/NhanVien**: thấy toàn bộ đơn hàng của mọi khách. Mỗi đơn kèm `HoTen`/`Email` người đặt, `TongSoLuong` và `AnhXemTruoc` (tối đa 4 ảnh sản phẩm đầu tiên, tính gộp qua 1 query — không N+1). Hỗ trợ lọc `?trangThai=` và tìm kiếm `?q=` (khớp một phần theo MaDH, tên hoặc email khách hàng — **chỉ áp dụng khi gọi bằng token Admin/NhanVien**, khách hàng tự xem đơn của mình thì q bị bỏ qua). **Phân trang tuỳ chọn** giống `/api/san-pham`: không truyền `page` thì trả về toàn bộ mảng (dùng cho tab Thống kê Admin — cần full dữ liệu để tính tổng); truyền `?page=&limit=` (mặc định `limit=10`, tối đa 100) thì có thêm `pagination` |
 | GET | `/:id` | Đã đăng nhập | Chi tiết 1 đơn (kèm `HoTen`/`Email` người đặt và `ChiTiet` — danh sách sản phẩm/size/màu/đơn giá/ảnh). KhachHang chỉ xem được đơn của mình, `404` nếu xem đơn người khác (không lộ đơn đó có tồn tại hay không) |
-| PATCH | `/:id/trang-thai` | **Admin** | Cập nhật trạng thái, body `{ "TrangThai": "ChoXuLy" \| "DangGiao" \| "HoanThanh" \| "DaHuy", "LyDoHuy"?: "..." }`, `200`. Nếu chuyển sang `DaHuy` thì **bắt buộc phải có `LyDoHuy`** (chuỗi không rỗng, tối đa 255 ký tự) — thiếu thì `400`; đồng thời **tự động hoàn lại tồn kho** cho các biến thể trong đơn (chỉ hoàn 1 lần, hủy lại đơn đã hủy không hoàn thêm). Các trạng thái khác không cần/không lưu `LyDoHuy` |
+| PATCH | `/:id/trang-thai` | **Admin, NhanVien** | Cập nhật trạng thái, body `{ "TrangThai": "ChoXuLy" \| "DangGiao" \| "HoanThanh" \| "DaHuy", "LyDoHuy"?: "..." }`, `200`. Nếu chuyển sang `DaHuy` thì **bắt buộc phải có `LyDoHuy`** (chuỗi không rỗng, tối đa 255 ký tự) — thiếu thì `400`; đồng thời **tự động hoàn lại tồn kho** cho các biến thể trong đơn (chỉ hoàn 1 lần, hủy lại đơn đã hủy không hoàn thêm). Các trạng thái khác không cần/không lưu `LyDoHuy` |
 
 Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET_DON_HANG` (lưu `DonGia` tại thời điểm mua), trừ `SoLuongTon` của từng biến thể, và xoá các dòng tương ứng khỏi `GIO_HANG`. Nếu bất kỳ bước nào lỗi thì rollback toàn bộ — không có chuyện giỏ hàng bị xoá mà đơn không tạo được (hoặc ngược lại). `TrangThai` đơn hàng mặc định `ChoXuLy`. Cột `LyDoHuy` (nullable) chỉ có giá trị khi đơn ở trạng thái `DaHuy`.
 
@@ -162,8 +162,8 @@ Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET
 | Method | Path | Quyền | Ghi chú |
 |---|---|---|---|
 | POST | `/` | Public | Gửi lời nhắn từ trang Liên hệ, body `{ "HoTen", "Email", "NoiDung" }`, `201`. Không cần đăng nhập — khách chưa có tài khoản vẫn gửi được, bảng `LIEN_HE` không liên kết `NGUOI_DUNG` |
-| GET | `/` | **Admin** | Danh sách lời nhắn, mới nhất trước. Lọc `?daXuLy=true/false`. Phân trang tuỳ chọn giống `/api/don-hang` (không truyền `page` thì trả toàn bộ mảng; truyền `?page=&limit=` mặc định `limit=10` thì có `pagination`) |
-| PATCH | `/:id/trang-thai` | **Admin** | Đánh dấu đã/chưa xử lý, body `{ "DaXuLy": true/false }`, `200`. `404` nếu không tồn tại |
+| GET | `/` | **Admin, NhanVien** | Danh sách lời nhắn, mới nhất trước. Lọc `?daXuLy=true/false`. Phân trang tuỳ chọn giống `/api/don-hang` (không truyền `page` thì trả toàn bộ mảng; truyền `?page=&limit=` mặc định `limit=10` thì có `pagination`) |
+| PATCH | `/:id/trang-thai` | **Admin, NhanVien** | Đánh dấu đã/chưa xử lý, body `{ "DaXuLy": true/false }`, `200`. `404` nếu không tồn tại |
 
 ### Múi giờ (NgayDat, NgayGui, NgayTao...)
 Các cột `DATETIME2` dùng `DEFAULT SYSUTCDATETIME()` (UTC thật, do SQL Server tự sinh lúc INSERT), kết hợp driver `mssql` giữ **mặc định** `useUTC: true` trong `src/config/db.js` — **không được tắt `useUTC`**.
@@ -174,7 +174,7 @@ Cách sửa dứt điểm (không phụ thuộc môi trường): đổi toàn b�
 
 ### Upload ảnh sản phẩm (Cloudinary)
 
-`POST /api/upload/anh` — **Admin**, nhận `multipart/form-data` field `anh` (JPG/PNG/WEBP/GIF, tối đa 5MB), trả về `{ url }` là link Cloudinary. Trang quản trị sản phẩm (`admin.js`) gọi API này trước khi tạo/sửa sản phẩm, rồi dùng `url` trả về làm giá trị `HinhAnh` — không còn dán URL ảnh thủ công.
+`POST /api/upload/anh` — **Admin, NhanVien**, nhận `multipart/form-data` field `anh` (JPG/PNG/WEBP/GIF, tối đa 5MB), trả về `{ url }` là link Cloudinary. Trang quản trị sản phẩm (`admin.js`) gọi API này trước khi tạo/sửa sản phẩm, rồi dùng `url` trả về làm giá trị `HinhAnh` — không còn dán URL ảnh thủ công.
 
 `backend/.env` cần thêm:
 ```

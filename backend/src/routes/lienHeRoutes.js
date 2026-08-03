@@ -68,7 +68,7 @@ router.post("/", createValidation, lienHeController.create);
  * @swagger
  * /lien-he:
  *   get:
- *     summary: Xem danh sach loi nhan lien he (chi Admin)
+ *     summary: Xem danh sach loi nhan lien he (Admin, NhanVien)
  *     description: >
  *       Neu KHONG truyen page thi tra ve TOAN BO ket qua (mang, khong phan trang). Neu CO truyen page thi bat
  *       buoc phan trang, response se co them truong `pagination`.
@@ -114,13 +114,13 @@ router.post("/", createValidation, lienHeController.create);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get("/", verifyToken, requireRole("Admin"), listValidation, lienHeController.getAll);
+router.get("/", verifyToken, requireRole("Admin", "NhanVien"), listValidation, lienHeController.getAll);
 
 /**
  * @swagger
  * /lien-he/{id}/trang-thai:
  *   patch:
- *     summary: Danh dau da xu ly / chua xu ly (chi Admin)
+ *     summary: Danh dau da xu ly / chua xu ly (Admin, NhanVien)
  *     tags: [LienHe]
  *     security:
  *       - bearerAuth: []
@@ -168,6 +168,6 @@ router.get("/", verifyToken, requireRole("Admin"), listValidation, lienHeControl
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch("/:id/trang-thai", verifyToken, requireRole("Admin"), [...idParamValidation, ...daXuLyValidation], lienHeController.updateDaXuLy);
+router.patch("/:id/trang-thai", verifyToken, requireRole("Admin", "NhanVien"), [...idParamValidation, ...daXuLyValidation], lienHeController.updateDaXuLy);
 
 module.exports = router;

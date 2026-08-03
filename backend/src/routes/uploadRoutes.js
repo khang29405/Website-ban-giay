@@ -54,13 +54,29 @@ function handleUpload(req, res, next) {
  *                     url: { type: string, example: "https://res.cloudinary.com/demo/image/upload/v1/shoestore/san-pham/abc123.jpg" }
  *       400:
  *         description: Thieu file, sai dinh dang (chi nhan JPG/PNG/WEBP/GIF) hoac vuot qua 5MB
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Thieu token hoac token khong hop le
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
- *         description: Khong co quyen (chi Admin)
+ *         description: Khong co quyen (chi Admin, NhanVien)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       502:
  *         description: Cloudinary tu choi/loi khi upload
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/anh", verifyToken, requireRole("Admin"), handleUpload, uploadController.uploadAnh);
+router.post("/anh", verifyToken, requireRole("Admin", "NhanVien"), handleUpload, uploadController.uploadAnh);
 
 module.exports = router;

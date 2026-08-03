@@ -143,7 +143,7 @@ router.get("/:id", optionalAuth, idParamValidation, sanPhamController.getById);
  * @swagger
  * /san-pham:
  *   post:
- *     summary: Tao san pham moi (chi Admin)
+ *     summary: Tao san pham moi (Admin, NhanVien)
  *     tags: [SanPham]
  *     security:
  *       - bearerAuth: []
@@ -191,13 +191,13 @@ router.get("/:id", optionalAuth, idParamValidation, sanPhamController.getById);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/", verifyToken, requireRole("Admin"), bodyValidation, sanPhamController.create);
+router.post("/", verifyToken, requireRole("Admin", "NhanVien"), bodyValidation, sanPhamController.create);
 
 /**
  * @swagger
  * /san-pham/{id}:
  *   put:
- *     summary: Cap nhat san pham (chi Admin)
+ *     summary: Cap nhat san pham (Admin, NhanVien)
  *     tags: [SanPham]
  *     security:
  *       - bearerAuth: []
@@ -256,13 +256,13 @@ router.post("/", verifyToken, requireRole("Admin"), bodyValidation, sanPhamContr
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put("/:id", verifyToken, requireRole("Admin"), [...idParamValidation, ...bodyValidation], sanPhamController.update);
+router.put("/:id", verifyToken, requireRole("Admin", "NhanVien"), [...idParamValidation, ...bodyValidation], sanPhamController.update);
 
 /**
  * @swagger
  * /san-pham/{id}/trang-thai:
  *   patch:
- *     summary: An hoac hien lai san pham (chi Admin)
+ *     summary: An hoac hien lai san pham (Admin, NhanVien)
  *     tags: [SanPham]
  *     security:
  *       - bearerAuth: []
@@ -319,7 +319,7 @@ router.put("/:id", verifyToken, requireRole("Admin"), [...idParamValidation, ...
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch("/:id/trang-thai", verifyToken, requireRole("Admin"), [...idParamValidation, ...trangThaiValidation], sanPhamController.setTrangThai);
+router.patch("/:id/trang-thai", verifyToken, requireRole("Admin", "NhanVien"), [...idParamValidation, ...trangThaiValidation], sanPhamController.setTrangThai);
 
 /**
  * @swagger
@@ -409,7 +409,7 @@ router.get("/:id/bien-the", idParamValidation, bienTheController.getByProductId)
  * @swagger
  * /san-pham/{id}/bien-the:
  *   post:
- *     summary: Them bien the moi cho san pham (chi Admin)
+ *     summary: Them bien the moi cho san pham (Admin, NhanVien)
  *     tags: [SanPham]
  *     security:
  *       - bearerAuth: []
@@ -472,6 +472,6 @@ router.get("/:id/bien-the", idParamValidation, bienTheController.getByProductId)
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/:id/bien-the", verifyToken, requireRole("Admin"), [...idParamValidation, ...bienTheBodyValidation], bienTheController.create);
+router.post("/:id/bien-the", verifyToken, requireRole("Admin", "NhanVien"), [...idParamValidation, ...bienTheBodyValidation], bienTheController.create);
 
 module.exports = router;

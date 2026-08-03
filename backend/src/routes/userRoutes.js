@@ -51,8 +51,16 @@ const lockValidation = [body("DaKhoa").isBoolean().withMessage("DaKhoa ph·∫£i l√
  *                     $ref: '#/components/schemas/NguoiDung'
  *       401:
  *         description: Chua dang nhap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Khong co quyen (khong phai Admin)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/", verifyToken, requireRole("Admin"), listValidation, userController.getAll);
 
@@ -93,12 +101,28 @@ router.get("/", verifyToken, requireRole("Admin"), listValidation, userControlle
  *                   $ref: '#/components/schemas/NguoiDung'
  *       400:
  *         description: Du lieu khong hop le hoac tu doi vai tro chinh minh
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Chua dang nhap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Khong co quyen (khong phai Admin)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Khong tim thay nguoi dung
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.patch("/:id/vai-tro", verifyToken, requireRole("Admin"), [...idParamValidation, ...roleValidation], userController.updateRole);
 
@@ -138,12 +162,28 @@ router.patch("/:id/vai-tro", verifyToken, requireRole("Admin"), [...idParamValid
  *                   $ref: '#/components/schemas/NguoiDung'
  *       400:
  *         description: Du lieu khong hop le hoac tu khoa chinh minh
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Chua dang nhap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Khong co quyen (khong phai Admin)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: Khong tim thay nguoi dung
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.patch("/:id/khoa", verifyToken, requireRole("Admin"), [...idParamValidation, ...lockValidation], userController.setLocked);
 

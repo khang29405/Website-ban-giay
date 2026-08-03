@@ -35,8 +35,8 @@ async function getAll(req, res, next) {
     try {
         handleValidation(req);
         const { trangThai, maDon, q, page, limit } = req.query;
-        const isAdmin = req.user.vaiTro === "Admin";
-        const result = isAdmin
+        const isStaff = req.user.vaiTro === "Admin" || req.user.vaiTro === "NhanVien";
+        const result = isStaff
             ? await donHangService.getAllOrders({ trangThai, maDon, q, page, limit })
             : await donHangService.getMyOrders(req.user.maND, { trangThai, page, limit });
 
@@ -62,8 +62,8 @@ async function getAll(req, res, next) {
 async function getById(req, res, next) {
     try {
         handleValidation(req);
-        const isAdmin = req.user.vaiTro === "Admin";
-        const order = await donHangService.getOrderById(req.params.id, req.user.maND, isAdmin);
+        const isStaff = req.user.vaiTro === "Admin" || req.user.vaiTro === "NhanVien";
+        const order = await donHangService.getOrderById(req.params.id, req.user.maND, isStaff);
         res.json({ success: true, data: order });
     } catch (err) {
         next(err);

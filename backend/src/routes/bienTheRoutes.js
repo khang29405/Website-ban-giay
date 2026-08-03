@@ -49,7 +49,7 @@ router.get("/:id", idParamValidation, bienTheController.getById);
  * @swagger
  * /bien-the/{id}:
  *   put:
- *     summary: Cap nhat bien the (chi Admin)
+ *     summary: Cap nhat bien the (Admin, NhanVien)
  *     tags: [BienThe]
  *     security:
  *       - bearerAuth: []
@@ -111,7 +111,7 @@ router.get("/:id", idParamValidation, bienTheController.getById);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put("/:id", verifyToken, requireRole("Admin"), [...idParamValidation, ...bodyValidation], bienTheController.update);
+router.put("/:id", verifyToken, requireRole("Admin", "NhanVien"), [...idParamValidation, ...bodyValidation], bienTheController.update);
 
 /**
  * @swagger

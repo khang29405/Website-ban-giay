@@ -174,7 +174,7 @@ router.post("/mua-ngay", verifyToken, directOrderValidation, donHangController.c
  *   get:
  *     summary: Xem danh sach don hang
  *     description: >
- *       Khach hang (KhachHang) chi thay don hang cua chinh minh. Admin thay TOAN BO don hang cua moi khach hang.
+ *       Khach hang (KhachHang) chi thay don hang cua chinh minh. Admin/NhanVien thay TOAN BO don hang cua moi khach hang.
  *       Neu KHONG truyen page thi tra ve TOAN BO ket qua (mang, khong phan trang). Neu CO truyen page thi bat
  *       buoc phan trang, response se co them truong `pagination`.
  *     tags: [DonHang]
@@ -327,7 +327,7 @@ router.get("/:id", verifyToken, idParamValidation, donHangController.getById);
  * @swagger
  * /don-hang/{id}/trang-thai:
  *   patch:
- *     summary: Cap nhat trang thai don hang (chi Admin)
+ *     summary: Cap nhat trang thai don hang (Admin, NhanVien)
  *     description: >
  *       Neu chuyen trang thai sang DaHuy thi bat buoc phai co LyDoHuy, va tu dong hoan lai ton kho
  *       cho cac bien the trong don hang do.
@@ -395,7 +395,7 @@ router.get("/:id", verifyToken, idParamValidation, donHangController.getById);
 router.patch(
     "/:id/trang-thai",
     verifyToken,
-    requireRole("Admin"),
+    requireRole("Admin", "NhanVien"),
     [...idParamValidation, ...statusValidation],
     donHangController.updateStatus
 );
