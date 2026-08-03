@@ -165,6 +165,13 @@ Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET
 | GET | `/` | **Admin, NhanVien** | Danh sách lời nhắn, mới nhất trước. Lọc `?daXuLy=true/false`. Phân trang tuỳ chọn giống `/api/don-hang` (không truyền `page` thì trả toàn bộ mảng; truyền `?page=&limit=` mặc định `limit=10` thì có `pagination`) |
 | PATCH | `/:id/trang-thai` | **Admin, NhanVien** | Đánh dấu đã/chưa xử lý, body `{ "DaXuLy": true/false }`, `200`. `404` nếu không tồn tại |
 
+### Sản phẩm yêu thích (`/api/yeu-thich`, Sprint 4) — cần đăng nhập, mỗi người chỉ thấy/sửa được danh sách của chính mình
+| Method | Path | Ghi chú |
+|---|---|---|
+| GET | `/` | Danh sách sản phẩm yêu thích của tài khoản đang đăng nhập (kèm tên/ảnh/giá/danh mục/thương hiệu qua JOIN), mới thêm trước |
+| POST | `/` | Thêm 1 sản phẩm vào yêu thích, body `{ "MaSP": 1 }`, `201`. `404` nếu sản phẩm không tồn tại. `409` nếu đã có trong danh sách (ràng buộc UNIQUE `MaND`+`MaSP`) |
+| DELETE | `/:maSp` | Xoá 1 sản phẩm khỏi yêu thích (`:maSp` là `MaSP`, không phải `MaYeuThich`), `200`. `404` nếu sản phẩm không có trong danh sách |
+
 ### Múi giờ (NgayDat, NgayGui, NgayTao...)
 Các cột `DATETIME2` dùng `DEFAULT SYSUTCDATETIME()` (UTC thật, do SQL Server tự sinh lúc INSERT), kết hợp driver `mssql` giữ **mặc định** `useUTC: true` trong `src/config/db.js` — **không được tắt `useUTC`**.
 
@@ -199,12 +206,6 @@ SMTP_PASS=<app_password_16_ky_tu>
 Nếu dùng Gmail: phải bật **2-Step Verification** cho tài khoản Google rồi tạo **App password** tại https://myaccount.google.com/apppasswords — mật khẩu Gmail thường (mật khẩu đăng nhập bình thường) sẽ **không** dùng được với SMTP.
 
 Transporter được cấu hình sẵn ở `src/config/mailer.js`, hàm gửi email (kèm template HTML) nằm ở `src/services/mailService.js` (`sendResetPasswordEmail`). Lúc server khởi động, log sẽ báo `Đã kết nối SMTP, sẵn sàng gửi email` nếu cấu hình đúng, hoặc `Lỗi kết nối SMTP: ...` nếu sai — **không làm crash server**, chỉ ảnh hưởng riêng chức năng gửi email.
-
-### Tạo tài khoản Admin
-Đăng ký một tài khoản bình thường qua `/api/auth/register`, sau đó tự nâng quyền trong SSMS:
-```sql
-UPDATE NGUOI_DUNG SET VaiTro = 'Admin' WHERE Email = N'admin@shoestore.com';
-```
 
 ## 4. Chạy Frontend
 

@@ -10,6 +10,7 @@ const donHangRoutes = require("./donHangRoutes");
 const lienHeRoutes = require("./lienHeRoutes");
 const uploadRoutes = require("./uploadRoutes");
 const userRoutes = require("./userRoutes");
+const yeuThichRoutes = require("./yeuThichRoutes");
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use("/don-hang", donHangRoutes);
 router.use("/lien-he", lienHeRoutes);
 router.use("/upload", uploadRoutes);
 router.use("/nguoi-dung", userRoutes);
+router.use("/yeu-thich", yeuThichRoutes);
 
 module.exports = router;
