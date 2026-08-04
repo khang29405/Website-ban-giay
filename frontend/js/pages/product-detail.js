@@ -173,7 +173,17 @@ function renderProduct(product) {
                 <h1>${escapeHtml(product.TenSP)}</h1>
                 <span class="product-category">${escapeHtml(product.TenDanhMuc)}</span>
                 <div class="pd-price">${formatCurrency(product.Gia)}</div>
-                <button type="button" class="pd-share-btn" id="share-btn"><i class="fa-solid fa-share-nodes"></i> Chia sẻ sản phẩm</button>
+                <div class="pd-actions-row">
+                    <button type="button" class="pd-share-btn" id="share-btn"><i class="fa-solid fa-share-nodes"></i> Chia sẻ sản phẩm</button>
+                    ${
+                        user && !isAdmin
+                            ? `<button type="button" class="pd-fav-btn${favoriteIds.has(Number(product.MaSP)) ? " active" : ""}" onclick="toggleFavorite(event, ${product.MaSP})">
+                                <i class="fa-${favoriteIds.has(Number(product.MaSP)) ? "solid" : "regular"} fa-heart"></i>
+                                <span>${favoriteIds.has(Number(product.MaSP)) ? "Đã yêu thích" : "Yêu thích"}</span>
+                            </button>`
+                            : ""
+                    }
+                </div>
                 <p class="pd-desc">${escapeHtml(product.MoTa || "Chưa có mô tả cho sản phẩm này.")}</p>
 
                 <div class="pd-option-group">
@@ -389,28 +399,7 @@ function renderRelatedProducts(products, sectionId, gridId) {
         return;
     }
 
-    grid.innerHTML = products
-        .map((p) => {
-            const media = p.HinhAnh
-                ? `<img src="${escapeHtml(p.HinhAnh)}" alt="${escapeHtml(p.TenSP)}" loading="lazy">`
-                : `<div class="product-card-noimg">Chưa có ảnh</div>`;
-
-            return `
-                <a class="product-card" href="product-detail.html?id=${p.MaSP}">
-                    <div class="product-card-media">
-                        ${media}
-                        <span class="product-card-view">Xem chi tiết →</span>
-                    </div>
-                    <div class="product-card-body">
-                        <span class="product-brand">${escapeHtml(p.TenThuongHieu)}</span>
-                        <span class="product-name">${escapeHtml(p.TenSP)}</span>
-                        <span class="product-category">${escapeHtml(p.TenDanhMuc)}</span>
-                        <span class="product-price">${formatCurrency(p.Gia)}</span>
-                    </div>
-                </a>
-            `;
-        })
-        .join("");
+    grid.innerHTML = products.map((p) => productCardHtml(p, { showBadge: false })).join("");
 
     section.hidden = false;
 }
@@ -466,6 +455,7 @@ async function loadProductDetail() {
         const [product, variantList] = await Promise.all([
             apiGet(`/san-pham/${productId}`),
             apiGet(`/san-pham/${productId}/bien-the`),
+            loadFavoriteIds(),
         ]);
         variants = variantList;
         renderProduct(product);

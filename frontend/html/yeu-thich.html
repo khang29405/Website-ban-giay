@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <script src="../js/theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết sản phẩm - MyShoes</title>
+    <title>Sản phẩm yêu thích - MyShoes</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23e01e26'/><text x='50' y='70' font-family='Arial, sans-serif' font-weight='800' font-size='58' fill='white' text-anchor='middle'>M</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,32 +14,22 @@
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/dark-theme.css">
-    <link rel="stylesheet" href="../css/pages/product-detail.css">
 </head>
 <body>
     <header id="header"></header>
 
     <main>
         <div class="container">
-            <nav class="pd-breadcrumb" id="pd-breadcrumb">
-                <a href="index.html">Trang chủ</a>
-                <span>/</span>
-                <a href="san-pham.html">Sản phẩm</a>
-            </nav>
+            <h1 class="section-title">Sản phẩm yêu thích của tôi</h1>
 
-            <div id="product-detail">
-                <div class="empty-state"><strong>Đang tải sản phẩm...</strong></div>
+            <div id="favorites-guest" class="empty-state" hidden>
+                <strong>Bạn cần đăng nhập để xem sản phẩm yêu thích</strong>
+                <p><a href="login.html" class="btn btn-accent"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</a></p>
             </div>
 
-            <section class="pd-related" id="pd-related" hidden>
-                <h2 class="section-title">Sản phẩm cùng danh mục</h2>
-                <div class="product-grid" id="related-products"></div>
-            </section>
-
-            <section class="pd-related" id="pd-related-brand" hidden>
-                <h2 class="section-title">Sản phẩm cùng thương hiệu</h2>
-                <div class="product-grid" id="related-products-brand"></div>
-            </section>
+            <div id="favorites-content" class="fade-in" hidden>
+                <div class="product-grid" id="favorites-grid"></div>
+            </div>
         </div>
     </main>
 
@@ -51,6 +41,6 @@
     <script src="../js/validate.js"></script>
     <script src="../js/layout.js"></script>
     <script src="../js/product-card.js"></script>
-    <script src="../js/pages/product-detail.js"></script>
+    <script src="../js/pages/yeu-thich.js"></script>
 </body>
 </html>

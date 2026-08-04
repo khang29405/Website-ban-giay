@@ -77,7 +77,8 @@ function renderHeader() {
                     ${
                         isStaff
                             ? ""
-                            : `<a href="orders.html" class="user-dropdown-item"><i class="fa-solid fa-box"></i> Đơn hàng của tôi</a>`
+                            : `<a href="orders.html" class="user-dropdown-item"><i class="fa-solid fa-box"></i> Đơn hàng của tôi</a>
+                               <a href="yeu-thich.html" class="user-dropdown-item"><i class="fa-solid fa-heart"></i> Sản phẩm yêu thích</a>`
                     }
                     <button type="button" class="user-dropdown-item" id="view-profile-btn"><i class="fa-solid fa-user"></i> Xem thông tin</button>
                     <button type="button" class="user-dropdown-item" id="edit-profile-btn"><i class="fa-solid fa-user-pen"></i> Chỉnh sửa thông tin</button>

@@ -1167,6 +1167,7 @@
 }
 
 .product-card {
+    position: relative;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
@@ -1182,6 +1183,43 @@
     border-color: transparent;
     box-shadow: var(--shadow-lg);
     transform: translateY(-5px);
+}
+
+.product-card-link {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* Nen luon la vong tron trang mo bat ke theme (nam de len anh san pham, khong theo
+   nen trang) - vi vay mau icon phai co dinh (KHONG dung var(--color-ink), bien nay
+   doi thanh gan trang o dark mode se bi trung mau voi nen trang -> icon bien mat). */
+.product-card-fav-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.92rem;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.product-card-fav-btn:hover {
+    transform: scale(1.1);
+}
+
+.product-card-fav-btn.active {
+    color: var(--color-accent);
 }
 
 /* Skeleton - hien khi dang tai danh sach san pham, thay cho chu "Dang tai..." */
