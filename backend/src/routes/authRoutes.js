@@ -5,6 +5,23 @@ const verifyToken = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
+// Ap dung cho moi truong hop dat mat khau moi (dang ky, doi mat khau, dat lai mat khau
+// qua email) - KHONG ap dung cho body("MatKhau") o route /login vi mat khau cu co the
+// da ton tai truoc khi rule nay duoc them, chi can dung khong rong la du de dang nhap.
+function matKhauManhValidation(field) {
+    return body(field)
+        .isLength({ min: 8 })
+        .withMessage("Mật khẩu tối thiểu 8 ký tự")
+        .matches(/[A-Z]/)
+        .withMessage("Mật khẩu phải có ít nhất 1 chữ hoa")
+        .matches(/[a-z]/)
+        .withMessage("Mật khẩu phải có ít nhất 1 chữ thường")
+        .matches(/[0-9]/)
+        .withMessage("Mật khẩu phải có ít nhất 1 chữ số")
+        .matches(/[^A-Za-z0-9]/)
+        .withMessage("Mật khẩu phải có ít nhất 1 ký tự đặc biệt");
+}
+
 /**
  * @swagger
  * /auth/register:
@@ -29,8 +46,9 @@ const router = express.Router();
  *               MatKhau:
  *                 type: string
  *                 format: password
- *                 minLength: 6
- *                 example: "123456"
+ *                 minLength: 8
+ *                 description: Toi thieu 8 ky tu, co chu hoa, chu thuong, chu so va ky tu dac biet
+ *                 example: "MatKhau@123"
  *               SDT:
  *                 type: string
  *                 example: "0901234567"
@@ -74,7 +92,7 @@ router.post(
     [
         body("HoTen").trim().notEmpty().withMessage("Họ tên không được để trống").isLength({ max: 100 }).withMessage("Họ tên tối đa 100 ký tự"),
         body("Email").trim().isEmail().withMessage("Email không hợp lệ").isLength({ max: 100 }).withMessage("Email tối đa 100 ký tự"),
-        body("MatKhau").isLength({ min: 6 }).withMessage("Mật khẩu tối thiểu 6 ký tự"),
+        matKhauManhValidation("MatKhau"),
         body("SDT").optional({ values: "falsy" }).isMobilePhone("vi-VN").withMessage("Số điện thoại không hợp lệ"),
         body("DiaChi").optional({ values: "falsy" }).trim().isLength({ max: 255 }).withMessage("Địa chỉ tối đa 255 ký tự"),
     ],
@@ -282,8 +300,9 @@ router.put(
  *               MatKhauMoi:
  *                 type: string
  *                 format: password
- *                 minLength: 6
- *                 example: "654321"
+ *                 minLength: 8
+ *                 description: Toi thieu 8 ky tu, co chu hoa, chu thuong, chu so va ky tu dac biet
+ *                 example: "MatKhau@123"
  *     responses:
  *       200:
  *         description: Doi mat khau thanh cong
@@ -312,7 +331,7 @@ router.put(
     verifyToken,
     [
         body("MatKhauCu").notEmpty().withMessage("Vui lòng nhập mật khẩu hiện tại"),
-        body("MatKhauMoi").isLength({ min: 6 }).withMessage("Mật khẩu mới tối thiểu 6 ký tự"),
+        matKhauManhValidation("MatKhauMoi"),
     ],
     authController.changePassword
 );
@@ -382,8 +401,9 @@ router.post(
  *               MatKhauMoi:
  *                 type: string
  *                 format: password
- *                 minLength: 6
- *                 example: "654321"
+ *                 minLength: 8
+ *                 description: Toi thieu 8 ky tu, co chu hoa, chu thuong, chu so va ky tu dac biet
+ *                 example: "MatKhau@123"
  *     responses:
  *       200:
  *         description: Dat lai mat khau thanh cong
@@ -405,7 +425,7 @@ router.post(
     "/dat-lai-mat-khau",
     [
         body("Token").notEmpty().withMessage("Thiếu token"),
-        body("MatKhauMoi").isLength({ min: 6 }).withMessage("Mật khẩu mới tối thiểu 6 ký tự"),
+        matKhauManhValidation("MatKhauMoi"),
     ],
     authController.datLaiMatKhau
 );

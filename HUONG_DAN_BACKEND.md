@@ -63,14 +63,14 @@ Body (JSON):
 {
   "HoTen": "Nguyen Van A",
   "Email": "a@test.com",
-  "MatKhau": "123456",
+  "MatKhau": "MatKhau@123",
   "SDT": "0901234567",
   "DiaChi": "123 Nguyen Trai, Q1, TP.HCM"
 }
 ```
-`SDT` và `DiaChi` không bắt buộc.
+`SDT` và `DiaChi` không bắt buộc. `MatKhau` tối thiểu 8 ký tự, phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt (áp dụng cho mọi chỗ đặt mật khẩu mới: đăng ký, đổi mật khẩu, đặt lại mật khẩu qua email — xem `matKhauManhValidation` trong `authRoutes.js`).
 - `201`: tạo thành công, trả về thông tin user (không có mật khẩu).
-- `400`: dữ liệu không hợp lệ (thiếu trường, email sai định dạng, mật khẩu < 6 ký tự...).
+- `400`: dữ liệu không hợp lệ (thiếu trường, email sai định dạng, mật khẩu không đạt yêu cầu độ mạnh...).
 - `409`: email đã được sử dụng.
 
 ### `POST /api/auth/login`
@@ -91,7 +91,7 @@ Body (JSON):
 
 `POST /api/auth/quen-mat-khau` — Public, body `{ "Email": "a@test.com" }`. Luôn trả `200` với cùng 1 thông báo chung dù email có tồn tại hay không (tránh lộ email nào đã đăng ký). Nếu email tồn tại: tạo token ngẫu nhiên (hết hạn sau 15 phút, lưu dạng hash SHA-256 trong `NGUOI_DUNG.ResetToken`/`ResetTokenExpiry`), gửi email chứa link `${FRONTEND_URL}/html/reset-password.html?token=...` qua `mailService.sendResetPasswordEmail`. Lỗi gửi email chỉ log ra console, không làm fail request.
 
-`POST /api/auth/dat-lai-mat-khau` — Public, body `{ "Token": "...", "MatKhauMoi": "..." }`. Băm token nhận được rồi so khớp với `ResetToken` còn hạn trong DB — khớp thì đổi mật khẩu và xóa `ResetToken`/`ResetTokenExpiry`. `400` nếu token sai/hết hạn hoặc mật khẩu mới < 6 ký tự.
+`POST /api/auth/dat-lai-mat-khau` — Public, body `{ "Token": "...", "MatKhauMoi": "..." }`. Băm token nhận được rồi so khớp với `ResetToken` còn hạn trong DB — khớp thì đổi mật khẩu và xóa `ResetToken`/`ResetTokenExpiry`. `400` nếu token sai/hết hạn hoặc mật khẩu mới không đạt yêu cầu độ mạnh (tối thiểu 8 ký tự, có chữ hoa/thường/số/ký tự đặc biệt).
 
 ### Quản lý tài khoản (`/api/nguoi-dung`, Sprint 4) — chỉ Admin
 
