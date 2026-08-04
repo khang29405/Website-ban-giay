@@ -24,9 +24,12 @@ function validateRegisterForm(form) {
     if (!password) {
         showFieldError(form.MatKhau, "Vui lòng nhập mật khẩu");
         valid = false;
-    } else if (password.length < 6) {
-        showFieldError(form.MatKhau, "Mật khẩu tối thiểu 6 ký tự");
-        valid = false;
+    } else {
+        const unmetRule = firstUnmetPasswordRule(password);
+        if (unmetRule) {
+            showFieldError(form.MatKhau, `Mật khẩu chưa đáp ứng: ${unmetRule.label}`);
+            valid = false;
+        }
     }
 
     const confirmPassword = form.XacNhanMatKhau.value;
@@ -54,6 +57,11 @@ function validateRegisterForm(form) {
 }
 
 attachLiveValidation(document.getElementById("register-form"));
+
+renderPasswordChecklist(document.getElementById("password-hint-tooltip"));
+initPasswordLiveHint(document.getElementById("password"), document.getElementById("password-live-hint"));
+initPasswordToggle(document.getElementById("password"), document.getElementById("password-toggle-btn"));
+initPasswordToggle(document.getElementById("confirm-password"), document.getElementById("confirm-password-toggle-btn"));
 
 document.getElementById("register-form").addEventListener("submit", async function (e) {
     e.preventDefault();

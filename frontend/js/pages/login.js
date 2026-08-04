@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     attachLiveValidation(document.getElementById("login-form"));
+    initPasswordToggle(document.getElementById("password"), document.getElementById("password-toggle-btn"));
 });
 
 function validateLoginForm(form) {

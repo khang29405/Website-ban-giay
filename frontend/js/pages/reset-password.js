@@ -10,6 +10,10 @@ if (!resetToken) {
     document.getElementById("auth-switch").innerHTML = '<a href="quen-mat-khau.html">Yêu cầu link mới</a>';
 } else {
     attachLiveValidation(resetForm);
+    renderPasswordChecklist(document.getElementById("password-hint-tooltip"));
+    initPasswordLiveHint(document.getElementById("password"), document.getElementById("password-live-hint"));
+    initPasswordToggle(document.getElementById("password"), document.getElementById("password-toggle-btn"));
+    initPasswordToggle(document.getElementById("confirm-password"), document.getElementById("confirm-password-toggle-btn"));
 
     function validateResetPasswordForm(form) {
         clearFormErrors(form);
@@ -19,9 +23,12 @@ if (!resetToken) {
         if (!password) {
             showFieldError(form.MatKhauMoi, "Vui lòng nhập mật khẩu mới");
             valid = false;
-        } else if (password.length < 6) {
-            showFieldError(form.MatKhauMoi, "Mật khẩu tối thiểu 6 ký tự");
-            valid = false;
+        } else {
+            const unmetRule = firstUnmetPasswordRule(password);
+            if (unmetRule) {
+                showFieldError(form.MatKhauMoi, `Mật khẩu chưa đáp ứng: ${unmetRule.label}`);
+                valid = false;
+            }
         }
 
         const confirmPassword = form.XacNhanMatKhau.value;

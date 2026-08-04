@@ -220,9 +220,12 @@ function validateChangePasswordForm(form) {
     if (!matKhauMoi) {
         showFieldError(form.MatKhauMoi, "Vui lòng nhập mật khẩu mới");
         valid = false;
-    } else if (matKhauMoi.length < 6) {
-        showFieldError(form.MatKhauMoi, "Mật khẩu mới tối thiểu 6 ký tự");
-        valid = false;
+    } else {
+        const unmetRule = firstUnmetPasswordRule(matKhauMoi);
+        if (unmetRule) {
+            showFieldError(form.MatKhauMoi, `Mật khẩu mới chưa đáp ứng: ${unmetRule.label}`);
+            valid = false;
+        }
     }
 
     const xacNhan = form.XacNhanMatKhauMoi.value;
@@ -244,15 +247,39 @@ function openChangePasswordModal() {
         <form id="change-password-form" novalidate>
             <div class="form-group">
                 <label>Mật khẩu hiện tại</label>
-                <input type="password" name="MatKhauCu">
+                <div class="password-input-wrap">
+                    <input type="password" name="MatKhauCu" id="old-password-input">
+                    <button type="button" class="password-toggle-btn" id="old-password-toggle-btn" aria-label="Hiện mật khẩu">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
-                <label>Mật khẩu mới</label>
-                <input type="password" name="MatKhauMoi">
+                <div class="form-label-row">
+                    <label>Mật khẩu mới</label>
+                    <div class="password-hint-wrap">
+                        <button type="button" class="password-hint-btn" aria-label="Yêu cầu mật khẩu">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                        <div class="password-hint-tooltip" id="password-hint-tooltip"></div>
+                    </div>
+                </div>
+                <div class="password-input-wrap">
+                    <input type="password" name="MatKhauMoi" id="new-password-input">
+                    <button type="button" class="password-toggle-btn" id="new-password-toggle-btn" aria-label="Hiện mật khẩu">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <div class="password-live-hint" id="password-live-hint" hidden></div>
             </div>
             <div class="form-group">
                 <label>Xác nhận mật khẩu mới</label>
-                <input type="password" name="XacNhanMatKhauMoi">
+                <div class="password-input-wrap">
+                    <input type="password" name="XacNhanMatKhauMoi" id="confirm-new-password-input">
+                    <button type="button" class="password-toggle-btn" id="confirm-new-password-toggle-btn" aria-label="Hiện mật khẩu">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-ghost" onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Hủy</button>
@@ -263,6 +290,11 @@ function openChangePasswordModal() {
 
     const changePasswordForm = document.getElementById("change-password-form");
     attachLiveValidation(changePasswordForm, "password-error");
+    renderPasswordChecklist(document.getElementById("password-hint-tooltip"));
+    initPasswordLiveHint(document.getElementById("new-password-input"), document.getElementById("password-live-hint"));
+    initPasswordToggle(document.getElementById("old-password-input"), document.getElementById("old-password-toggle-btn"));
+    initPasswordToggle(document.getElementById("new-password-input"), document.getElementById("new-password-toggle-btn"));
+    initPasswordToggle(document.getElementById("confirm-new-password-input"), document.getElementById("confirm-new-password-toggle-btn"));
 
     changePasswordForm.addEventListener("submit", async (e) => {
         e.preventDefault();
