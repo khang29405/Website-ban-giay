@@ -1,4 +1,46 @@
 services:
+  # SQL Server dong goi trong container (Sprint 4 - Task 10), thay the cho viec ket noi
+  # ra named instance tren may host qua host.docker.internal. Du lieu luu trong volume
+  # "mssql-data" nen khong mat khi container bi xoa/tao lai (chi mat neu xoa ca volume).
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_SA_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      # Kiem tra don gian: cong 1433 co dang mo khong (khong doi hoi cong cu sqlcmd
+      # san co trong chinh image server). db-seed ben duoi van tu doi them cho tan
+      # khi dang nhap duoc, healthcheck nay chi de "depends_on" cua db-seed co dieu
+      # kien khoi dong hop ly, khong phai dieu kien duy nhat.
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+    restart: unless-stopped
+
+  # Container 1 lan (chay xong tu thoat) de tao schema ShoeStoreDB tren service "db"
+  # o tren neu chua co - xem database/docker-seed.sh. Dung lai chinh image mssql/server
+  # (da co san sqlcmd tai /opt/mssql-tools18/bin/sqlcmd) thay vi image rieng cho tools -
+  # image "mssql-tools18" khong ton tai o dang container doc lap tren MCR/Docker Hub.
+  db-seed:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./database:/scripts:ro
+    environment:
+      - DB_SERVER=db
+      - DB_SA_PASSWORD=${DB_SA_PASSWORD}
+    entrypoint: ["bash", "/scripts/docker-seed.sh"]
+    restart: "no"
+
   backend:
     build: ./backend
     ports:
@@ -6,9 +48,17 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      # Ghi de gia tri DB_SERVER trong .env (localhost - dung cho npm run dev)
-      # vi ben trong container "localhost" la chinh container, khong phai may that.
-      - DB_SERVER=host.docker.internal
+      # Ghi de cac bien ket noi DB trong backend/.env (von dang tro toi named instance
+      # tren may host, dung cho npm run dev) de tro vao container "db" o tren thay vi.
+      # DB_PASSWORD cung ghi de bang DB_SA_PASSWORD de luon khop voi mat khau SA that su
+      # cua container "db" (khong phu thuoc gia tri DB_PASSWORD dang co san trong .env).
+      - DB_SERVER=db
+      - DB_INSTANCE=
+      - DB_PORT=1433
+      - DB_PASSWORD=${DB_SA_PASSWORD}
+    depends_on:
+      db-seed:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   frontend:
@@ -18,3 +68,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  mssql-data:

@@ -1,0 +1,4 @@
+# Script .sh chay trong container Linux (vd database/docker-seed.sh) BAT BUOC phai la
+# line ending LF - neu bi Git tren Windows tu dong doi thanh CRLF (autocrlf=true mac dinh)
+# thi bash trong container se bao loi "$'\r': command not found" / "unexpected end of file".
+*.sh text eol=lf
