@@ -76,18 +76,26 @@ function initPasswordToggle(inputEl, btnEl) {
     });
 }
 
+// O mat khau co icon con mat, input va button cung nam trong ".password-input-wrap" -
+// neu chen span loi ngay sau input thi no lot VAO TRONG wrap (giua input va button), lam
+// wrap cao len va day icon (dinh vi absolute top:50% theo chieu cao wrap) thut xuong duoi.
+// Vi vay can chen loi ra SAU ca cai wrap, khong phai sau input.
+function fieldErrorAnchor(input) {
+    return input.parentElement.classList.contains("password-input-wrap") ? input.parentElement : input;
+}
+
 function showFieldError(input, message) {
     clearFieldError(input);
     input.classList.add("input-error");
     const span = document.createElement("span");
     span.className = "field-error";
     span.textContent = message;
-    input.insertAdjacentElement("afterend", span);
+    fieldErrorAnchor(input).insertAdjacentElement("afterend", span);
 }
 
 function clearFieldError(input) {
     input.classList.remove("input-error");
-    const next = input.nextElementSibling;
+    const next = fieldErrorAnchor(input).nextElementSibling;
     if (next && next.classList.contains("field-error")) {
         next.remove();
     }

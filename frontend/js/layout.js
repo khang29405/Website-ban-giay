@@ -727,6 +727,109 @@ function openModal(html, extraClass) {
     overlay.hidden = false;
 }
 
+// ============ Hoa don (dung chung cho orders.js va admin.js) ============
+const INVOICE_STATUS_TEXT = {
+    ChoXuLy: "Chờ xử lý",
+    DangGiao: "Đang giao",
+    HoanThanh: "Hoàn thành",
+    DaHuy: "Đã hủy",
+};
+
+// "To giay" hoa don rieng, KHONG dung lai modal chi tiet don hang (xem ghi chu trong
+// components.css) - dung chung cho ca "Xem hoa don" (hien trong modal) va "In hoa don"
+// (hien trong #invoice-print-area, chi hien khi in).
+function buildInvoiceHtml(order) {
+    const itemsRows = order.ChiTiet.map(
+        (item) => `
+            <tr>
+                <td>${escapeHtml(item.TenSP)}</td>
+                <td>${escapeHtml(item.KichCo)} / ${escapeHtml(item.MauSac)}</td>
+                <td class="invoice-num">${item.SoLuong}</td>
+                <td class="invoice-num">${formatCurrency(item.DonGia)}</td>
+                <td class="invoice-num">${formatCurrency(item.DonGia * item.SoLuong)}</td>
+            </tr>
+        `
+    ).join("");
+
+    return `
+        <div class="invoice-sheet">
+            <div class="invoice-shop">
+                <span class="invoice-shop-name">MyShoes</span>
+                <span class="invoice-shop-tag">Cửa hàng giày thể thao</span>
+            </div>
+            <h1 class="invoice-title">HÓA ĐƠN BÁN HÀNG</h1>
+            <div class="invoice-meta-grid">
+                <div><span>Mã đơn hàng</span><strong>${formatId("DH", order.MaDH, 5)}</strong></div>
+                <div><span>Ngày đặt</span><strong>${formatDate(order.NgayDat)}</strong></div>
+                <div><span>Trạng thái</span><strong>${escapeHtml(INVOICE_STATUS_TEXT[order.TrangThai] || order.TrangThai)}</strong></div>
+                <div><span>Thanh toán</span><strong>${escapeHtml(order.PhuongThucTT)} (khi nhận hàng)</strong></div>
+            </div>
+            ${
+                order.HoTen
+                    ? `<div class="invoice-customer"><span>Khách hàng</span><strong>${escapeHtml(order.HoTen)}${order.Email ? ` (${escapeHtml(order.Email)})` : ""}</strong></div>`
+                    : ""
+            }
+            <div class="invoice-customer"><span>Giao đến</span><strong>${escapeHtml(order.DiaChiGiaoHang)}</strong></div>
+            <div class="invoice-customer"><span>SĐT nhận hàng</span><strong>${escapeHtml(order.SDTNhan)}</strong></div>
+
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Size / Màu</th>
+                        <th class="invoice-num">SL</th>
+                        <th class="invoice-num">Đơn giá</th>
+                        <th class="invoice-num">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>${itemsRows}</tbody>
+            </table>
+
+            <div class="invoice-total">
+                <span>Tổng cộng</span>
+                <strong>${formatCurrency(order.TongTien)}</strong>
+            </div>
+
+            <p class="invoice-thanks">Cảm ơn quý khách đã mua hàng tại MyShoes!</p>
+        </div>
+    `;
+}
+
+// Nut "Xem hoa don" - mo trong modal co san (chi de xem/kiem tra tren man hinh, khong
+// dinh dang giong ban in that su - vd van nam trong khung modal).
+function viewInvoice(order) {
+    openModal(
+        `
+        ${buildInvoiceHtml(order)}
+        <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Đóng</button>
+            <button type="button" class="btn btn-accent" id="print-invoice-from-view-btn"><i class="fa-solid fa-print"></i> In hóa đơn</button>
+        </div>
+    `,
+        "modal-box-wide"
+    );
+    document.getElementById("print-invoice-from-view-btn").addEventListener("click", () => printInvoice(order));
+}
+
+function getInvoicePrintArea() {
+    let area = document.getElementById("invoice-print-area");
+    if (!area) {
+        area = document.createElement("div");
+        area.id = "invoice-print-area";
+        document.body.appendChild(area);
+    }
+    return area;
+}
+
+// Nut "In hoa don" - dung rieng #invoice-print-area (luon nam san trong body, chi hien
+// khi in - xem @media print trong components.css) thay vi in thang modal dang mo, vi
+// modal bi gioi han max-height/overflow-y de cuon man hinh, in truc tiep se cat mat noi
+// dung don hang nhieu san pham.
+function printInvoice(order) {
+    getInvoicePrintArea().innerHTML = buildInvoiceHtml(order);
+    window.print();
+}
+
 function closeModal() {
     const overlay = document.getElementById("modal-overlay");
     if (overlay) {

@@ -1116,8 +1116,13 @@ async function openAdminOrderDetail(id) {
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-ghost" onclick="closeModal()">Đóng</button>
+                <button type="button" class="btn btn-outline" id="view-invoice-btn"><i class="fa-solid fa-file-invoice"></i> Xem hóa đơn</button>
+                <button type="button" class="btn btn-outline" id="print-invoice-btn"><i class="fa-solid fa-print"></i> In hóa đơn</button>
             </div>
         `);
+
+        document.getElementById("view-invoice-btn").addEventListener("click", () => viewInvoice(order));
+        document.getElementById("print-invoice-btn").addEventListener("click", () => printInvoice(order));
     } catch (err) {
         showToast(err.message, "error");
     }

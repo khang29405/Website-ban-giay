@@ -186,11 +186,156 @@
     margin-bottom: 18px;
 }
 
+/* Ghim o day khung cuon cua .modal-box (max-height: 90vh; overflow-y: auto) - noi dung
+   dai (vd hoa don nhieu san pham) se cuon rieng ben trong, nut bam luon hien san khong
+   can keo het xuong moi bam duoc. "bottom"/"margin" am de bu lai padding cua .modal-box,
+   giup thanh nut dinh sat mep khung cuon thay vi con 1 khoang trang duoi no. */
 .modal-actions {
+    position: sticky;
+    bottom: -28px;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 20px;
+    margin: 20px -28px -28px;
+    padding: 14px 28px 28px;
+    background: var(--color-surface);
+}
+
+/* Hoa don (Sprint 4): "to giay" rieng, KHONG dung lai modal chi tiet don hang - modal do
+   co thanh tien trinh trang thai (chi hop ly xem tren web, in ra giay vo nghia + mau nen
+   thuong khong tu in duoc mac dinh nen bi "mat khuc") va bi gioi han max-height/overflow-y
+   de cuon man hinh, se cat mat noi dung khi in don nhieu san pham. */
+.invoice-sheet {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 28px;
+    background: #fff;
+    color: #1a1a1a;
+    border-radius: var(--radius-lg);
+    border: 1px solid #e5e5e5;
+}
+
+.invoice-shop {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.invoice-shop-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+.invoice-shop-tag {
+    font-size: 0.78rem;
+    color: #767676;
+}
+
+.invoice-title {
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    margin: 18px 0;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #1a1a1a;
+}
+
+.invoice-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 20px;
+    margin-bottom: 14px;
+    font-size: 0.88rem;
+}
+
+.invoice-meta-grid > div,
+.invoice-customer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.invoice-customer {
+    font-size: 0.88rem;
+    border-bottom: 1px dashed #e5e5e5;
+}
+
+.invoice-meta-grid span,
+.invoice-customer span {
+    color: #767676;
+    flex-shrink: 0;
+}
+
+.invoice-meta-grid strong,
+.invoice-customer strong {
+    text-align: right;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.85rem;
+}
+
+.invoice-table th,
+.invoice-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid #e5e5e5;
+    text-align: left;
+}
+
+.invoice-table th {
+    border-bottom: 2px solid #1a1a1a;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #767676;
+}
+
+.invoice-num {
+    text-align: right !important;
+}
+
+.invoice-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 14px;
+    border-top: 2px solid #1a1a1a;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.invoice-thanks {
+    text-align: center;
+    margin-top: 26px;
+    font-size: 0.82rem;
+    color: #767676;
+    font-style: italic;
+}
+
+/* An khu vuc in mac dinh tren man hinh (chi hien khi @media print kich hoat ben duoi) */
+#invoice-print-area {
+    display: none;
+}
+
+@media print {
+    body > *:not(#invoice-print-area) {
+        display: none !important;
+    }
+    #invoice-print-area {
+        display: block !important;
+    }
+    .invoice-sheet {
+        max-width: none;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+    }
 }
 
 /* Modifier cho modal co nhieu truong (thu them san pham, xac nhan dat hang...) -
@@ -640,15 +785,21 @@
     transform: translateY(-50%);
     background: none;
     border: none;
+    border-radius: 50%;
     padding: 8px;
     display: inline-flex;
     align-items: center;
     color: var(--color-text-muted);
     cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
 }
 
+/* Dung nen rieng (khong chi doi mau icon) khi hover - de icon luon nhin ro thanh 1 nut
+   tach biet, khong phu thuoc mau nen thuc te cua o input phia sau (vd bi anh huong boi
+   mau autofill cua trinh duyet) o dark mode. */
 .password-toggle-btn:hover {
     color: var(--color-ink);
+    background: var(--color-surface-alt);
 }
 
 .field-error {
