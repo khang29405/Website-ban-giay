@@ -1,5 +1,7 @@
 # Hướng dẫn chạy Backend
 
+Hướng dẫn này dành cho chạy backend thủ công bằng `npm run dev`, dùng SQL Server cài trực tiếp trên máy. Muốn chạy cả hệ thống (kèm SQL Server) chỉ bằng 1 lệnh thì xem mục Docker trong [README.md](README.md).
+
 ## Yêu cầu môi trường
 
 - Node.js 18+ (khuyến nghị bản LTS)
@@ -8,7 +10,7 @@
 
 ## 1. Chuẩn bị database
 
-1. Mở `database/ShoeStoreDB.sql` bằng SSMS, chạy toàn bộ file để tạo database `ShoeStoreDB`, 8 bảng và dữ liệu mẫu.
+1. Mở `database/ShoeStoreDB.sql` bằng SSMS, chạy toàn bộ file để tạo database `ShoeStoreDB` cùng dữ liệu mẫu.
 2. Ghi lại thông tin kết nối SQL Server của máy bạn: tên server (ví dụ `localhost` hoặc `localhost\SQLEXPRESS` nếu dùng named instance), tài khoản đăng nhập (ví dụ `sa`), mật khẩu.
 
 ## 2. Cấu hình và chạy
@@ -46,7 +48,7 @@ npm start
 
 Kiểm tra: mở `http://localhost:5000/api/health`, phải thấy `{"success":true,"data":{"server":"up","db":"connected"}}`.
 
-## 3. Danh sách API hiện có (hết Sprint 3 task 4)
+## 3. Danh sách API hiện có
 
 Tất cả API có prefix `/api`. Xem chi tiết đầy đủ (schema, ví dụ, test trực tiếp) tại Swagger UI — [HUONG_DAN_SWAGGER.md](HUONG_DAN_SWAGGER.md).
 
@@ -173,11 +175,7 @@ Khi đặt hàng thành công, trong 1 transaction: tạo `DON_HANG` + `CHI_TIET
 | DELETE | `/:maSp` | Xoá 1 sản phẩm khỏi yêu thích (`:maSp` là `MaSP`, không phải `MaYeuThich`), `200`. `404` nếu sản phẩm không có trong danh sách |
 
 ### Múi giờ (NgayDat, NgayGui, NgayTao...)
-Các cột `DATETIME2` dùng `DEFAULT SYSUTCDATETIME()` (UTC thật, do SQL Server tự sinh lúc INSERT), kết hợp driver `mssql` giữ **mặc định** `useUTC: true` trong `src/config/db.js` — **không được tắt `useUTC`**.
-
-Lịch sử: trước đó dùng `SYSDATETIME()` (giờ local của máy chạy SQL Server, VN UTC+7) và từng thử tắt `useUTC: false` để driver tự dịch lại cho đúng. Cách đó **chỉ đúng khi tiến trình Node và SQL Server cùng múi giờ** (đúng khi chạy `npm run dev` trên máy Windows VN) — nhưng sai khi chạy trong Docker, vì container `node:20-alpine` mặc định múi giờ UTC (khác múi giờ VN của máy host chạy SQL Server), khiến `useUTC:false` dịch sai theo múi giờ container thay vì múi giờ thật của dữ liệu, gây lệch giờ theo kiểu khác.
-
-Cách sửa dứt điểm (không phụ thuộc môi trường): đổi toàn bộ cột sang `SYSUTCDATETIME()` (UTC thật ngay từ lúc lưu, không cần driver dịch lại gì cả) và **dịch lùi 7 giờ 1 lần** cho dữ liệu cũ (đang lưu theo giờ VN) để đồng bộ với dữ liệu mới. Đã chạy migration này trực tiếp trên DB đang có sẵn (cả 4 bảng NGUOI_DUNG/SAN_PHAM/DON_HANG/LIEN_HE), và đã thêm block migration idempotent tương ứng vào `ShoeStoreDB.sql` cho ai chạy lại script trên bản DB cũ.
+Các cột `DATETIME2` dùng `DEFAULT SYSUTCDATETIME()` (UTC thật, do SQL Server tự sinh lúc INSERT), kết hợp driver `mssql` giữ **mặc định** `useUTC: true` trong `src/config/db.js` — **không được tắt `useUTC`**, vì tắt đi sẽ dịch giờ sai lệch giữa lúc chạy `npm run dev` (máy VN) và lúc chạy trong Docker (container mặc định giờ UTC).
 
 ### Upload ảnh sản phẩm (Cloudinary)
 
@@ -207,19 +205,7 @@ Nếu dùng Gmail: phải bật **2-Step Verification** cho tài khoản Google 
 
 Transporter được cấu hình sẵn ở `src/config/mailer.js`, hàm gửi email (kèm template HTML) nằm ở `src/services/mailService.js` (`sendResetPasswordEmail`). Lúc server khởi động, log sẽ báo `Đã kết nối SMTP, sẵn sàng gửi email` nếu cấu hình đúng, hoặc `Lỗi kết nối SMTP: ...` nếu sai — **không làm crash server**, chỉ ảnh hưởng riêng chức năng gửi email.
 
-## 4. Chạy Frontend
-
-Không cần npm/build. Mở trực tiếp `frontend/html/index.html` bằng trình duyệt, hoặc dùng một static server đơn giản (vd extension "Live Server" của VS Code) để tránh lỗi CORS/file://. Chi tiết cấu trúc thư mục xem [HUONG_DAN_FRONTEND.md](HUONG_DAN_FRONTEND.md).
-
-`frontend/js/config.js` có biến `API_BASE_URL` trỏ về `http://localhost:5000/api` — sửa lại nếu backend chạy port khác.
-
-## 5. Quy ước làm việc nhóm
-
-- Nhánh: `main` là nhánh chính, mỗi task tạo nhánh riêng `feat/SCRUM-xx-...`, merge xong thì xoá nhánh.
-- Commit: `type(scope): SCRUM-xx mô tả ngắn` (vd `feat(auth): SCRUM-17 đăng nhập JWT`), commit nhỏ và thường xuyên, không dồn vào ngày cuối sprint.
-- Không commit file `backend/.env` (đã bị `.gitignore` chặn) — chỉ commit `backend/.env.example`.
-
-## 6. Xử lý lỗi thường gặp khi kết nối SQL Server
+## 4. Xử lý lỗi thường gặp khi kết nối SQL Server
 
 Nếu gọi `/api/health` mà báo `{"success":false,"message":"Kết nối cơ sở dữ liệu thất bại"}`, kiểm tra lần lượt các lỗi thường gặp sau (đều xuất phát từ named instance như `SQLEXPRESS`):
 
@@ -244,39 +230,3 @@ Cách fix: SSMS → chuột phải server gốc → **Properties → Security** 
 
 **5. Server dừng đột ngột lúc `npm run dev` (`[nodemon] app crashed`) ngay khi chưa gọi API nào**
 Sau khi sửa bất kỳ mục nào ở trên, nhớ **restart lại server** (`rs` trong terminal nodemon, hoặc Ctrl+C rồi `npm run dev` lại) vì kết nối DB được thiết lập 1 lần lúc server khởi động.
-
-## 7. Chạy bằng Docker (Task 8 Sprint 1)
-
-Yêu cầu: đã cài [Docker Desktop](https://www.docker.com/products/docker-desktop/) và đang chạy.
-
-### Chuẩn bị
-
-`backend/.env` phải tồn tại (xem mục 2) — Docker Compose đọc file này để cấu hình container. **Không cần sửa tay `DB_SERVER`** — `docker-compose.yml` đã tự động ghi đè `DB_SERVER=host.docker.internal` khi chạy container (mục `environment:` trong file, ghi đè lên giá trị `localhost` trong `.env`), nên `.env` cứ giữ nguyên `DB_SERVER=localhost` để dùng chung được cho cả `npm run dev` lẫn Docker.
-
-Lý do cần ghi đè: container Backend có "localhost" của riêng nó (là chính container đó), không phải máy Windows của bạn — nên không thể dùng `localhost` như lúc chạy `npm run dev` để trỏ tới SQL Server đang cài trên máy thật. `host.docker.internal` là tên DNS đặc biệt Docker Desktop cung cấp sẵn để container gọi ngược ra máy host — SQL Server của bạn vẫn chạy trên Windows như bình thường, không cần đóng gói vào container ở Sprint này.
-
-### Chạy thử
-
-Ở thư mục gốc dự án (`d:\cnpm\web`, nơi có file `docker-compose.yml`):
-
-```bash
-docker compose up --build
-```
-
-- Backend: `http://localhost:5000/api/health`, `http://localhost:5000/api-docs`
-- Frontend: `http://localhost:8080` (tự chuyển tới `http://localhost:8080/html/index.html`)
-
-Dừng: `Ctrl+C`, hoặc `docker compose down` để dọn container.
-
-### Nếu backend trong Docker không kết nối được SQL Server
-
-Dù đã đổi `DB_SERVER=host.docker.internal` đúng, **Windows Firewall vẫn có thể chặn** kết nối từ container tới SQL Server, vì với Firewall thì mạng ảo của Docker (WSL2) bị coi là một mạng khác, không phải "chính máy này" như lúc chạy `npm run dev` trực tiếp (loopback `localhost` được Firewall bỏ qua mặc định, còn kết nối từ container thì không).
-
-Cách kiểm tra/khắc phục: mở **Windows Defender Firewall with Advanced Security** → **Inbound Rules** → tìm rule cho SQL Server (port 1433) và **SQL Server Browser** (UDP 1434) → đảm bảo áp dụng cho cả profile **Private** (mạng Docker/WSL2 thường được xếp vào Private) → nếu chưa có rule, tạo mới cho phép TCP 1433 và UDP 1434 từ mọi nguồn nội bộ.
-
-### Cấu trúc Docker
-
-- `backend/Dockerfile` — image Node.js chạy `server.js`.
-- `frontend/Dockerfile` + `frontend/nginx.conf` — image Nginx phục vụ file tĩnh trong `frontend/html`, `frontend/css`, `frontend/js`.
-- `docker-compose.yml` (thư mục gốc) — chạy cả 2 container cùng lúc, backend expose cổng 5000, frontend expose cổng 8080.
-- **Chưa đóng gói Database** — đây là bản "nền tảng" theo đúng phạm vi Task 8 Sprint 1; Dockerize toàn bộ hệ thống kèm Database là việc của Sprint 3.
