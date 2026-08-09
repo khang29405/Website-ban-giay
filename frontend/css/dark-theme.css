@@ -121,6 +121,15 @@
     color: var(--color-text-muted);
 }
 
+:root[data-theme="dark"] .btn-danger-outline {
+    color: #ff8f87;
+}
+
+:root[data-theme="dark"] .btn-danger-outline:hover {
+    border-color: #ff8f87;
+    background-color: rgba(211, 47, 47, 0.18);
+}
+
 /* Toast - giu nguyen mau icon (da la mau dac, du tuong phan), chi doi nen/vien/chu cua than toast */
 :root[data-theme="dark"] .toast-error {
     background-color: #3a1f1d;

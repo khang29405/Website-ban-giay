@@ -368,6 +368,17 @@
     border-color: var(--color-ink);
 }
 
+.btn-danger-outline {
+    background: transparent;
+    color: #b3261e;
+    border-color: var(--color-border);
+}
+
+.btn-danger-outline:hover {
+    border-color: #b3261e;
+    background: #fdecea;
+}
+
 .btn-ghost {
     background: transparent;
     color: var(--color-ink);

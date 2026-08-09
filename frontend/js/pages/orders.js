@@ -163,13 +163,39 @@ async function openOrderDetailModal(id) {
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-ghost" onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Đóng</button>
+                ${
+                    order.TrangThai === "ChoXuLy"
+                        ? `<button type="button" class="btn btn-danger-outline" id="cancel-order-btn"><i class="fa-solid fa-ban"></i> Hủy đơn</button>`
+                        : ""
+                }
                 <button type="button" class="btn btn-outline" id="view-invoice-btn"><i class="fa-solid fa-file-invoice"></i> Xem hóa đơn</button>
                 <button type="button" class="btn btn-outline" id="print-invoice-btn"><i class="fa-solid fa-print"></i> In hóa đơn</button>
             </div>
-        `);
+        `, "modal-box-wide");
 
         document.getElementById("view-invoice-btn").addEventListener("click", () => viewInvoice(order));
         document.getElementById("print-invoice-btn").addEventListener("click", () => printInvoice(order));
+        const cancelBtn = document.getElementById("cancel-order-btn");
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", () => cancelMyOrder(order.MaDH));
+        }
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
+async function cancelMyOrder(maDH) {
+    const lyDoHuy = await showPrompt(`Nhập lý do hủy đơn ${formatId("DH", maDH, 5)}:`, {
+        placeholder: "VD: Đổi ý, không muốn mua nữa...",
+        okText: "Hủy đơn",
+    });
+    if (!lyDoHuy) return;
+
+    try {
+        await apiPatch(`/don-hang/${maDH}/huy`, { LyDoHuy: lyDoHuy });
+        closeModal();
+        showToast("Đã hủy đơn hàng", "success");
+        loadOrders();
     } catch (err) {
         showToast(err.message, "error");
     }

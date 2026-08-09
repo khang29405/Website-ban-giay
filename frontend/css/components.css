@@ -194,6 +194,7 @@
     position: sticky;
     bottom: -28px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 10px;
     margin: 20px -28px -28px;

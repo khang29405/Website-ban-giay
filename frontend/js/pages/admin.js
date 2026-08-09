@@ -598,6 +598,17 @@ const DON_HANG_STATUS_LABEL = {
     DaHuy: { text: "Đã hủy", cls: "cancelled" },
 };
 
+const NGUOI_HUY_VAITRO_LABEL = {
+    KhachHang: "Khách hàng",
+    NhanVien: "Nhân viên",
+    Admin: "Admin",
+};
+
+function nguoiHuyText(order) {
+    const vaiTro = NGUOI_HUY_VAITRO_LABEL[order.NguoiHuy] || order.NguoiHuy;
+    return order.TenNguoiHuy ? `${order.TenNguoiHuy} (${vaiTro})` : vaiTro;
+}
+
 let donHangList = [];
 let selectedDonHangStatus = "";
 let donHangMaDonQuery = "";
@@ -1105,6 +1116,11 @@ async function openAdminOrderDetail(id) {
             <h3>Đơn hàng ${formatId("DH", order.MaDH, 5)}</h3>
             <p class="order-detail-meta"><span>Khách hàng</span><strong>${escapeHtml(order.HoTen || "")} (${escapeHtml(order.Email || "")})</strong></p>
             <p class="order-detail-meta"><span>Trạng thái</span>${donHangStatusBadge(order.TrangThai)}</p>
+            ${
+                order.TrangThai === "DaHuy" && order.NguoiHuy
+                    ? `<p class="order-detail-meta"><span>Người hủy</span><strong>${escapeHtml(nguoiHuyText(order))}</strong></p>`
+                    : ""
+            }
             ${
                 order.TrangThai === "DaHuy" && order.LyDoHuy
                     ? `<p class="order-detail-meta"><span>Lý do hủy</span><strong>${escapeHtml(order.LyDoHuy)}</strong></p>`
