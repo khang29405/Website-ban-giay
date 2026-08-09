@@ -654,13 +654,47 @@ function renderPagination(container, pagination, onPageChange) {
 
     const { page, totalPages } = pagination;
     container.innerHTML = `
+        <button type="button" class="pagination-btn pagination-btn-edge" data-action="first" title="Trang đầu" ${page <= 1 ? "disabled" : ""}><i class="fa-solid fa-angles-left"></i></button>
         <button type="button" class="pagination-btn" data-action="prev" ${page <= 1 ? "disabled" : ""}><i class="fa-solid fa-chevron-left"></i> Trước</button>
-        <span class="pagination-info">Trang ${page} / ${totalPages}</span>
+        <span class="pagination-jump">
+            Trang <input type="number" class="pagination-page-input" data-action="jump-input" min="1" max="${totalPages}" value="${page}" inputmode="numeric">
+            / ${totalPages}
+        </span>
         <button type="button" class="pagination-btn" data-action="next" ${page >= totalPages ? "disabled" : ""}>Sau <i class="fa-solid fa-chevron-right"></i></button>
+        <button type="button" class="pagination-btn pagination-btn-edge" data-action="last" title="Trang cuối" ${page >= totalPages ? "disabled" : ""}><i class="fa-solid fa-angles-right"></i></button>
     `;
 
-    container.querySelector('[data-action="prev"]').addEventListener("click", () => onPageChange(page - 1));
-    container.querySelector('[data-action="next"]').addEventListener("click", () => onPageChange(page + 1));
+    const goToPage = (target) => {
+        const clamped = Math.min(Math.max(1, target), totalPages);
+        if (clamped !== page) onPageChange(clamped);
+    };
+
+    container.querySelector('[data-action="first"]').addEventListener("click", () => goToPage(1));
+    container.querySelector('[data-action="prev"]').addEventListener("click", () => goToPage(page - 1));
+    container.querySelector('[data-action="next"]').addEventListener("click", () => goToPage(page + 1));
+    container.querySelector('[data-action="last"]').addEventListener("click", () => goToPage(totalPages));
+
+    const jumpInput = container.querySelector('[data-action="jump-input"]');
+    const commitJump = () => {
+        const raw = parseInt(jumpInput.value, 10);
+        if (Number.isNaN(raw)) {
+            jumpInput.value = page;
+            return;
+        }
+        const clamped = Math.min(Math.max(1, raw), totalPages);
+        if (clamped === page) {
+            jumpInput.value = page;
+        } else {
+            onPageChange(clamped);
+        }
+    };
+    jumpInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            jumpInput.blur();
+        }
+    });
+    jumpInput.addEventListener("blur", commitJump);
 }
 
 // ============ Toast (thong bao khong chan thao tac) ============

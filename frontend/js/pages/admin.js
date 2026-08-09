@@ -228,10 +228,12 @@ async function loadSanPham() {
     sanPhamList = items;
     await loadStockSummary();
     renderSanPhamTable();
-    renderPagination(document.getElementById("san-pham-pagination"), pagination, (page) => {
+    const onSanPhamPageChange = (page) => {
         sanPhamPage = page;
         loadSanPham();
-    });
+    };
+    renderPagination(document.getElementById("san-pham-pagination-top"), pagination, onSanPhamPageChange);
+    renderPagination(document.getElementById("san-pham-pagination"), pagination, onSanPhamPageChange);
 }
 
 async function loadStockSummary() {
@@ -634,10 +636,12 @@ async function loadDonHang() {
     }
     donHangList = items;
     renderDonHangTable();
-    renderPagination(document.getElementById("don-hang-pagination"), pagination, (page) => {
+    const onDonHangPageChange = (page) => {
         donHangPage = page;
         loadDonHang();
-    });
+    };
+    renderPagination(document.getElementById("don-hang-pagination-top"), pagination, onDonHangPageChange);
+    renderPagination(document.getElementById("don-hang-pagination"), pagination, onDonHangPageChange);
 }
 
 // Goi rieng (khong phu thuoc tab Thong ke) de tab con cua Don hang luon co so luong,
@@ -739,7 +743,7 @@ async function loadThongKe() {
     allProducts.forEach((sp, i) => {
         variantLists[i].forEach((bt) => {
             if (bt.SoLuongTon < LOW_STOCK_THRESHOLD) {
-                lowStock.push({ TenSP: sp.TenSP, KichCo: bt.KichCo, MauSac: bt.MauSac, SoLuongTon: bt.SoLuongTon });
+                lowStock.push({ MaSP: sp.MaSP, TenSP: sp.TenSP, KichCo: bt.KichCo, MauSac: bt.MauSac, SoLuongTon: bt.SoLuongTon });
             }
         });
     });
@@ -826,7 +830,7 @@ function renderLowStockTable(lowStock) {
               .map(
                   (bt) => `
             <tr>
-                <td>${escapeHtml(bt.TenSP)}</td>
+                <td><a class="admin-table-product-link" href="product-detail.html?id=${bt.MaSP}" target="_blank" rel="noopener">${escapeHtml(bt.TenSP)}</a></td>
                 <td>${escapeHtml(bt.KichCo)}</td>
                 <td>${escapeHtml(bt.MauSac)}</td>
                 <td>${bt.SoLuongTon === 0 ? '<span class="admin-status off">Hết hàng</span>' : bt.SoLuongTon}</td>
@@ -1180,10 +1184,12 @@ async function loadLienHe() {
     }
     lienHeList = items;
     renderLienHeTable();
-    renderPagination(document.getElementById("lien-he-pagination"), pagination, (page) => {
+    const onLienHePageChange = (page) => {
         lienHePage = page;
         loadLienHe();
-    });
+    };
+    renderPagination(document.getElementById("lien-he-pagination-top"), pagination, onLienHePageChange);
+    renderPagination(document.getElementById("lien-he-pagination"), pagination, onLienHePageChange);
 }
 
 function renderLienHeTable() {
@@ -1334,17 +1340,30 @@ async function toggleKhoaTaiKhoan(id, newValue) {
 }
 
 // ============ Tabs ============
+const ADMIN_ACTIVE_TAB_KEY = "admin-active-tab";
+
+// Dung chung cho ca luc bam tab lan luc khoi phuc tab da luu sau khi reload trang.
+// Tra ve false neu tab khong ton tai hoac dang bi an (vd: nhan vien khong co quyen).
+function activateTab(tabName) {
+    const btn = document.querySelector(`.admin-tab[data-tab="${tabName}"]`);
+    if (!btn || btn.hidden) return false;
+
+    document.querySelectorAll(".admin-tab").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".admin-panel").forEach((p) => (p.hidden = true));
+    document.getElementById("panel-" + tabName).hidden = false;
+
+    if (tabName === "thong-ke") {
+        replayThongKe();
+    }
+    return true;
+}
+
 function initTabs() {
     document.querySelectorAll(".admin-tab").forEach((btn) => {
         btn.addEventListener("click", () => {
-            document.querySelectorAll(".admin-tab").forEach((b) => b.classList.remove("active"));
-            btn.classList.add("active");
-            document.querySelectorAll(".admin-panel").forEach((p) => (p.hidden = true));
-            document.getElementById("panel-" + btn.dataset.tab).hidden = false;
-
-            if (btn.dataset.tab === "thong-ke") {
-                replayThongKe();
-            }
+            activateTab(btn.dataset.tab);
+            localStorage.setItem(ADMIN_ACTIVE_TAB_KEY, btn.dataset.tab);
         });
     });
 }
@@ -1364,6 +1383,9 @@ if (isStaff) {
         document.querySelector('.admin-tab[data-tab="san-pham"]').classList.add("active");
         document.getElementById("panel-san-pham").hidden = false;
     }
+
+    const savedTab = localStorage.getItem(ADMIN_ACTIVE_TAB_KEY);
+    if (savedTab) activateTab(savedTab);
 
     document.getElementById("btn-add-danh-muc").addEventListener("click", () => openDanhMucForm());
     document.getElementById("btn-add-thuong-hieu").addEventListener("click", () => openThuongHieuForm());
