@@ -104,8 +104,11 @@ CREATE TABLE DON_HANG (
     PhuongThucTT    NVARCHAR(50)    NOT NULL DEFAULT 'COD', -- COD, ChuyenKhoan...
     TrangThai       NVARCHAR(50)    NOT NULL DEFAULT 'ChoXuLy', -- ChoXuLy, DangGiao, HoanThanh, DaHuy
     LyDoHuy         NVARCHAR(255)   NULL, -- chi co gia tri khi TrangThai = DaHuy, Admin nhap khi huy don
+    NguoiHuy        NVARCHAR(20)    NULL, -- KhachHang | NhanVien | Admin - chi co gia tri khi TrangThai = DaHuy, de biet vai tro cua nguoi huy don
+    NguoiHuyId      INT             NULL, -- MaND cua nguoi thuc hien huy (khach tu huy thi trung voi MaND o tren, nhan vien/admin huy thi la MaND cua nhan vien/admin do) - dung de hien ten nguoi huy
     NgayDat         DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
-    CONSTRAINT FK_DonHang_NguoiDung FOREIGN KEY (MaND) REFERENCES NGUOI_DUNG(MaND)
+    CONSTRAINT FK_DonHang_NguoiDung FOREIGN KEY (MaND) REFERENCES NGUOI_DUNG(MaND),
+    CONSTRAINT FK_DonHang_NguoiHuy FOREIGN KEY (NguoiHuyId) REFERENCES NGUOI_DUNG(MaND)
 );
 GO
 

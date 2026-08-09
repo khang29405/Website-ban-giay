@@ -56,6 +56,15 @@ const directOrderValidation = [
     ...createValidation,
 ];
 
+const cancelValidation = [
+    body("LyDoHuy")
+        .trim()
+        .notEmpty()
+        .withMessage("Vui lòng nhập lý do hủy đơn")
+        .isLength({ max: 255 })
+        .withMessage("Lý do hủy tối đa 255 ký tự"),
+];
+
 /**
  * @swagger
  * /don-hang:
@@ -322,6 +331,72 @@ router.get(
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/:id", verifyToken, idParamValidation, donHangController.getById);
+
+/**
+ * @swagger
+ * /don-hang/{id}/huy:
+ *   patch:
+ *     summary: Khach hang tu huy don cua chinh minh
+ *     description: >
+ *       Chi huy duoc don cua chinh minh, va chi khi don dang o trang thai "ChoXuLy" (chua duoc
+ *       Admin/NhanVien chuyen sang Dang giao). Tu dong hoan lai ton kho cho cac bien the trong don.
+ *       Neu don da Dang giao/Hoan thanh/Da huy, khach can lien he Nhan vien/Admin de xu ly.
+ *     tags: [DonHang]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *         description: MaDH
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [LyDoHuy]
+ *             properties:
+ *               LyDoHuy:
+ *                 type: string
+ *                 example: Đổi ý, không muốn mua nữa
+ *     responses:
+ *       200:
+ *         description: Huy don thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 data:
+ *                   $ref: '#/components/schemas/DonHang'
+ *       400:
+ *         description: Thieu ly do huy, hoac don khong con o trang thai ChoXuLy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Chua dang nhap
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Khong tim thay don hang (hoac khong phai don cua ban)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.patch(
+    "/:id/huy",
+    verifyToken,
+    [...idParamValidation, ...cancelValidation],
+    donHangController.cancelMyOrder
+);
 
 /**
  * @swagger

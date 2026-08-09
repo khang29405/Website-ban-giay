@@ -123,6 +123,9 @@ const options = {
                         PhuongThucTT: { type: "string", example: "COD" },
                         TrangThai: { type: "string", example: "ChoXuLy", enum: ["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"] },
                         LyDoHuy: { type: "string", nullable: true, example: "Khach hang doi y, khong muon mua nua", description: "Chi co gia tri khi TrangThai la DaHuy" },
+                        NguoiHuy: { type: "string", nullable: true, enum: ["KhachHang", "NhanVien", "Admin"], example: "KhachHang", description: "Vai tro cua nguoi huy don, chi co gia tri khi TrangThai la DaHuy" },
+                        NguoiHuyId: { type: "integer", nullable: true, example: 5, description: "MaND cua nguoi thuc hien huy, chi co gia tri khi TrangThai la DaHuy" },
+                        TenNguoiHuy: { type: "string", nullable: true, example: "Nguyen Van A", description: "Ho ten cua nguoi thuc hien huy (join tu NguoiHuyId), chi co gia tri khi TrangThai la DaHuy" },
                         NgayDat: { type: "string", format: "date-time" },
                         TongSoLuong: { type: "integer", nullable: true, example: 3, description: "Chi co trong GET /don-hang (danh sach), tong so luong san pham cua don" },
                         AnhXemTruoc: {

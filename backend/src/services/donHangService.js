@@ -65,7 +65,7 @@ async function getOrderById(maDH, maND, isAdmin) {
 
 const TRANG_THAI_HOP_LE = ["ChoXuLy", "DangGiao", "HoanThanh", "DaHuy"];
 
-async function updateStatus(maDH, trangThaiMoi, lyDoHuy) {
+async function updateStatus(maDH, trangThaiMoi, lyDoHuy, nguoiHuy, nguoiHuyId) {
     const order = await donHangModel.findById(maDH);
     if (!order) {
         throw httpError(404, "Không tìm thấy đơn hàng");
@@ -78,10 +78,28 @@ async function updateStatus(maDH, trangThaiMoi, lyDoHuy) {
         if (order.TrangThai !== "DaHuy") {
             await donHangModel.restoreStock(maDH);
         }
-        return donHangModel.updateTrangThai(maDH, trangThaiMoi, lyDoHuy.trim());
+        return donHangModel.updateTrangThai(maDH, trangThaiMoi, lyDoHuy.trim(), nguoiHuy, nguoiHuyId);
     }
 
-    return donHangModel.updateTrangThai(maDH, trangThaiMoi, null);
+    return donHangModel.updateTrangThai(maDH, trangThaiMoi, null, null, null);
+}
+
+// Khach hang tu huy don cua chinh minh - khac voi updateStatus (Admin/NhanVien) o cho
+// chi cho huy khi don con "ChoXuLy" (chua xu ly/chua giao), tranh khach huy don da giao/hoan thanh.
+async function cancelMyOrder(maND, maDH, lyDoHuy) {
+    const order = await donHangModel.findById(maDH);
+    if (!order || order.MaND !== maND) {
+        throw httpError(404, "Không tìm thấy đơn hàng");
+    }
+    if (order.TrangThai !== "ChoXuLy") {
+        throw httpError(400, "Chỉ có thể hủy đơn khi đơn đang ở trạng thái Chờ xử lý");
+    }
+    if (!lyDoHuy || !lyDoHuy.trim()) {
+        throw httpError(400, "Vui lòng nhập lý do hủy đơn");
+    }
+
+    await donHangModel.restoreStock(maDH);
+    return donHangModel.updateTrangThai(maDH, "DaHuy", lyDoHuy.trim(), "KhachHang", maND);
 }
 
 async function topSanPhamBanChay(limit) {
@@ -95,6 +113,7 @@ module.exports = {
     getAllOrders,
     getOrderById,
     updateStatus,
+    cancelMyOrder,
     TRANG_THAI_HOP_LE,
     topSanPhamBanChay,
 };

@@ -73,7 +73,20 @@ async function getById(req, res, next) {
 async function updateStatus(req, res, next) {
     try {
         handleValidation(req);
-        const order = await donHangService.updateStatus(req.params.id, req.body.TrangThai, req.body.LyDoHuy);
+        const isCancel = req.body.TrangThai === "DaHuy";
+        const nguoiHuy = isCancel ? req.user.vaiTro : null;
+        const nguoiHuyId = isCancel ? req.user.maND : null;
+        const order = await donHangService.updateStatus(req.params.id, req.body.TrangThai, req.body.LyDoHuy, nguoiHuy, nguoiHuyId);
+        res.json({ success: true, data: order });
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function cancelMyOrder(req, res, next) {
+    try {
+        handleValidation(req);
+        const order = await donHangService.cancelMyOrder(req.user.maND, req.params.id, req.body.LyDoHuy);
         res.json({ success: true, data: order });
     } catch (err) {
         next(err);
@@ -91,4 +104,4 @@ async function topSanPhamBanChay(req, res, next) {
     }
 }
 
-module.exports = { createOrder, createDirectOrder, getAll, getById, updateStatus, topSanPhamBanChay };
+module.exports = { createOrder, createDirectOrder, getAll, getById, updateStatus, cancelMyOrder, topSanPhamBanChay };

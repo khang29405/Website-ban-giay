@@ -6,9 +6,10 @@ async function findById(maDH) {
         .request()
         .input("MaDH", sql.Int, maDH)
         .query(`
-            SELECT dh.*, nd.HoTen, nd.Email
+            SELECT dh.*, nd.HoTen, nd.Email, nh.HoTen AS TenNguoiHuy
             FROM DON_HANG dh
             JOIN NGUOI_DUNG nd ON dh.MaND = nd.MaND
+            LEFT JOIN NGUOI_DUNG nh ON dh.NguoiHuyId = nh.MaND
             WHERE dh.MaDH = @MaDH
         `);
     const order = orderResult.recordset[0];
@@ -145,14 +146,18 @@ async function findAll({ trangThai, maDon, q, page, limit } = {}) {
     return { items, total, page: pageNum, limit: pageSize };
 }
 
-async function updateTrangThai(maDH, trangThai, lyDoHuy) {
+async function updateTrangThai(maDH, trangThai, lyDoHuy, nguoiHuy, nguoiHuyId) {
     const pool = await poolPromise;
     await pool
         .request()
         .input("MaDH", sql.Int, maDH)
         .input("TrangThai", sql.NVarChar(50), trangThai)
         .input("LyDoHuy", sql.NVarChar(255), lyDoHuy || null)
-        .query("UPDATE DON_HANG SET TrangThai = @TrangThai, LyDoHuy = @LyDoHuy WHERE MaDH = @MaDH");
+        .input("NguoiHuy", sql.NVarChar(20), nguoiHuy || null)
+        .input("NguoiHuyId", sql.Int, nguoiHuyId || null)
+        .query(
+            "UPDATE DON_HANG SET TrangThai = @TrangThai, LyDoHuy = @LyDoHuy, NguoiHuy = @NguoiHuy, NguoiHuyId = @NguoiHuyId WHERE MaDH = @MaDH"
+        );
     return findById(maDH);
 }
 
