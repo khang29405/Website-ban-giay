@@ -79,6 +79,12 @@
                         <div class="search-box">
                             <input type="text" id="san-pham-search-input" placeholder="Tìm theo tên sản phẩm...">
                         </div>
+                        <select id="san-pham-filter-danh-muc" class="filter-select">
+                            <option value="">Tất cả danh mục</option>
+                        </select>
+                        <select id="san-pham-filter-thuong-hieu" class="filter-select">
+                            <option value="">Tất cả thương hiệu</option>
+                        </select>
                         <button type="button" id="san-pham-search-btn" class="btn btn-outline"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
                     </div>
                     <div class="pagination pagination-top" id="san-pham-pagination-top"></div>
@@ -137,12 +143,14 @@
                         <button type="button" class="order-tab" data-vai-tro="NhanVien">Nhân viên</button>
                         <button type="button" class="order-tab" data-vai-tro="Admin">Admin</button>
                     </div>
+                    <div class="pagination pagination-top" id="tai-khoan-pagination-top"></div>
                     <table class="admin-table">
                         <thead>
                             <tr><th>ID</th><th>Họ tên</th><th>Email</th><th>Ngày tạo</th><th>Vai trò</th><th>Trạng thái</th><th></th></tr>
                         </thead>
                         <tbody id="table-tai-khoan-body"></tbody>
                     </table>
+                    <div class="pagination" id="tai-khoan-pagination"></div>
                 </section>
 
                 <section class="admin-panel" id="panel-thong-ke" hidden>
@@ -219,6 +227,12 @@
                 <section class="admin-panel" id="panel-lien-he" hidden>
                     <div class="admin-panel-header">
                         <h2>Tin nhắn liên hệ</h2>
+                    </div>
+                    <div class="admin-search-bar">
+                        <div class="search-box">
+                            <input type="text" id="lien-he-search-input" placeholder="Tìm theo họ tên, email hoặc nội dung...">
+                        </div>
+                        <button type="button" id="lien-he-search-btn" class="btn btn-outline"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
                     </div>
                     <div class="order-tabs" id="lien-he-tabs">
                         <button type="button" class="order-tab active" data-status="">Tất cả</button>

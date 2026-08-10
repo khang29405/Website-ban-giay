@@ -25,6 +25,7 @@ let editingVariantId = null;
 async function loadDanhMuc() {
     danhMucList = await apiGet("/danh-muc").catch(() => []);
     renderDanhMucTable();
+    populateSanPhamFilterSelects();
 }
 
 function renderDanhMucTable() {
@@ -118,6 +119,29 @@ async function deleteDanhMuc(id) {
 async function loadThuongHieu() {
     thuongHieuList = await apiGet("/thuong-hieu").catch(() => []);
     renderThuongHieuTable();
+    populateSanPhamFilterSelects();
+}
+
+// Dung chung boi loadDanhMuc/loadThuongHieu (goi doc lap, khong theo thu tu) de dien
+// option cho 2 select loc san pham theo danh muc/thuong hieu - idempotent, giu lai
+// gia tri dang chon (neu con hop le) khi goi lai.
+function populateSanPhamFilterSelects() {
+    const dmSelect = document.getElementById("san-pham-filter-danh-muc");
+    const thSelect = document.getElementById("san-pham-filter-thuong-hieu");
+    if (dmSelect) {
+        const current = dmSelect.value;
+        dmSelect.innerHTML =
+            `<option value="">Tất cả danh mục</option>` +
+            danhMucList.map((d) => `<option value="${d.MaDM}">${escapeHtml(d.TenDanhMuc)}</option>`).join("");
+        dmSelect.value = current;
+    }
+    if (thSelect) {
+        const current = thSelect.value;
+        thSelect.innerHTML =
+            `<option value="">Tất cả thương hiệu</option>` +
+            thuongHieuList.map((t) => `<option value="${t.MaTH}">${escapeHtml(t.TenThuongHieu)}</option>`).join("");
+        thSelect.value = current;
+    }
 }
 
 function renderThuongHieuTable() {
@@ -212,12 +236,16 @@ let stockByProduct = {};
 let sanPhamPage = 1;
 let sanPhamMaSpQuery = "";
 let sanPhamSearchQuery = "";
+let sanPhamDanhMucFilter = "";
+let sanPhamThuongHieuFilter = "";
 const SAN_PHAM_PAGE_SIZE = 10;
 
 async function loadSanPham() {
     const { items, pagination } = await apiGetPaged("/san-pham", {
         ten: sanPhamSearchQuery,
         maSp: sanPhamMaSpQuery,
+        danhMuc: sanPhamDanhMucFilter,
+        thuongHieu: sanPhamThuongHieuFilter,
         page: sanPhamPage,
         limit: SAN_PHAM_PAGE_SIZE,
     }).catch(() => ({ items: [], pagination: null }));
@@ -1151,6 +1179,7 @@ async function openAdminOrderDetail(id) {
 // ============ Tin nhắn liên hệ ============
 let lienHeList = [];
 let selectedLienHeStatus = "";
+let lienHeSearchQuery = "";
 let lienHePage = 1;
 const LIEN_HE_PAGE_SIZE = 10;
 
@@ -1189,6 +1218,7 @@ async function loadLienHe() {
     const [{ items, pagination }] = await Promise.all([
         apiGetPaged("/lien-he", {
             daXuLy: selectedLienHeStatus,
+            q: lienHeSearchQuery,
             page: lienHePage,
             limit: LIEN_HE_PAGE_SIZE,
         }).catch(() => ({ items: [], pagination: null })),
@@ -1249,6 +1279,8 @@ async function toggleLienHeXuLy(id, newValue) {
 let taiKhoanList = [];
 let selectedVaiTro = "";
 let taiKhoanSearchQuery = "";
+let taiKhoanPage = 1;
+const TAI_KHOAN_PAGE_SIZE = 10;
 
 const VAI_TRO_LABEL = { KhachHang: "Khách hàng", NhanVien: "Nhân viên", Admin: "Admin" };
 const TAI_KHOAN_TAB_BASE_LABEL = { "": "Tất cả", KhachHang: "Khách hàng", NhanVien: "Nhân viên", Admin: "Admin" };
@@ -1273,12 +1305,27 @@ async function updateTaiKhoanTabCounts() {
 }
 
 async function loadTaiKhoan() {
-    const [list] = await Promise.all([
-        apiGet("/nguoi-dung", { vaiTro: selectedVaiTro, q: taiKhoanSearchQuery }).catch(() => []),
+    const [{ items, pagination }] = await Promise.all([
+        apiGetPaged("/nguoi-dung", {
+            vaiTro: selectedVaiTro,
+            q: taiKhoanSearchQuery,
+            page: taiKhoanPage,
+            limit: TAI_KHOAN_PAGE_SIZE,
+        }).catch(() => ({ items: [], pagination: null })),
         updateTaiKhoanTabCounts(),
     ]);
-    taiKhoanList = list;
+    if (!items.length && taiKhoanPage > 1) {
+        taiKhoanPage -= 1;
+        return loadTaiKhoan();
+    }
+    taiKhoanList = items;
     renderTaiKhoanTable();
+    const onTaiKhoanPageChange = (page) => {
+        taiKhoanPage = page;
+        loadTaiKhoan();
+    };
+    renderPagination(document.getElementById("tai-khoan-pagination-top"), pagination, onTaiKhoanPageChange);
+    renderPagination(document.getElementById("tai-khoan-pagination"), pagination, onTaiKhoanPageChange);
 }
 
 function renderTaiKhoanTable() {
@@ -1435,6 +1482,23 @@ if (isStaff) {
         });
     }
 
+    const sanPhamDanhMucSelect = document.getElementById("san-pham-filter-danh-muc");
+    const sanPhamThuongHieuSelect = document.getElementById("san-pham-filter-thuong-hieu");
+    if (sanPhamDanhMucSelect) {
+        sanPhamDanhMucSelect.addEventListener("change", () => {
+            sanPhamDanhMucFilter = sanPhamDanhMucSelect.value;
+            sanPhamPage = 1;
+            loadSanPham();
+        });
+    }
+    if (sanPhamThuongHieuSelect) {
+        sanPhamThuongHieuSelect.addEventListener("change", () => {
+            sanPhamThuongHieuFilter = sanPhamThuongHieuSelect.value;
+            sanPhamPage = 1;
+            loadSanPham();
+        });
+    }
+
     const donHangMaDonInput = document.getElementById("don-hang-search-maDon");
     const donHangSearchInput = document.getElementById("don-hang-search-input");
     const donHangSearchBtn = document.getElementById("don-hang-search-btn");
@@ -1487,11 +1551,31 @@ if (isStaff) {
         });
     }
 
+    const lienHeSearchInput = document.getElementById("lien-he-search-input");
+    const lienHeSearchBtn = document.getElementById("lien-he-search-btn");
+    if (lienHeSearchInput && lienHeSearchBtn) {
+        const runLienHeSearch = () => {
+            lienHeSearchQuery = lienHeSearchInput.value.trim();
+            lienHePage = 1;
+            loadLienHe();
+        };
+        lienHeSearchBtn.addEventListener("click", runLienHeSearch);
+        const debouncedLienHeSearch = debounce(runLienHeSearch);
+        lienHeSearchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                runLienHeSearch();
+            }
+        });
+        lienHeSearchInput.addEventListener("input", debouncedLienHeSearch);
+    }
+
     const taiKhoanTabs = document.getElementById("tai-khoan-tabs");
     if (taiKhoanTabs) {
         taiKhoanTabs.querySelectorAll(".order-tab").forEach((tab) => {
             tab.addEventListener("click", () => {
                 selectedVaiTro = tab.dataset.vaiTro;
+                taiKhoanPage = 1;
                 taiKhoanTabs.querySelectorAll(".order-tab").forEach((t) => t.classList.toggle("active", t === tab));
                 loadTaiKhoan();
             });
@@ -1503,6 +1587,7 @@ if (isStaff) {
     if (taiKhoanSearchInput && taiKhoanSearchBtn) {
         const runTaiKhoanSearch = () => {
             taiKhoanSearchQuery = taiKhoanSearchInput.value.trim();
+            taiKhoanPage = 1;
             loadTaiKhoan();
         };
         taiKhoanSearchBtn.addEventListener("click", runTaiKhoanSearch);
