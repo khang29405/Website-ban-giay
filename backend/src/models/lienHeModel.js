@@ -21,13 +21,17 @@ async function findById(id) {
     return result.recordset[0] || null;
 }
 
-async function findAll({ daXuLy, page, limit } = {}) {
+async function findAll({ daXuLy, q, page, limit } = {}) {
     const pool = await poolPromise;
     const request = pool.request();
     const conditions = [];
     if (daXuLy !== undefined) {
         request.input("DaXuLy", sql.Bit, daXuLy === "true" || daXuLy === true);
         conditions.push("DaXuLy = @DaXuLy");
+    }
+    if (q) {
+        request.input("Q", sql.NVarChar(100), `%${q}%`);
+        conditions.push("(HoTen LIKE @Q OR Email LIKE @Q OR NoiDung LIKE @Q)");
     }
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 

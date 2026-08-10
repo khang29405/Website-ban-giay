@@ -11,6 +11,8 @@ const idParamValidation = [param("id").isInt({ min: 1 }).withMessage("ID không 
 const listValidation = [
     query("vaiTro").optional({ values: "falsy" }).isIn(["KhachHang", "NhanVien", "Admin"]).withMessage("vaiTro không hợp lệ"),
     query("q").optional({ values: "falsy" }).isString().trim().isLength({ max: 100 }).withMessage("Từ khóa tìm kiếm tối đa 100 ký tự"),
+    query("page").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("page phải là số nguyên dương"),
+    query("limit").optional({ values: "falsy" }).isInt({ min: 1, max: 100 }).withMessage("limit phải từ 1 đến 100"),
 ];
 
 const roleValidation = [
@@ -24,6 +26,9 @@ const lockValidation = [body("DaKhoa").isBoolean().withMessage("DaKhoa phải l�
  * /nguoi-dung:
  *   get:
  *     summary: Danh sach tai khoan nguoi dung (chi Admin)
+ *     description: >
+ *       Neu KHONG truyen page thi tra ve TOAN BO ket qua (mang, khong phan trang). Neu CO truyen page thi bat
+ *       buoc phan trang, response se co them truong `pagination`.
  *     tags: [NguoiDung]
  *     security:
  *       - bearerAuth: []
@@ -36,6 +41,12 @@ const lockValidation = [body("DaKhoa").isBoolean().withMessage("DaKhoa phải l�
  *         name: q
  *         schema: { type: string }
  *         description: Tim theo ho ten hoac email (khop mot phan)
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, minimum: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
  *     responses:
  *       200:
  *         description: Thanh cong
@@ -49,6 +60,8 @@ const lockValidation = [body("DaKhoa").isBoolean().withMessage("DaKhoa phải l�
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/NguoiDung'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
  *       401:
  *         description: Chua dang nhap
  *         content:

@@ -103,7 +103,7 @@ async function updatePasswordAndClearResetToken(maND, matKhauHash) {
         );
 }
 
-async function findAll({ vaiTro, q } = {}) {
+async function findAll({ vaiTro, q, page, limit } = {}) {
     const pool = await poolPromise;
     const request = pool.request();
     const conditions = [];
@@ -117,14 +117,30 @@ async function findAll({ vaiTro, q } = {}) {
         conditions.push("(HoTen LIKE @Q OR Email LIKE @Q)");
     }
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+    const selectCols = "MaND, HoTen, Email, SDT, DiaChi, VaiTro, NgayTao, DaKhoa";
 
+    if (!page) {
+        const result = await request.query(`
+            SELECT ${selectCols} FROM NGUOI_DUNG ${whereClause} ORDER BY MaND
+        `);
+        return result.recordset;
+    }
+
+    const pageNum = Math.max(1, Number(page) || 1);
+    const pageSize = Math.max(1, Number(limit) || 10);
+
+    const countResult = await request.query(`SELECT COUNT(*) AS Total FROM NGUOI_DUNG ${whereClause}`);
+    const total = countResult.recordset[0].Total;
+
+    request.input("Offset", sql.Int, (pageNum - 1) * pageSize);
+    request.input("PageSize", sql.Int, pageSize);
     const result = await request.query(`
-        SELECT MaND, HoTen, Email, SDT, DiaChi, VaiTro, NgayTao, DaKhoa
-        FROM NGUOI_DUNG
-        ${whereClause}
+        SELECT ${selectCols} FROM NGUOI_DUNG ${whereClause}
         ORDER BY MaND
+        OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
     `);
-    return result.recordset;
+
+    return { items: result.recordset, total, page: pageNum, limit: pageSize };
 }
 
 async function updateRole(maND, vaiTro) {

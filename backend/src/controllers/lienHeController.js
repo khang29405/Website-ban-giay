@@ -24,8 +24,8 @@ async function create(req, res, next) {
 async function getAll(req, res, next) {
     try {
         handleValidation(req);
-        const { daXuLy, page, limit } = req.query;
-        const result = await lienHeService.getAll({ daXuLy, page, limit });
+        const { daXuLy, q, page, limit } = req.query;
+        const result = await lienHeService.getAll({ daXuLy, q, page, limit });
 
         if (page) {
             res.json({

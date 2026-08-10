@@ -1,8 +1,8 @@
 const userModel = require("../models/userModel");
 const httpError = require("../utils/httpError");
 
-async function getAll({ vaiTro, q }) {
-    return userModel.findAll({ vaiTro, q });
+async function getAll({ vaiTro, q, page, limit }) {
+    return userModel.findAll({ vaiTro, q, page, limit });
 }
 
 async function updateRole(maND, vaiTro, nguoiThucHienId) {

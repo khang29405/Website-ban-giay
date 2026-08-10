@@ -21,6 +21,7 @@ const createValidation = [
 
 const listValidation = [
     query("daXuLy").optional({ values: "falsy" }).isBoolean().withMessage("daXuLy phải là true/false"),
+    query("q").optional({ values: "falsy" }).isString().trim().isLength({ max: 100 }).withMessage("Từ khóa tìm kiếm tối đa 100 ký tự"),
     query("page").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("page phải là số nguyên dương"),
     query("limit").optional({ values: "falsy" }).isInt({ min: 1, max: 100 }).withMessage("limit phải từ 1 đến 100"),
 ];
@@ -80,6 +81,10 @@ router.post("/", createValidation, lienHeController.create);
  *         name: daXuLy
  *         schema: { type: boolean }
  *         description: Loc theo trang thai da xu ly hay chua
+ *       - in: query
+ *         name: q
+ *         schema: { type: string }
+ *         description: Tim theo ho ten, email hoac noi dung (khop mot phan)
  *       - in: query
  *         name: page
  *         schema: { type: integer, minimum: 1 }

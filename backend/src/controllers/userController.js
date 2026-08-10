@@ -14,9 +14,23 @@ function handleValidation(req) {
 async function getAll(req, res, next) {
     try {
         handleValidation(req);
-        const { vaiTro, q } = req.query;
-        const users = await userService.getAll({ vaiTro, q });
-        res.json({ success: true, data: users });
+        const { vaiTro, q, page, limit } = req.query;
+        const result = await userService.getAll({ vaiTro, q, page, limit });
+
+        if (page) {
+            res.json({
+                success: true,
+                data: result.items,
+                pagination: {
+                    page: result.page,
+                    limit: result.limit,
+                    total: result.total,
+                    totalPages: Math.max(1, Math.ceil(result.total / result.limit)),
+                },
+            });
+        } else {
+            res.json({ success: true, data: result });
+        }
     } catch (err) {
         next(err);
     }
