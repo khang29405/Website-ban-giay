@@ -8,6 +8,10 @@ async function getAll(filters) {
     return sanPhamModel.findAll(filters);
 }
 
+async function getFeatured(limit) {
+    return sanPhamModel.findFeatured(limit);
+}
+
 async function getById(id, isAdmin) {
     const item = await sanPhamModel.findById(id);
     if (!item || (!item.TrangThai && !isAdmin)) {
@@ -66,4 +70,4 @@ async function remove(id) {
     }
 }
 
-module.exports = { getAll, getById, create, update, setTrangThai, remove };
+module.exports = { getAll, getFeatured, getById, create, update, setTrangThai, remove };

@@ -46,6 +46,16 @@ async function getAll(req, res, next) {
     }
 }
 
+async function getFeatured(req, res, next) {
+    try {
+        handleValidation(req);
+        const items = await sanPhamService.getFeatured(req.query.limit);
+        res.json({ success: true, data: items });
+    } catch (err) {
+        next(err);
+    }
+}
+
 async function getById(req, res, next) {
     try {
         handleValidation(req);
@@ -97,4 +107,4 @@ async function remove(req, res, next) {
     }
 }
 
-module.exports = { getAll, getById, create, update, setTrangThai, remove };
+module.exports = { getAll, getFeatured, getById, create, update, setTrangThai, remove };

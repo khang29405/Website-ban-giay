@@ -66,6 +66,40 @@ async function findAll({ ten, maSp, maDM, maTH, sapXep, chiHienThi, page, limit 
     return { items: result.recordset, total, page: pageNum, limit: pageSize };
 }
 
+// San pham noi bat cho trang chu: uu tien theo tong so luong da ban (chi tinh don
+// Hoan Thanh, dung logic voi thong ke Admin), neu chua du @Limit san pham tung ban
+// duoc thi bu them bang san pham moi nhat (NgayTao) de trang chu khong bi trong.
+async function findFeatured(limit = 8) {
+    const pool = await poolPromise;
+    const limitNum = Math.max(1, Number(limit) || 8);
+
+    const bestSelling = await pool.request().input("Limit", sql.Int, limitNum).query(`
+        SELECT TOP (@Limit) ${SELECT_COLUMNS}, SUM(ctdh.SoLuong) AS SoLuongDaBan
+        ${JOIN_CLAUSE}
+        JOIN BIEN_THE_SAN_PHAM bt ON bt.MaSP = sp.MaSP
+        JOIN CHI_TIET_DON_HANG ctdh ON ctdh.MaBienThe = bt.MaBienThe
+        JOIN DON_HANG dh ON dh.MaDH = ctdh.MaDH
+        WHERE dh.TrangThai = 'HoanThanh' AND sp.TrangThai = 1
+        GROUP BY sp.MaSP, sp.TenSP, sp.MoTa, sp.Gia, sp.HinhAnh, sp.TrangThai, sp.MaDM, dm.TenDanhMuc, sp.MaTH, th.TenThuongHieu, sp.NgayTao
+        ORDER BY SoLuongDaBan DESC
+    `);
+
+    let items = bestSelling.recordset;
+    if (items.length < limitNum) {
+        const remain = limitNum - items.length;
+        const have = items.map((r) => r.MaSP);
+        const excludeClause = have.length ? `AND sp.MaSP NOT IN (${have.join(",")})` : "";
+        const fallback = await pool.request().input("Limit", sql.Int, remain).query(`
+            SELECT TOP (@Limit) ${SELECT_COLUMNS}
+            ${JOIN_CLAUSE}
+            WHERE sp.TrangThai = 1 ${excludeClause}
+            ORDER BY sp.NgayTao DESC
+        `);
+        items = items.concat(fallback.recordset);
+    }
+    return items;
+}
+
 async function findById(id) {
     const pool = await poolPromise;
     const result = await pool
@@ -127,4 +161,4 @@ async function remove(id) {
     await pool.request().input("MaSP", sql.Int, id).query("DELETE FROM SAN_PHAM WHERE MaSP = @MaSP");
 }
 
-module.exports = { findAll, findById, create, update, updateTrangThai, remove };
+module.exports = { findAll, findFeatured, findById, create, update, updateTrangThai, remove };

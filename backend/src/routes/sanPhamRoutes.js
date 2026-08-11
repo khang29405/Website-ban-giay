@@ -107,6 +107,39 @@ const searchValidation = [
  */
 router.get("/", optionalAuth, searchValidation, sanPhamController.getAll);
 
+/**
+ * @swagger
+ * /san-pham/noi-bat:
+ *   get:
+ *     summary: San pham noi bat cho trang chu (Public)
+ *     description: >
+ *       Uu tien san pham co tong so luong ban ra nhieu nhat (chi tinh don o trang thai Hoan Thanh).
+ *       Neu chua du @limit san pham tung ban duoc thi bu them bang san pham moi nhat de khong bi
+ *       trong trang chu.
+ *     tags: [SanPham]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, minimum: 1, maximum: 50, default: 8 }
+ *     responses:
+ *       200:
+ *         description: Thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/SanPham'
+ */
+router.get(
+    "/noi-bat",
+    [query("limit").optional({ values: "falsy" }).isInt({ min: 1, max: 50 }).withMessage("limit phải từ 1 đến 50")],
+    sanPhamController.getFeatured
+);
 
 /**
  * @swagger
