@@ -14,7 +14,29 @@ const JOIN_CLAUSE = `
 const SORT_CLAUSES = {
     gia_tang: "ORDER BY sp.Gia ASC",
     gia_giam: "ORDER BY sp.Gia DESC",
+    moi_nhat: "ORDER BY sp.NgayTao DESC",
+    // Thu tu "ngau nhien" nhung on dinh trong 1 ngay: CHECKSUM(MaSP, ngay-hien-tai) cho
+    // ra 1 gia tri gia-ngau-nhien nhung KHONG doi neu goi lai nhieu lan cung ngay - nho
+    // vay phan trang (OFFSET/FETCH) khong bi trung/thieu san pham giua cac trang, va thu
+    // tu se doi khac vao ngay hom sau.
+    ngau_nhien: "ORDER BY CHECKSUM(sp.MaSP, CAST(GETDATE() AS DATE))",
+    // "ban_chay" can them JOIN rieng (SOLD_STATS_JOIN) nen khong nam trong map nay, xu ly
+    // rieng ben duoi.
 };
+
+// LEFT JOIN toi 1 subquery da GROUP BY san san theo MaSP (khong lam trung dong ket qua
+// chinh) de lay tong so luong da ban tu don Hoan Thanh - chi gan vao query khi sapXep la
+// "ban_chay", tranh ton chi phi JOIN cho cac truong hop sap xep khac.
+const SOLD_STATS_JOIN = `
+    LEFT JOIN (
+        SELECT bt.MaSP, SUM(ctdh.SoLuong) AS SoLuongDaBan
+        FROM CHI_TIET_DON_HANG ctdh
+        JOIN BIEN_THE_SAN_PHAM bt ON bt.MaBienThe = ctdh.MaBienThe
+        JOIN DON_HANG dh ON dh.MaDH = ctdh.MaDH
+        WHERE dh.TrangThai = 'HoanThanh'
+        GROUP BY bt.MaSP
+    ) soldStats ON soldStats.MaSP = sp.MaSP
+`;
 
 async function findAll({ ten, maSp, maDM, maTH, sapXep, chiHienThi, page, limit } = {}) {
     const pool = await poolPromise;
@@ -42,10 +64,14 @@ async function findAll({ ten, maSp, maDM, maTH, sapXep, chiHienThi, page, limit 
     }
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
-    const orderByClause = SORT_CLAUSES[sapXep] || "ORDER BY sp.MaSP";
+    const isBanChay = sapXep === "ban_chay";
+    const joinClause = isBanChay ? `${JOIN_CLAUSE} ${SOLD_STATS_JOIN}` : JOIN_CLAUSE;
+    const orderByClause = isBanChay
+        ? "ORDER BY ISNULL(soldStats.SoLuongDaBan, 0) DESC, sp.NgayTao DESC"
+        : SORT_CLAUSES[sapXep] || "ORDER BY sp.MaSP";
 
     if (!page) {
-        const result = await request.query(`SELECT ${SELECT_COLUMNS} ${JOIN_CLAUSE} ${whereClause} ${orderByClause}`);
+        const result = await request.query(`SELECT ${SELECT_COLUMNS} ${joinClause} ${whereClause} ${orderByClause}`);
         return result.recordset;
     }
 
@@ -59,7 +85,7 @@ async function findAll({ ten, maSp, maDM, maTH, sapXep, chiHienThi, page, limit 
     request.input("PageSize", sql.Int, pageSize);
     const result = await request.query(`
         SELECT ${SELECT_COLUMNS}
-        ${JOIN_CLAUSE} ${whereClause} ${orderByClause}
+        ${joinClause} ${whereClause} ${orderByClause}
         OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
     `);
 
@@ -81,7 +107,7 @@ async function findFeatured(limit = 8) {
         JOIN DON_HANG dh ON dh.MaDH = ctdh.MaDH
         WHERE dh.TrangThai = 'HoanThanh' AND sp.TrangThai = 1
         GROUP BY sp.MaSP, sp.TenSP, sp.MoTa, sp.Gia, sp.HinhAnh, sp.TrangThai, sp.MaDM, dm.TenDanhMuc, sp.MaTH, th.TenThuongHieu, sp.NgayTao
-        ORDER BY SoLuongDaBan DESC
+        ORDER BY SoLuongDaBan DESC, sp.NgayTao DESC
     `);
 
     let items = bestSelling.recordset;

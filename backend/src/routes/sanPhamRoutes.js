@@ -37,7 +37,10 @@ const searchValidation = [
         .withMessage("Mã sản phẩm tìm kiếm tối đa 20 ký tự"),
     query("danhMuc").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("danhMuc không hợp lệ"),
     query("thuongHieu").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("thuongHieu không hợp lệ"),
-    query("sapXep").optional({ values: "falsy" }).isIn(["gia_tang", "gia_giam"]).withMessage("sapXep không hợp lệ"),
+    query("sapXep")
+        .optional({ values: "falsy" })
+        .isIn(["gia_tang", "gia_giam", "moi_nhat", "ban_chay", "ngau_nhien"])
+        .withMessage("sapXep không hợp lệ"),
     query("page").optional({ values: "falsy" }).isInt({ min: 1 }).withMessage("page phải là số nguyên dương"),
     query("limit").optional({ values: "falsy" }).isInt({ min: 1, max: 100 }).withMessage("limit phải từ 1 đến 100"),
 ];
@@ -69,8 +72,13 @@ const searchValidation = [
  *         description: Loc theo MaTH
  *       - in: query
  *         name: sapXep
- *         schema: { type: string, enum: [gia_tang, gia_giam] }
- *         description: Sap xep theo gia tang dan hoac giam dan
+ *         schema: { type: string, enum: [gia_tang, gia_giam, moi_nhat, ban_chay, ngau_nhien] }
+ *         description: >
+ *           gia_tang/gia_giam: theo gia. moi_nhat: theo NgayTao giam dan. ban_chay: theo tong
+ *           so luong da ban tu don Hoan Thanh giam dan (san pham chua ban duoc xep cuoi).
+ *           ngau_nhien: thu tu xao tron nhung on dinh trong cung 1 ngay, doi tu tot sang ngay
+ *           hom sau - dung cho trang danh sach mac dinh de tranh luon hien san pham cu
+ *           nhat/moi nhat len dau.
  *       - in: query
  *         name: page
  *         schema: { type: integer, minimum: 1 }
