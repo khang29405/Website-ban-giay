@@ -13,7 +13,14 @@ let selectedCategory = urlParams.get("danhMuc") || "";
 let selectedBrand = urlParams.get("thuongHieu") || "";
 let selectedSort = "";
 let currentPage = 1;
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 16;
+
+const SORT_LABEL = {
+    moi_nhat: "Mới nhất",
+    ban_chay: "Bán chạy",
+    gia_tang: "Giá tăng dần",
+    gia_giam: "Giá giảm dần",
+};
 
 const FILTER_VISIBLE_LIMIT = 6;
 let categoryExpanded = false;
@@ -166,7 +173,7 @@ function renderActiveFilters() {
     }
     if (selectedSort) {
         chips.push({
-            label: selectedSort === "gia_tang" ? "Giá tăng dần" : "Giá giảm dần",
+            label: SORT_LABEL[selectedSort] || selectedSort,
             clear: () => (selectedSort = ""),
         });
     }
@@ -215,15 +222,13 @@ async function loadProducts() {
             ten: searchInput.value.trim(),
             danhMuc: selectedCategory,
             thuongHieu: selectedBrand,
-            sapXep: selectedSort,
+            // Chua chon sap xep gia thi mac dinh random (on dinh trong ngay) thay vi luon
+            // hien san pham cu nhat len dau theo MaSP.
+            sapXep: selectedSort || "ngau_nhien",
             page: currentPage,
             limit: PAGE_SIZE,
         });
         renderProducts(items);
-        renderPagination(document.getElementById("product-pagination-top"), pagination, (page) => {
-            currentPage = page;
-            loadProducts();
-        });
         renderPagination(document.getElementById("product-pagination"), pagination, (page) => {
             currentPage = page;
             loadProducts();

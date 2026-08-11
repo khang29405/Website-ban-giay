@@ -10,7 +10,7 @@ function formatCurrency(amount) {
 function isNewProduct(ngayTao) {
     if (!ngayTao) return false;
     const days = (Date.now() - new Date(ngayTao).getTime()) / (1000 * 60 * 60 * 24);
-    return days <= 14;
+    return days <= 7;
 }
 
 // Goi 1 lan luc vao trang (truoc khi render card) de biet san pham nao dang duoc

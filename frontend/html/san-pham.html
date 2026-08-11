@@ -26,9 +26,7 @@
                 <span>Sản phẩm</span>
             </nav>
 
-            <span class="eyebrow">Cửa hàng MyShoes</span>
-            <h1 class="section-title">Tất cả sản phẩm</h1>
-            <p class="section-subtitle">Chọn danh mục hoặc thương hiệu bên trái, hoặc tìm kiếm nhanh theo tên.</p>
+            <h1 class="section-title catalog-title">Tất cả sản phẩm</h1>
 
             <div class="catalog-layout">
                 <aside class="catalog-sidebar fade-in">
@@ -49,6 +47,8 @@
                         </div>
                         <button type="button" id="search-btn" class="btn btn-outline"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
                         <div class="sort-buttons">
+                            <button type="button" class="btn btn-ghost sort-btn" data-sort="moi_nhat"><i class="fa-solid fa-clock"></i> Mới nhất</button>
+                            <button type="button" class="btn btn-ghost sort-btn" data-sort="ban_chay"><i class="fa-solid fa-fire"></i> Bán chạy</button>
                             <button type="button" class="btn btn-ghost sort-btn" data-sort="gia_tang"><i class="fa-solid fa-arrow-up-short-wide"></i> Giá tăng dần</button>
                             <button type="button" class="btn btn-ghost sort-btn" data-sort="gia_giam"><i class="fa-solid fa-arrow-down-wide-short"></i> Giá giảm dần</button>
                         </div>
@@ -58,8 +58,6 @@
                         <span class="catalog-result-count" id="catalog-result-count"></span>
                         <div class="active-filters" id="active-filters"></div>
                     </div>
-
-                    <div class="pagination pagination-top" id="product-pagination-top"></div>
 
                     <div class="product-grid" id="product-grid">
                         <div class="empty-state"><strong>Đang tải sản phẩm...</strong></div>

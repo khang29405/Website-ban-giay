@@ -619,6 +619,20 @@
     gap: 20px;
 }
 
+/* Grid item mac dinh khong co the nho hon kich thuoc noi dung ben trong (min-width:
+   auto) - du track la 1fr, table dai van day rong ca o luoi thay vi de .stat-table-wrap
+   cuon ngang. Phai ep min-width: 0 thi overflow-x cua .stat-table-wrap moi co tac dung. */
+.stat-tables .stat-section {
+    min-width: 0;
+}
+
+/* "Top ban chay" va "Canh bao sap het hang" co nhieu cot/chu hon 2 bang doanh thu ben
+   tren, nen cho chiem tron chieu rong thay vi ep chung 1 hang - tranh phai cuon ngang
+   hoac vo dong ten san pham/mau sac. */
+.stat-section-full {
+    grid-column: 1 / -1;
+}
+
 @media (max-width: 800px) {
     .stat-tables {
         grid-template-columns: 1fr;
@@ -628,4 +642,14 @@
 .stat-section h3 {
     font-size: 1.05rem;
     margin-bottom: 4px;
+}
+
+/* Ten san pham dai (hoac nhieu cot) khong duoc lam vo bo cuc: bang chi cuon ngang
+   trong pham vi khung nay, khong day rong ca trang. */
+.stat-table-wrap {
+    overflow-x: auto;
+}
+
+.stat-table-wrap .admin-table th {
+    white-space: nowrap;
 }

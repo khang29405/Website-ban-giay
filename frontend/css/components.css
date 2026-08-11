@@ -992,14 +992,22 @@
 }
 
 /* Khoang cach dau trang cho khoi san pham (tranh dinh sat vao khoi phia tren) */
-#featured,
-#catalog {
+#featured {
     padding-top: 44px;
 }
 
-#catalog > .eyebrow {
-    display: block;
+/* #catalog dung khoang cach hep hon #featured vi trang nay can uu tien hien duoc
+   nhieu hang san pham ngay khi vao trang, khong can khoang tho rong nhu trang chu. */
+#catalog {
+    padding-top: 20px;
+}
+
+#catalog .breadcrumb {
     margin-bottom: 8px;
+}
+
+.catalog-title {
+    margin-bottom: 12px;
 }
 
 .featured-more {
@@ -1177,18 +1185,22 @@
     }
 }
 
-/* Catalog toolbar (search + sap xep) */
+/* Catalog toolbar (search + sap xep) - dinh (sticky) khi cuon de doi sap xep/tim kiem
+   ma khong phai cuon nguoc len dau trang */
 .catalog-toolbar {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     align-items: center;
-    margin-bottom: 32px;
-    padding: 16px;
+    margin-bottom: 14px;
+    padding: 12px 14px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
+    position: sticky;
+    top: 88px;
+    z-index: 5;
 }
 
 .sort-buttons {
@@ -1255,7 +1267,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 18px;
+    margin-bottom: 10px;
 }
 
 .catalog-result-count {
@@ -1335,9 +1347,12 @@
 }
 
 /* Trang danh sach san pham: co dinh 4 cot tren desktop (thay vi auto-fill de
-   khong bi lech con 3 cot do sidebar chiem cho), thu gon dan tren man nho hon. */
+   khong bi lech con 3 cot do sidebar chiem cho), thu gon dan tren man nho hon.
+   Gap hep hon (khong doi ty le anh - anh 4:3 lam card nhin thap/dep hon 1:1 vuong,
+   da thu lai theo phan hoi) de van con them chut khong gian cho hang san pham. */
 #catalog .product-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
 }
 
 @media (max-width: 860px) {
@@ -1520,7 +1535,7 @@
 }
 
 .product-badge.badge-new {
-    background: var(--color-accent);
+    background: var(--color-ink);
 }
 
 .product-card-body {

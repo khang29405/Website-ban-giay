@@ -34,11 +34,7 @@ function renderProducts(products) {
 async function loadFeaturedProducts() {
     renderSkeletonCards(8);
     try {
-        const [products] = await Promise.all([apiGet("/san-pham"), loadFavoriteIds()]);
-        const featured = products
-            .slice()
-            .sort((a, b) => new Date(b.NgayTao) - new Date(a.NgayTao))
-            .slice(0, 8);
+        const [featured] = await Promise.all([apiGet("/san-pham/noi-bat", { limit: 8 }), loadFavoriteIds()]);
         renderProducts(featured);
     } catch (err) {
         productGrid.innerHTML = `
