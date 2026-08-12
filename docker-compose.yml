@@ -59,6 +59,14 @@ services:
     depends_on:
       db-seed:
         condition: service_completed_successfully
+    healthcheck:
+      # Dung lai endpoint GET /api/health da co san (kiem tra ca ket noi DB). wget co san
+      # theo busybox trong image node:alpine, khong can cai them curl.
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
   frontend:
@@ -66,7 +74,8 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
