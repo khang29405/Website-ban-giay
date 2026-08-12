@@ -14,6 +14,12 @@ app.use(express.json());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// API thuan khong co giao dien - ai lo mo thang "/" thi dan sang Swagger thay vi
+// thay 404 tuong nham server hong.
+app.get("/", (req, res) => {
+    res.json({ success: true, message: "MyShoes API đang chạy", docs: "/api-docs", health: "/api/health" });
+});
+
 app.use("/api", routes);
 
 app.use((req, res) => {
