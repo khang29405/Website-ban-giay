@@ -15,11 +15,22 @@ const SORT_CLAUSES = {
     gia_tang: "ORDER BY sp.Gia ASC",
     gia_giam: "ORDER BY sp.Gia DESC",
     moi_nhat: "ORDER BY sp.NgayTao DESC",
-    // Thu tu "ngau nhien" nhung on dinh trong 1 ngay: CHECKSUM(MaSP, ngay-hien-tai) cho
+    // Thu tu "ngau nhien" nhung on dinh trong 1 ngay: hash(MaSP nam ngay-hien-tai) cho
     // ra 1 gia tri gia-ngau-nhien nhung KHONG doi neu goi lai nhieu lan cung ngay - nho
     // vay phan trang (OFFSET/FETCH) khong bi trung/thieu san pham giua cac trang, va thu
     // tu se doi khac vao ngay hom sau.
-    ngau_nhien: "ORDER BY CHECKSUM(sp.MaSP, CAST(GETDATE() AS DATE))",
+    // Luu y: da thu qua 2 cach lam gia tri "seed" ma khong dat avalanche (tuc 1 ky tu
+    // ngay doi la phai xao tron het ca thu tu), da kiem chung truc tiep tren SQL Server
+    // that (khong chi doan): (1) CHECKSUM(MaSP, date) voi nhieu tham so rieng le - tron
+    // bang XOR/rotate qua yeu, ngay hom nay va hom sau lech nhau 1 don vi thi checksum
+    // MOI DONG cung chi lech dung 1 don vi -> thu tu KHONG doi. (2) CHECKSUM(chuoi noi
+    // MaSP+ngay) - CHECKSUM tren 1 chuoi lai la ham bam da thuc theo VI TRI ky tu, nen
+    // khi MaSP cung so chu so (vd toan bo 2 chu so) thi ky tu ngay doi luon nam cung 1
+    // vi tri o moi dong -> tat ca dong bi CONG them CUNG 1 hang so -> thu tu van KHONG
+    // doi. Ca 2 cach deu bi loi y het nhau ma nguoi dung gap phai. Dung HASHBYTES('MD5')
+    // - bam thuc su (avalanche) thay vi CHECKSUM - moi dong se doi thu tu khac nhau,
+    // khong con lech dong deu, da kiem tra ket qua xao tron thuc su giua 2 ngay ke tiep.
+    ngau_nhien: "ORDER BY CONVERT(int, HASHBYTES('MD5', CONCAT(sp.MaSP, N'_', CONVERT(varchar(8), GETDATE(), 112))))",
     // "ban_chay" can them JOIN rieng (SOLD_STATS_JOIN) nen khong nam trong map nay, xu ly
     // rieng ben duoi.
 };
